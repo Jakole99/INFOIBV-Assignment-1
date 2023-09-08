@@ -6,112 +6,116 @@ namespace INFOIBV
 {
     public partial class INFOIBV : Form
     {
-        private Bitmap InputImage;
-        private Bitmap OutputImage;
+        private Bitmap _inputImage;
+        private Bitmap _outputImage;
 
         public INFOIBV()
         {
             InitializeComponent();
         }
-        
-        //loadButton_Click: process when user clicks "Load" button
+
+        /// <summary>
+        /// Process when the user clicks on the "Load" button
+        /// </summary>
         private void LoadImageButton_Click(object sender, EventArgs e)
         {
-           if (openImageDialog.ShowDialog() == DialogResult.OK)             // open file dialog
+            if (openImageDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            var file = openImageDialog.FileName;
+            imageFileName.Text = file;
+            _inputImage?.Dispose();
+            _inputImage = new Bitmap(file);
+
+            if (_inputImage.Size.Height <= 0 || _inputImage.Size.Width <= 0 ||
+                _inputImage.Size.Height > 512 || _inputImage.Size.Width > 512)
             {
-                string file = openImageDialog.FileName;                     // get the file name
-                imageFileName.Text = file;                                  // show file name
-                InputImage?.Dispose();               // reset image
-                InputImage = new Bitmap(file);                              // create new Bitmap from file
-                if (InputImage.Size.Height <= 0 || InputImage.Size.Width <= 0 ||
-                    InputImage.Size.Height > 512 || InputImage.Size.Width > 512) // dimension check (may be removed or altered)
-                    MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
-                else
-                    pictureBox1.Image = (Image) InputImage;                 // display input image
+                MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
+                return;
             }
+
+            pictureBox1.Image = _inputImage;
         }
 
 
-        /*
-         * applyButton_Click: process when user clicks "Apply" button
-         */
+        /// <summary>
+        /// Process when user clicks on the "Apply" button
+        /// </summary>
         private void ApplyButton_Click(object sender, EventArgs e)
         {
-            if (InputImage == null) // get out if no input image
+            if (_inputImage == null)
                 return;
 
-            OutputImage?.Dispose();                 // reset output image
-            OutputImage = new Bitmap(InputImage.Size.Width, InputImage.Size.Height); // create new output image
-            Color[,] Image = new Color[InputImage.Size.Width, InputImage.Size.Height]; // create array to speed-up operations (Bitmap functions are very slow)
+            _outputImage?.Dispose();
+            _outputImage = new Bitmap(_inputImage.Size.Width, _inputImage.Size.Height);
+            var Image = new Color[_inputImage.Size.Width, _inputImage.Size.Height];
 
-            // copy input Bitmap to array            
-            for (int x = 0; x < InputImage.Size.Width; x++)                 // loop over columns
-                for (int y = 0; y < InputImage.Size.Height; y++)            // loop over rows
-                    Image[x, y] = InputImage.GetPixel(x, y);                // set pixel color in array at (x,y)
+            // Copy input Bitmap to array            
+            for (int x = 0; x < _inputImage.Size.Width; x++)
+                for (int y = 0; y < _inputImage.Size.Height; y++)
+                    Image[x, y] = _inputImage.GetPixel(x, y);
 
             // ====================================================================
             // =================== YOUR FUNCTION CALLS GO HERE ====================
             // Alternatively you can create buttons to invoke certain functionality
             // ====================================================================
 
-            byte[,] workingImage = ConvertToGrayscale(Image);          // convert image to grayscale
+            var workingImage = ConvertToGrayscale(Image);
 
             // ==================== END OF YOUR FUNCTION CALLS ====================
             // ====================================================================
 
-            // copy array to output Bitmap
-            for (int x = 0; x < workingImage.GetLength(0); x++)             // loop over columns
-                for (int y = 0; y < workingImage.GetLength(1); y++)         // loop over rows
+            // Copy array to output Bitmap
+            for (int x = 0; x < workingImage.GetLength(0); x++) 
+                for (int y = 0; y < workingImage.GetLength(1); y++)
                 {
                     Color newColor = Color.FromArgb(workingImage[x, y], workingImage[x, y], workingImage[x, y]);
-                    OutputImage.SetPixel(x, y, newColor);                  // set the pixel color at coordinate (x,y)
+                    _outputImage.SetPixel(x, y, newColor);
                 }
-            
-            pictureBox2.Image = (Image)OutputImage;                         // display output image
+
+            pictureBox2.Image = _outputImage;
         }
 
-
-        /*
-         * saveButton_Click: process when user clicks "Save" button
-         */
+        /// <summary>
+        /// Process when the user clicks on the "Save" button
+        /// </summary>
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            if (OutputImage == null) // get out if no output image
+            if (_outputImage == null)
                 return;
 
             if (saveImageDialog.ShowDialog() == DialogResult.OK)
-                OutputImage.Save(saveImageDialog.FileName);                 // save the output image
+                _outputImage.Save(saveImageDialog.FileName);
         }
 
-
-        /*
-         * convertToGrayScale: convert a three-channel color image to a single channel grayscale image
-         * input:   inputImage          three-channel (Color) image
-         * output:                      single-channel (byte) image
-         */
+        /// <summary>
+        /// Convert a three-channel color image to a single channel grayscale image
+        /// </summary>
+        /// <param name="inputImage">Three-channel (Color) image</param>
+        /// <returns>Single-channel (byte) image</returns>
         private byte[,] ConvertToGrayscale(Color[,] inputImage)
         {
             // create temporary grayscale image of the same size as input, with a single channel
-            byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
 
             // setup progress bar
             progressBar.Visible = true;
             progressBar.Minimum = 1;
-            progressBar.Maximum = InputImage.Size.Width * InputImage.Size.Height;
+            progressBar.Maximum = _inputImage.Size.Width * _inputImage.Size.Height;
             progressBar.Value = 1;
             progressBar.Step = 1;
 
             // process all pixels in the image
-            for (int x = 0; x < InputImage.Size.Width; x++)                 // loop over columns
-                for (int y = 0; y < InputImage.Size.Height; y++)            // loop over rows
+            for (int x = 0; x < _inputImage.Size.Width; x++)
+                for (int y = 0; y < _inputImage.Size.Height; y++)
                 {
-                    Color pixelColor = inputImage[x, y];                    // get pixel color
-                    byte average = (byte)((pixelColor.R + pixelColor.B + pixelColor.G) / 3); // calculate average over the three channels
-                    tempImage[x, y] = average;                              // set the new pixel color at coordinate (x,y)
-                    progressBar.PerformStep();                              // increment progress bar
+                    var pixelColor = inputImage[x, y];
+                    var average = (byte)((pixelColor.R + pixelColor.B + pixelColor.G) / 3);
+                    tempImage[x, y] = average;
+                    progressBar.PerformStep();
                 }
 
-            progressBar.Visible = false;                                    // hide progress bar
+            progressBar.Visible = false;
 
             return tempImage;
         }
@@ -121,123 +125,117 @@ namespace INFOIBV
         // ============= YOUR FUNCTIONS FOR ASSIGNMENT 1 GO HERE ==============
         // ====================================================================
 
-        /*
-         * invertImage: invert a single channel (grayscale) image
-         * input:   inputImage          single-channel (byte) image
-         * output:                      single-channel (byte) image
-         */
+        /// <summary>
+        /// Invert a single channel (grayscale) image
+        /// </summary>
+        /// <param name="inputImage">single-channel (byte) image</param>
+        /// <returns>single-channel (byte) image</returns>
         private byte[,] InvertImage(byte[,] inputImage)
         {
             // create temporary grayscale image
-            byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
 
             // TODO: add your functionality and checks
 
             return tempImage;
         }
 
-
-        /*
-         * adjustContrast: create an image with the full range of intensity values used
-         * input:   inputImage          single-channel (byte) image
-         * output:                      single-channel (byte) image
-         */
+        /// <summary>
+        /// Create an image with the full range of intensity values used
+        /// </summary>
+        /// <param name="inputImage">single-channel (byte) image</param>
+        /// <returns>single-channel (byte) image</returns>
         private byte[,] AdjustContrast(byte[,] inputImage)
         {
             // create temporary grayscale image
-            byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
 
             // TODO: add your functionality and checks
 
             return tempImage;
         }
 
-
-        /*
-         * createGaussianFilter: create a Gaussian filter of specific square size and with a specified sigma
-         * input:   size                length and width of the Gaussian filter (only odd sizes)
-         *          sigma               standard deviation of the Gaussian distribution
-         * output:                      Gaussian filter
-         */
+        /// <summary>
+        /// Create a Gaussian filter of specific square size and with a specified sigma
+        /// </summary>
+        /// <param name="size">Length and width of the Gaussian filter (only odd sizes)</param>
+        /// <param name="sigma">Standard deviation of the Gaussian distribution</param>
+        /// <returns>Gaussian filter</returns>
         private float[,] CreateGaussianFilter(byte size, float sigma)
         {
             // create temporary grayscale image
-            float[,] filter = new float[size, size];
+            var filter = new float[size, size];
 
             // TODO: add your functionality and checks
 
             return filter;
         }
 
-
-        /*
-         * convolveImage: apply linear filtering of an input image
-         * input:   inputImage          single-channel (byte) image
-         *          filter              linear kernel
-         * output:                      single-channel (byte) image
-         */
+        /// <summary>
+        /// Apply linear filtering of an input image
+        /// </summary>
+        /// <param name="inputImage">Single-channel (byte) image</param>
+        /// <param name="filter">Linear kernel</param>
+        /// <returns>Single-channel (byte) image</returns>
         private byte[,] ConvolveImage(byte[,] inputImage, float[,] filter)
         {
             // create temporary grayscale image
-            byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
 
             // TODO: add your functionality and checks, think about border handling and type conversion
 
             return tempImage;
         }
 
-
-        /*
-         * medianFilter: apply median filtering on an input image with a kernel of specified size
-         * input:   inputImage          single-channel (byte) image
-         *          size                length/width of the median filter kernel
-         * output:                      single-channel (byte) image
-         */
+        /// <summary>
+        /// Apply median filtering on an input image with a kernel of specified size
+        /// </summary>
+        /// <param name="inputImage">Single-channel (byte) image</param>
+        /// <param name="size">Length/width of the median filter kernel</param>
+        /// <returns>Single-channel (byte) image</returns>
         private byte[,] MedianFilter(byte[,] inputImage, byte size)
         {
             // create temporary grayscale image
-            byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            var  tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
 
             // TODO: add your functionality and checks, think about border handling and type conversion
 
             return tempImage;
         }
 
-
-        /*
-         * edgeMagnitude: calculate the image derivative of an input image and a provided edge kernel
-         * input:   inputImage          single-channel (byte) image
-         *          horizontalKernel    horizontal edge kernel
-         *          virticalKernel      vertical edge kernel
-         * output:                      single-channel (byte) image
-         */
+        /// <summary>
+        /// Calculate the image derivative of an input image and a provided edge kernel
+        /// </summary>
+        /// <param name="inputImage">Single-channel (byte) image</param>
+        /// <param name="horizontalKernel">Horizontal edge kernel</param>
+        /// <param name="verticalKernel">Vertical edge kernel</param>
+        /// <returns>Single-channel (byte) image</returns>
         private byte[,] EdgeMagnitude(byte[,] inputImage, sbyte[,] horizontalKernel, sbyte[,] verticalKernel)
         {
             // create temporary grayscale image
-            byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
 
             // TODO: add your functionality and checks, think about border handling and type conversion (negative values!)
 
             return tempImage;
         }
 
-
-        /*
-         * thresholdImage: threshold a grayscale image
-         * input:   inputImage          single-channel (byte) image
-         * output:                      single-channel (byte) image with on/off values
-         */
+        /// <summary>
+        /// Threshold a grayscale image
+        /// </summary>
+        /// <param name="inputImage">Single-channel (byte) image</param>
+        /// <returns>Single-channel (byte) image with on/off values</returns>
         private byte[,] ThresholdImage(byte[,] inputImage)
         {
             // create temporary grayscale image
-            byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
 
             // TODO: add your functionality and checks, think about how to represent the binary values
 
             return tempImage;
         }
 
-        
+
         // ====================================================================
         // ============= YOUR FUNCTIONS FOR ASSIGNMENT 2 GO HERE ==============
         // ====================================================================
