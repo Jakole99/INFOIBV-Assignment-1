@@ -12,6 +12,44 @@ namespace INFOIBV
         public INFOIBV()
         {
             InitializeComponent();
+            cbFilter.DataSource = Enum.GetValues(typeof(Filter));
+
+            SetInputImage(new Bitmap("images/lena_color.jpg"));
+        }
+
+        /// <summary>
+        /// Type of filters to perform on an image
+        /// </summary>
+        public enum Filter
+        {
+            None,
+            GrayScale,
+            Invert,
+            AdjustContrast,
+            Gaussian,
+            Convolve,
+            Median,
+            EdgeMagnitude,
+            Threshold
+        }
+
+        /// <summary>
+        /// Checks, sets and displays the input image
+        /// </summary>
+        /// <param name="value">Bitmap to display</param>
+        private void SetInputImage(Bitmap value)
+        {
+            if (value.Size.Height <= 0 || value.Size.Width <= 0 ||
+                value.Size.Height > 512 || value.Size.Width > 512)
+            {
+                MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
+                return;
+            }
+
+            _inputImage?.Dispose();
+            _inputImage = value;
+
+            inputImageBox.Image = _inputImage;
         }
 
         /// <summary>
@@ -24,19 +62,9 @@ namespace INFOIBV
 
             var file = openImageDialog.FileName;
             imageFileName.Text = file;
-            _inputImage?.Dispose();
-            _inputImage = new Bitmap(file);
 
-            if (_inputImage.Size.Height <= 0 || _inputImage.Size.Width <= 0 ||
-                _inputImage.Size.Height > 512 || _inputImage.Size.Width > 512)
-            {
-                MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
-                return;
-            }
-
-            pictureBox1.Image = _inputImage;
+            SetInputImage(new Bitmap(file));
         }
-
 
         /// <summary>
         /// Process when user clicks on the "Apply" button
@@ -60,7 +88,16 @@ namespace INFOIBV
             // Alternatively you can create buttons to invoke certain functionality
             // ====================================================================
 
-            var workingImage = ConvertToGrayscale(Image);
+            if (!Enum.TryParse<Filter>(cbFilter.SelectedValue.ToString(), out var filter))
+                return;
+
+            if (filter == Filter.None)
+            {
+                MessageBox.Show("Please specify a filter");
+                return;
+            }
+
+            var workingImage = ApplyFilter(filter, Image);
 
             // ==================== END OF YOUR FUNCTION CALLS ====================
             // ====================================================================
@@ -73,7 +110,27 @@ namespace INFOIBV
                     _outputImage.SetPixel(x, y, newColor);
                 }
 
-            pictureBox2.Image = _outputImage;
+            outputImageBox.Image = _outputImage;
+        }
+
+        /// <summary>
+        /// Applies a specified filter
+        /// </summary>
+        /// <param name="filter">Type of filter</param>
+        /// <param name="image">Three-channel image</param>
+        /// <returns>One-channel image</returns>
+        private byte[,] ApplyFilter(Filter filter, Color[,] image)
+        {
+            switch (filter)
+            {
+                case Filter.GrayScale:
+                    return ConvertToGrayscale(image);
+                case Filter.Invert:
+                    var grayscale = ConvertToGrayscale(image);
+                    return InvertImage(grayscale);
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -132,12 +189,24 @@ namespace INFOIBV
         /// <returns>single-channel (byte) image</returns>
         private byte[,] InvertImage(byte[,] inputImage)
         {
-            // create temporary grayscale image
-            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            // setup progress bar
+            progressBar.Visible = true;
+            progressBar.Minimum = 1;
+            progressBar.Maximum = _inputImage.Size.Width * _inputImage.Size.Height;
+            progressBar.Value = 1;
+            progressBar.Step = 1;
 
-            // TODO: add your functionality and checks
+            // process all pixels in the image
+            for (int x = 0; x < _inputImage.Size.Width; x++)
+                for (int y = 0; y < _inputImage.Size.Height; y++)
+                {
+                    inputImage[x, y] = (byte)(255 - inputImage[x, y]);
+                    progressBar.PerformStep();
+                }
 
-            return tempImage;
+            progressBar.Visible = false;
+
+            return inputImage;
         }
 
         /// <summary>
@@ -245,5 +314,31 @@ namespace INFOIBV
         // ============= YOUR FUNCTIONS FOR ASSIGNMENT 3 GO HERE ==============
         // ====================================================================
 
+    }
+}
+
+/// <summary>
+/// TODO: Remove later
+/// </summary>
+class Builder
+{
+    private Builder() { }
+
+    private string _text;
+
+    public static Builder CreateBuilder()
+    {
+        return new Builder();
+    }
+
+    public Builder Add(string text)
+    {
+        _text += text;
+        return this;
+    }
+
+    public string Build()
+    {
+        return _text;
     }
 }
