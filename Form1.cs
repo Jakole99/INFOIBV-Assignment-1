@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.IO;
 
 namespace INFOIBV
 {
@@ -19,17 +13,15 @@ namespace INFOIBV
         {
             InitializeComponent();
         }
-
-        /*
-         * loadButton_Click: process when user clicks "Load" button
-         */
-        private void loadImageButton_Click(object sender, EventArgs e)
+        
+        //loadButton_Click: process when user clicks "Load" button
+        private void LoadImageButton_Click(object sender, EventArgs e)
         {
            if (openImageDialog.ShowDialog() == DialogResult.OK)             // open file dialog
             {
                 string file = openImageDialog.FileName;                     // get the file name
                 imageFileName.Text = file;                                  // show file name
-                if (InputImage != null) InputImage.Dispose();               // reset image
+                InputImage?.Dispose();               // reset image
                 InputImage = new Bitmap(file);                              // create new Bitmap from file
                 if (InputImage.Size.Height <= 0 || InputImage.Size.Width <= 0 ||
                     InputImage.Size.Height > 512 || InputImage.Size.Width > 512) // dimension check (may be removed or altered)
@@ -43,10 +35,12 @@ namespace INFOIBV
         /*
          * applyButton_Click: process when user clicks "Apply" button
          */
-        private void applyButton_Click(object sender, EventArgs e)
+        private void ApplyButton_Click(object sender, EventArgs e)
         {
-            if (InputImage == null) return;                                 // get out if no input image
-            if (OutputImage != null) OutputImage.Dispose();                 // reset output image
+            if (InputImage == null) // get out if no input image
+                return;
+
+            OutputImage?.Dispose();                 // reset output image
             OutputImage = new Bitmap(InputImage.Size.Width, InputImage.Size.Height); // create new output image
             Color[,] Image = new Color[InputImage.Size.Width, InputImage.Size.Height]; // create array to speed-up operations (Bitmap functions are very slow)
 
@@ -60,7 +54,7 @@ namespace INFOIBV
             // Alternatively you can create buttons to invoke certain functionality
             // ====================================================================
 
-            byte[,] workingImage = convertToGrayscale(Image);          // convert image to grayscale
+            byte[,] workingImage = ConvertToGrayscale(Image);          // convert image to grayscale
 
             // ==================== END OF YOUR FUNCTION CALLS ====================
             // ====================================================================
@@ -80,9 +74,11 @@ namespace INFOIBV
         /*
          * saveButton_Click: process when user clicks "Save" button
          */
-        private void saveButton_Click(object sender, EventArgs e)
+        private void SaveButton_Click(object sender, EventArgs e)
         {
-            if (OutputImage == null) return;                                // get out if no output image
+            if (OutputImage == null) // get out if no output image
+                return;
+
             if (saveImageDialog.ShowDialog() == DialogResult.OK)
                 OutputImage.Save(saveImageDialog.FileName);                 // save the output image
         }
@@ -93,7 +89,7 @@ namespace INFOIBV
          * input:   inputImage          three-channel (Color) image
          * output:                      single-channel (byte) image
          */
-        private byte[,] convertToGrayscale(Color[,] inputImage)
+        private byte[,] ConvertToGrayscale(Color[,] inputImage)
         {
             // create temporary grayscale image of the same size as input, with a single channel
             byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
@@ -130,7 +126,7 @@ namespace INFOIBV
          * input:   inputImage          single-channel (byte) image
          * output:                      single-channel (byte) image
          */
-        private byte[,] invertImage(byte[,] inputImage)
+        private byte[,] InvertImage(byte[,] inputImage)
         {
             // create temporary grayscale image
             byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
@@ -146,7 +142,7 @@ namespace INFOIBV
          * input:   inputImage          single-channel (byte) image
          * output:                      single-channel (byte) image
          */
-        private byte[,] adjustContrast(byte[,] inputImage)
+        private byte[,] AdjustContrast(byte[,] inputImage)
         {
             // create temporary grayscale image
             byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
@@ -163,7 +159,7 @@ namespace INFOIBV
          *          sigma               standard deviation of the Gaussian distribution
          * output:                      Gaussian filter
          */
-        private float[,] createGaussianFilter(byte size, float sigma)
+        private float[,] CreateGaussianFilter(byte size, float sigma)
         {
             // create temporary grayscale image
             float[,] filter = new float[size, size];
@@ -180,7 +176,7 @@ namespace INFOIBV
          *          filter              linear kernel
          * output:                      single-channel (byte) image
          */
-        private byte[,] convolveImage(byte[,] inputImage, float[,] filter)
+        private byte[,] ConvolveImage(byte[,] inputImage, float[,] filter)
         {
             // create temporary grayscale image
             byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
@@ -197,7 +193,7 @@ namespace INFOIBV
          *          size                length/width of the median filter kernel
          * output:                      single-channel (byte) image
          */
-        private byte[,] medianFilter(byte[,] inputImage, byte size)
+        private byte[,] MedianFilter(byte[,] inputImage, byte size)
         {
             // create temporary grayscale image
             byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
@@ -215,7 +211,7 @@ namespace INFOIBV
          *          virticalKernel      vertical edge kernel
          * output:                      single-channel (byte) image
          */
-        private byte[,] edgeMagnitude(byte[,] inputImage, sbyte[,] horizontalKernel, sbyte[,] verticalKernel)
+        private byte[,] EdgeMagnitude(byte[,] inputImage, sbyte[,] horizontalKernel, sbyte[,] verticalKernel)
         {
             // create temporary grayscale image
             byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
@@ -231,7 +227,7 @@ namespace INFOIBV
          * input:   inputImage          single-channel (byte) image
          * output:                      single-channel (byte) image with on/off values
          */
-        private byte[,] thresholdImage(byte[,] inputImage)
+        private byte[,] ThresholdImage(byte[,] inputImage)
         {
             // create temporary grayscale image
             byte[,] tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
