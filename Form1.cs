@@ -124,13 +124,16 @@ namespace INFOIBV
         /// <returns>One-channel image</returns>
         private byte[,] ApplyFilter(Filter filter, Color[,] image)
         {
+            var grayscale = ConvertToGrayscale(image);
+
             switch (filter)
             {
                 case Filter.GrayScale:
                     return ConvertToGrayscale(image);
                 case Filter.Invert:
-                    var grayscale = ConvertToGrayscale(image);
                     return InvertImage(grayscale);
+                case Filter.AdjustContrast:
+                    return AdjustContrast(grayscale);
                 default:
                     throw new NotImplementedException();
             }
@@ -219,12 +222,35 @@ namespace INFOIBV
         /// <returns>single-channel (byte) image</returns>
         private byte[,] AdjustContrast(byte[,] inputImage)
         {
-            // create temporary grayscale image
-            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
 
-            // TODO: add your functionality and checks
+            // setup progress bar
+            progressBar.Visible = true;
+            progressBar.Minimum = 1;
+            progressBar.Maximum = _inputImage.Size.Width * _inputImage.Size.Height;
+            progressBar.Value = 1;
+            progressBar.Step = 1;
 
-            return tempImage;
+            int aHigh = inputImage.Cast<byte>().Max();
+            int aLow = inputImage.Cast<byte>().Min();
+
+
+
+            // process all pixels in the image
+            for (int x = 0; x < _inputImage.Size.Width; x++)
+                for (int y = 0; y < _inputImage.Size.Height; y++)
+                { 
+                    inputImage[x, y] = ContrastAdjustmentFunction(aHigh, aLow, inputImage[x, y]);
+                    progressBar.PerformStep();
+                }
+
+            progressBar.Visible = false;
+
+            return inputImage;
+        }
+
+        public byte ContrastAdjustmentFunction(int aHigh, int aLow, byte pixelIntensity)
+        {
+            return (byte)(0 + (pixelIntensity - aLow) * (255 - 0) / (aHigh - aLow));
         }
 
         /// <summary>
