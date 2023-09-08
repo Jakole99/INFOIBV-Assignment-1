@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -10,7 +8,6 @@ namespace INFOIBV
     public partial class INFOIBV : Form
     {
         private Bitmap _inputImage;
-        private Bitmap _outputImage;
 
         public INFOIBV()
         {
@@ -77,20 +74,6 @@ namespace INFOIBV
             if (_inputImage == null)
                 return;
 
-            _outputImage?.Dispose();
-            _outputImage = new Bitmap(_inputImage.Size.Width, _inputImage.Size.Height);
-            var Image = new Color[_inputImage.Size.Width, _inputImage.Size.Height];
-
-            // Copy input Bitmap to array            
-            for (int x = 0; x < _inputImage.Size.Width; x++)
-                for (int y = 0; y < _inputImage.Size.Height; y++)
-                    Image[x, y] = _inputImage.GetPixel(x, y);
-
-            // ====================================================================
-            // =================== YOUR FUNCTION CALLS GO HERE ====================
-            // Alternatively you can create buttons to invoke certain functionality
-            // ====================================================================
-
             if (!Enum.TryParse<Filter>(cbFilter.SelectedValue.ToString(), out var filter))
                 return;
 
@@ -100,20 +83,8 @@ namespace INFOIBV
                 return;
             }
 
-            var workingImage = ApplyFilter(filter, Image);
-
-            // ==================== END OF YOUR FUNCTION CALLS ====================
-            // ====================================================================
-
-            // Copy array to output Bitmap
-            for (int x = 0; x < workingImage.GetLength(0); x++) 
-                for (int y = 0; y < workingImage.GetLength(1); y++)
-                {
-                    Color newColor = Color.FromArgb(workingImage[x, y], workingImage[x, y], workingImage[x, y]);
-                    _outputImage.SetPixel(x, y, newColor);
-                }
-
-            outputImageBox.Image = _outputImage;
+            outputImageBox.Image?.Dispose();
+            outputImageBox.Image = ApplyFilter(filter, _inputImage);
         }
 
         /// <summary>
@@ -122,18 +93,23 @@ namespace INFOIBV
         /// <param name="filter">Type of filter</param>
         /// <param name="image">Three-channel image</param>
         /// <returns>One-channel image</returns>
-        private byte[,] ApplyFilter(Filter filter, Color[,] image)
+        private Bitmap ApplyFilter(Filter filter, Bitmap image)
         {
-            var grayscale = ConvertToGrayscale(image);
-
             switch (filter)
             {
                 case Filter.GrayScale:
-                    return ConvertToGrayscale(image);
+                    return new PipeLine()
+                        .Build(image);
+
                 case Filter.Invert:
-                    return InvertImage(grayscale);
+                    return new PipeLine()
+                        .AddFilter(InvertImage)
+                        .Build(image);
+
                 case Filter.AdjustContrast:
-                    return AdjustContrast(grayscale);
+                    return new PipeLine()
+                        .AddFilter(AdjustContrast)
+                        .Build(image);
                 default:
                     throw new NotImplementedException();
             }
@@ -144,45 +120,12 @@ namespace INFOIBV
         /// </summary>
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            if (_outputImage == null)
+            if (outputImageBox.Image == null)
                 return;
 
             if (saveImageDialog.ShowDialog() == DialogResult.OK)
-                _outputImage.Save(saveImageDialog.FileName);
+                outputImageBox.Image.Save(saveImageDialog.FileName);
         }
-
-        /// <summary>
-        /// Convert a three-channel color image to a single channel grayscale image
-        /// </summary>
-        /// <param name="inputImage">Three-channel (Color) image</param>
-        /// <returns>Single-channel (byte) image</returns>
-        private byte[,] ConvertToGrayscale(Color[,] inputImage)
-        {
-            // create temporary grayscale image of the same size as input, with a single channel
-            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
-
-            // setup progress bar
-            progressBar.Visible = true;
-            progressBar.Minimum = 1;
-            progressBar.Maximum = _inputImage.Size.Width * _inputImage.Size.Height;
-            progressBar.Value = 1;
-            progressBar.Step = 1;
-
-            // process all pixels in the image
-            for (int x = 0; x < _inputImage.Size.Width; x++)
-                for (int y = 0; y < _inputImage.Size.Height; y++)
-                {
-                    var pixelColor = inputImage[x, y];
-                    var average = (byte)((pixelColor.R + pixelColor.B + pixelColor.G) / 3);
-                    tempImage[x, y] = average;
-                    progressBar.PerformStep();
-                }
-
-            progressBar.Visible = false;
-
-            return tempImage;
-        }
-
 
         // ====================================================================
         // ============= YOUR FUNCTIONS FOR ASSIGNMENT 1 GO HERE ==============
@@ -222,7 +165,6 @@ namespace INFOIBV
         /// <returns>single-channel (byte) image</returns>
         private byte[,] AdjustContrast(byte[,] inputImage)
         {
-
             // setup progress bar
             progressBar.Visible = true;
             progressBar.Minimum = 1;
@@ -248,7 +190,7 @@ namespace INFOIBV
             return inputImage;
         }
 
-        public byte ContrastAdjustmentFunction(int aHigh, int aLow, byte pixelIntensity)
+        private byte ContrastAdjustmentFunction(int aHigh, int aLow, byte pixelIntensity)
         {
             return (byte)(0 + (pixelIntensity - aLow) * (255 - 0) / (aHigh - aLow));
         }
@@ -344,44 +286,4 @@ namespace INFOIBV
         // ====================================================================
 
     }
-}
-
-/// <summary>
-/// Pipeline for bitmap conversion using filters
-/// </summary>
-public sealed class PipeLine
-{
-    private readonly Queue<IFilter> _filters;
-
-    public PipeLine AddFilter(IFilter filter)
-    {
-        _filters.Enqueue(filter);
-        return this;
-    }
-
-    public Bitmap Build(Bitmap image)
-    {
-        var tempImage = new byte[0, 0];
-
-        //TODO: Convert to color array
-
-        while (_filters.Count > 0)
-        {
-
-        }
-
-        return new Bitmap(0, 0);
-    }
-}
-
-public interface IFilter
-{
-    ImageData Convert(ImageData inputImage);
-}
-
-public class ImageData
-{
-    public Color[,] Colors { get; set; }
-
-    public byte[,] GrayScale { get; set; }
 }
