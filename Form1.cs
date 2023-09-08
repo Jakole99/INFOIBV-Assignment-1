@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace INFOIBV
@@ -318,27 +321,41 @@ namespace INFOIBV
 }
 
 /// <summary>
-/// TODO: Remove later
+/// Pipeline for bitmap conversion using filters
 /// </summary>
-class Builder
+public sealed class PipeLine
 {
-    private Builder() { }
+    private readonly Queue<IFilter> _filters;
 
-    private string _text;
-
-    public static Builder CreateBuilder()
+    public PipeLine AddFilter(IFilter filter)
     {
-        return new Builder();
-    }
-
-    public Builder Add(string text)
-    {
-        _text += text;
+        _filters.Enqueue(filter);
         return this;
     }
 
-    public string Build()
+    public Bitmap Build(Bitmap image)
     {
-        return _text;
+        var tempImage = new byte[0, 0];
+
+        //TODO: Convert to color array
+
+        while (_filters.Count > 0)
+        {
+
+        }
+
+        return new Bitmap(0, 0);
     }
+}
+
+public interface IFilter
+{
+    ImageData Convert(ImageData inputImage);
+}
+
+public class ImageData
+{
+    public Color[,] Colors { get; set; }
+
+    public byte[,] GrayScale { get; set; }
 }
