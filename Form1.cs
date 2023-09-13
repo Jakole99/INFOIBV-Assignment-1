@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -8,30 +7,12 @@ namespace INFOIBV
 {
     public partial class INFOIBV : Form
     {
-        private Bitmap _inputImage;
-
         public INFOIBV()
         {
             InitializeComponent();
-            cbFilter.DataSource = Enum.GetValues(typeof(Filter));
+            cbFilter.DataSource = Enum.GetValues(typeof(FilterType));
 
             SetInputImage(new Bitmap("images/lena_color.jpg"));
-        }
-
-        /// <summary>
-        /// Type of filters to perform on an image
-        /// </summary>
-        public enum Filter
-        {
-            None,
-            GrayScale,
-            Invert,
-            AdjustContrast,
-            Gaussian,
-            Convolve,
-            Median,
-            EdgeMagnitude,
-            Threshold
         }
 
         /// <summary>
@@ -46,11 +27,8 @@ namespace INFOIBV
                 MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
                 return;
             }
-
-            _inputImage?.Dispose();
-            _inputImage = value;
-
-            inputImageBox.Image = _inputImage;
+            inputImageBox.Image?.Dispose();
+            inputImageBox.Image = value;
         }
 
         /// <summary>
@@ -72,20 +50,20 @@ namespace INFOIBV
         /// </summary>
         private void ApplyButton_Click(object sender, EventArgs e)
         {
-            if (_inputImage == null)
+            if (inputImageBox.Image == null)
                 return;
 
-            if (!Enum.TryParse<Filter>(cbFilter.SelectedValue.ToString(), out var filter))
+            if (!Enum.TryParse<FilterType>(cbFilter.SelectedValue.ToString(), out var filter))
                 return;
 
-            if (filter == Filter.None)
+            if (filter == FilterType.None)
             {
                 MessageBox.Show("Please specify a filter");
                 return;
             }
 
             outputImageBox.Image?.Dispose();
-            outputImageBox.Image = ApplyFilter(filter, _inputImage);
+            outputImageBox.Image = ApplyFilter(filter, (Bitmap)inputImageBox.Image);
         }
 
         /// <summary>
@@ -94,20 +72,20 @@ namespace INFOIBV
         /// <param name="filter">Type of filter</param>
         /// <param name="image">Three-channel image</param>
         /// <returns>One-channel image</returns>
-        private Bitmap ApplyFilter(Filter filter, Bitmap image)
+        private Bitmap ApplyFilter(FilterType filter, Bitmap image)
         {
             switch (filter)
             {
-                case Filter.GrayScale:
+                case FilterType.GrayScale:
                     return new PipeLine()
                         .Build(image);
 
-                case Filter.Invert:
+                case FilterType.Invert:
                     return new PipeLine()
                         .AddFilter(InvertImage)
                         .Build(image);
 
-                case Filter.AdjustContrast:
+                case FilterType.AdjustContrast:
                     return new PipeLine()
                         .AddFilter(AdjustContrast)
                         .Build(image);
@@ -139,7 +117,7 @@ namespace INFOIBV
         /// <returns>single-channel (byte) image</returns>
         private byte[,] InvertImage(byte[,] inputImage)
         {
-            progressBar.Setup(_inputImage.Size.Width * _inputImage.Size.Height);
+            progressBar.Setup(inputImage.Length);
 
             // Process all pixels in the image
             inputImage.PointOperation( bijt =>
@@ -160,7 +138,7 @@ namespace INFOIBV
         /// <returns>single-channel (byte) image</returns>
         private byte[,] AdjustContrast(byte[,] inputImage)
         {
-            progressBar.Setup(_inputImage.Size.Width * _inputImage.Size.Height);
+            progressBar.Setup(inputImage.Length);
 
             int aHigh = inputImage.Cast<byte>().Max();
             int aLow = inputImage.Cast<byte>().Min();
