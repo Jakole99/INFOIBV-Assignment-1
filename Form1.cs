@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -138,20 +139,14 @@ namespace INFOIBV
         /// <returns>single-channel (byte) image</returns>
         private byte[,] InvertImage(byte[,] inputImage)
         {
-            // setup progress bar
-            progressBar.Visible = true;
-            progressBar.Minimum = 1;
-            progressBar.Maximum = _inputImage.Size.Width * _inputImage.Size.Height;
-            progressBar.Value = 1;
-            progressBar.Step = 1;
+            progressBar.Setup(_inputImage.Size.Width * _inputImage.Size.Height);
 
-            // process all pixels in the image
-            for (int x = 0; x < _inputImage.Size.Width; x++)
-                for (int y = 0; y < _inputImage.Size.Height; y++)
-                {
-                    inputImage[x, y] = (byte)(255 - inputImage[x, y]);
-                    progressBar.PerformStep();
-                }
+            // Process all pixels in the image
+            inputImage.PointOperation( bijt =>
+            {
+                progressBar.PerformStep();
+                return (byte)(255 - bijt);
+            });
 
             progressBar.Visible = false;
 
@@ -165,35 +160,28 @@ namespace INFOIBV
         /// <returns>single-channel (byte) image</returns>
         private byte[,] AdjustContrast(byte[,] inputImage)
         {
-            // setup progress bar
-            progressBar.Visible = true;
-            progressBar.Minimum = 1;
-            progressBar.Maximum = _inputImage.Size.Width * _inputImage.Size.Height;
-            progressBar.Value = 1;
-            progressBar.Step = 1;
+            progressBar.Setup(_inputImage.Size.Width * _inputImage.Size.Height);
 
             int aHigh = inputImage.Cast<byte>().Max();
             int aLow = inputImage.Cast<byte>().Min();
 
-
-
             // process all pixels in the image
-            for (int x = 0; x < _inputImage.Size.Width; x++)
-                for (int y = 0; y < _inputImage.Size.Height; y++)
-                { 
-                    inputImage[x, y] = ContrastAdjustmentFunction(aHigh, aLow, inputImage[x, y]);
-                    progressBar.PerformStep();
-                }
+            inputImage.PointOperation(bijt =>
+            {
+                progressBar.PerformStep();
+                return ContrastAdjustmentFunction(bijt);
+            });
 
             progressBar.Visible = false;
 
             return inputImage;
+
+            byte ContrastAdjustmentFunction(byte pixelIntensity)
+            {
+                return (byte)(0 + (pixelIntensity - aLow) * (255 - 0) / (aHigh - aLow));
+            }
         }
 
-        private byte ContrastAdjustmentFunction(int aHigh, int aLow, byte pixelIntensity)
-        {
-            return (byte)(0 + (pixelIntensity - aLow) * (255 - 0) / (aHigh - aLow));
-        }
 
         /// <summary>
         /// Create a Gaussian filter of specific square size and with a specified sigma
@@ -203,6 +191,7 @@ namespace INFOIBV
         /// <returns>Gaussian filter</returns>
         private float[,] CreateGaussianFilter(byte size, float sigma)
         {
+
             // create temporary grayscale image
             var filter = new float[size, size];
 

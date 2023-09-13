@@ -24,7 +24,6 @@ public sealed class PipeLine
         return this;
     }
 
-    
     /// <summary>
     /// Grayscale a bitmap and apply all the filters then convert it back to a bitmap
     /// </summary>
@@ -36,7 +35,8 @@ public sealed class PipeLine
         // Apply filters
         while (_filters.Count > 0)
         {
-            _filters.Dequeue().Invoke(grayScale);
+            var filter =_filters.Dequeue();
+            grayScale.Apply(filter);
         }
 
         return BitmapExtensions.FromGrayScale(grayScale);

@@ -8,6 +8,7 @@ public static class BitmapExtensions
         var width = source.Size.Width;
 
         var grayScale = new byte[width, height];
+
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
             {
