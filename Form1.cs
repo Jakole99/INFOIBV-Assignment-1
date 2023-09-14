@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -154,6 +155,7 @@ namespace INFOIBV
 
             return inputImage;
 
+
             byte ContrastAdjustmentFunction(byte pixelIntensity)
             {
                 return (byte)(0 + (pixelIntensity - aLow) * (255 - 0) / (aHigh - aLow));
@@ -173,9 +175,27 @@ namespace INFOIBV
             // create temporary grayscale image
             var filter = new float[size, size];
 
-            // TODO: add your functionality and checks
+            var k = (size - 1) / 2;
 
+            // TODO: add your functionality and checks
+            for (int i = -k; i < k; i++)
+            {
+                for (int j = -k; j < k; j++)
+                {
+                    filter[i,j] = GaussianFunction(i, j);
+                }
+            }
+            
             return filter;
+
+
+            float GaussianFunction(int x, int y)
+            {
+                var x2 = Math.Pow(x, 2);
+                var y2 = Math.Pow(y, 2);
+                var sigma2 = Math.Pow(sigma, 2);
+                return (float)((1 / (2 * Math.PI * sigma2)) * Math.Pow(Math.E,-(x2+y2)/2*sigma2));
+            }
         }
 
         /// <summary>
