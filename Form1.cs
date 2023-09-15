@@ -178,11 +178,16 @@ namespace INFOIBV
             var k = (size - 1) / 2;
 
             // TODO: add your functionality and checks
-            for (int i = -k; i < k; i++)
+            if (size%2 == 0)
             {
-                for (int j = -k; j < k; j++)
+                throw new ArgumentException("only odd sizes");
+            }
+
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
                 {
-                    filter[i,j] = GaussianFunction(i, j);
+                    filter[i,j] = GaussianFunction(i - k, j - k);
                 }
             }
             
