@@ -1,4 +1,6 @@
-﻿using System;
+﻿using INFOIBV;
+using System;
+using System.Drawing;
 
 public static class ByteArrayExtentions
 {
@@ -23,9 +25,30 @@ public static class ByteArrayExtentions
         var height = array.GetLength(1);
 
         for (int x = 0; x < width; x++)
+        {
             for (int y = 0; y < height; y++)
             {
                 array[x, y] = func(array[x, y]);
             }
+        }
+    }
+
+    public static Bitmap ToBitmap(this byte[,] singleChannel)
+    {
+        var width = singleChannel.GetLength(0);
+        var height = singleChannel.GetLength(1);
+        var output = new Bitmap(width, height);
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                var value = singleChannel[x, y];
+                var newColor = Color.FromArgb(value, value, value);
+                output.SetPixel(x, y, newColor);
+            }
+        }
+
+        return output;
     }
 }

@@ -9,7 +9,6 @@ public enum FilterType
     Invert,
     AdjustContrast,
     Gaussian,
-    Convolve,
     Median,
     EdgeMagnitude,
     Threshold

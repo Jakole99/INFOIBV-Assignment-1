@@ -30,15 +30,15 @@ public sealed class PipeLine
     /// <returns>Filtered bitmap</returns>
     public Bitmap Build(Bitmap image)
     {
-        var grayScale = image.ToGrayScale();
+        var singleChannel = image.ToSingleChannel();
 
         // Apply filters
         while (_filters.Count > 0)
         {
             var filter =_filters.Dequeue();
-            grayScale.Apply(filter);
+            singleChannel.Apply(filter);
         }
 
-        return BitmapExtensions.FromGrayScale(grayScale);
+        return singleChannel.ToBitmap();
     }
 }
