@@ -24,6 +24,8 @@ namespace INFOIBV
         public Bitmap ApplyFilter(FilterType filter, Bitmap image)
         {
             var singleChannel = image.ToSingleChannel();
+            var gaussianFilter = CreateGaussianFilter(5, 1);
+            var newSingleChannel = ConvolveImage(singleChannel, gaussianFilter);
 
             switch (filter)
             {
@@ -42,14 +44,20 @@ namespace INFOIBV
                         .Build(image);
 
                 case FilterType.Gaussian:
-                    var gaussianFilter = CreateGaussianFilter(5, 1);
-                    var newSingleChannel = ConvolveImage(singleChannel, gaussianFilter);
-                    
                     return newSingleChannel.ToBitmap();
 
                 case FilterType.Median:
                     var median = MedianFilter(singleChannel, 5);
                     return median.ToBitmap();
+
+                case FilterType.EdgeMagnitude:
+                    var edge = EdgeMagnitude(newSingleChannel, horizontalKernel(), verticalKernel());
+                    return edge.ToBitmap();
+
+                case FilterType.Threshold:
+                    var threshold = ThresholdImage(singleChannel, 128);
+                    return threshold.ToBitmap();
+
 
                 default:
                     throw new NotImplementedException();
@@ -66,6 +74,43 @@ namespace INFOIBV
 
             return value;
         }
+
+        private static sbyte[,] horizontalKernel()
+        {
+            sbyte[,] kernel = new sbyte[3, 3];
+            kernel[0, 0] = -1;
+            kernel[0, 1] = 0;
+            kernel[0, 2] = 1;
+
+            kernel[1, 0] = -2;
+            kernel[1, 1] = 0;
+            kernel[1, 2] = 2;
+
+            kernel[2, 0] = -1;
+            kernel[2, 1] = 0;
+            kernel[2, 2] = 1;
+
+            return kernel;
+        }
+
+        private static sbyte[,] verticalKernel()
+        {
+            sbyte[,] kernel = new sbyte[3, 3];
+            kernel[0, 0] = -1;
+            kernel[0, 1] = -2;
+            kernel[0, 2] = -1;
+
+            kernel[1, 0] = 0;
+            kernel[1, 1] = 0;
+            kernel[1, 2] = 0;
+
+            kernel[2, 0] = 1;
+            kernel[2, 1] = 2;
+            kernel[2, 2] = 1;
+
+            return kernel;
+        }
+
 
         // ====================================================================
         // ============= YOUR FUNCTIONS FOR ASSIGNMENT 1 GO HERE ==============
@@ -188,6 +233,7 @@ namespace INFOIBV
                 for (int v = 0; v < height; v++)
                 {
                     var values = new List<byte>();
+                    var kernelValues = new List<float>();
 
                     // For every filter index
                     for (int i = 0; i < filter.GetLength(0); i++)
@@ -198,10 +244,12 @@ namespace INFOIBV
                             var dv = Clamp(v - j, 0, height - 1);
 
                             values.Add((byte)(inputImage[du, dv] * filter[i, j]));
+                            kernelValues.Add((filter[i, j]));
 
                         }
                     }
-                    outputImage[u, v] = values.Aggregate((x, y) => { return (byte)(x + y); });
+                    var totalKernelValue = kernelValues.Aggregate((x, y) => { return (x + y); });
+                    outputImage[u, v] = values.Aggregate((x, y) => { return (byte)((x + y)/totalKernelValue); });
                 }
             }
 
@@ -259,11 +307,59 @@ namespace INFOIBV
         private byte[,] EdgeMagnitude(byte[,] inputImage, sbyte[,] horizontalKernel, sbyte[,] verticalKernel)
         {
             // create temporary grayscale image
-            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            var outputImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
 
-            // TODO: add your functionality and checks, think about border handling and type conversion (negative values!)
+            var width = inputImage.GetLength(0);
+            var height = inputImage.GetLength(1);
 
-            return tempImage;
+            // For every pixel
+            for (int u = 0; u < width; u++)
+            {
+                for (int v = 0; v < height; v++)
+                {
+                    var values = new List<sbyte>();
+                    var kernelValues = new List<sbyte>();
+
+                    // For every Horizontal filter index
+                    for (int i = 0; i < horizontalKernel.GetLength(0); i++)
+                    {
+                        for (int j = 0; j < horizontalKernel.GetLength(1); j++)
+                        {
+                            var du = Clamp(u - i, 0, width - 1);
+                            var dv = Clamp(v - j, 0, height - 1);
+
+                            values.Add((sbyte)(inputImage[du, dv] * horizontalKernel[i, j]));
+                            kernelValues.Add((horizontalKernel[i, j]));
+
+                        }
+                    }
+
+                    var totalHorziontalValue = values.Aggregate((x, y) => { return (sbyte)(x + y); });
+                    
+                    values.Clear();
+                    kernelValues.Clear();
+
+                    // For every Vertical filter index
+                    for (int i = 0; i < verticalKernel.GetLength(0); i++)
+                    {
+                        for (int j = 0; j < verticalKernel.GetLength(1); j++)
+                        {
+                            var du = Clamp(u - i, 0, width - 1);
+                            var dv = Clamp(v - j, 0, height - 1);
+
+                            values.Add((sbyte)(inputImage[du, dv] * verticalKernel[i, j]));
+                            kernelValues.Add((verticalKernel[i, j]));
+
+                        }
+                    }
+                    var totalVerticalValue= values.Aggregate((x, y) => { return (sbyte)(x + y); });
+                    outputImage[u, v] = (byte)Math.Sqrt(totalHorziontalValue * totalHorziontalValue +
+                                                  totalVerticalValue * totalVerticalValue);
+
+                }
+            }
+
+            return outputImage;
         }
 
         /// <summary>
@@ -271,14 +367,29 @@ namespace INFOIBV
         /// </summary>
         /// <param name="inputImage">Single-channel (byte) image</param>
         /// <returns>Single-channel (byte) image with on/off values</returns>
-        private byte[,] ThresholdImage(byte[,] inputImage)
+        private byte[,] ThresholdImage(byte[,] inputImage, int thresholdValue)
         {
             // create temporary grayscale image
-            var tempImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            var outputImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
+            
+            var width = inputImage.GetLength(0);
+            var height = inputImage.GetLength(1);
 
-            // TODO: add your functionality and checks, think about how to represent the binary values
+            // For every pixel
+            for (int u = 0; u < width; u++)
+            {
+                for (int v = 0; v < height; v++)
+                {
+                    if (inputImage[u, v] < thresholdValue)
+                    {
+                        outputImage[u, v] = Byte.MinValue;
+                    }
+                    else
+                        outputImage[u, v] = Byte.MaxValue;
+                }
+            }
 
-            return tempImage;
+            return outputImage;
         }
 
 
