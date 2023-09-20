@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using INFOIBV.Extensions;
-
-namespace INFOIBV.Framework
+﻿namespace INFOIBV.Framework
 {
     /// <summary>
     /// Abstract definition of a filter
@@ -53,37 +49,5 @@ namespace INFOIBV.Framework
             return output;
         }
 
-    }
-
-    public abstract class ConvolveFilter : Filter
-    {
-        private readonly float[,] _kernel;
-        private readonly float _kernelTotal;
-
-        protected ConvolveFilter(float[,] kernel)
-        {
-            _kernel = kernel;
-            _kernelTotal = kernel.Cast<float>().Sum();
-        }
-
-        protected abstract byte ConvolveOperator();
-
-        protected sealed override byte ExecuteStep(int u, int v, byte[,] input)
-        {
-            var value = 0;
-
-            // For every filter index
-            for (var i = 0; i < _kernel.GetLength(0); i++)
-            {
-                for (var j = 0; j < _kernel.GetLength(1); j++)
-                {
-                    var du = MathExtensions.Clamp(u - i, 0, input.GetLength(0) - 1);
-                    var dv = MathExtensions.Clamp(v - j, 0, input.GetLength(1) - 1);
-
-                    value += (byte)(input[du, dv] * _kernel[i, j]);
-                }
-            }
-            return (byte)(value / _kernelTotal);
-        }
     }
 }

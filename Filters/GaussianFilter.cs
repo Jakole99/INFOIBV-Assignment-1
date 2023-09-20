@@ -9,9 +9,7 @@ namespace INFOIBV.Filters
     {
         public override string Identifier => "Gaussian";
 
-        private readonly float[,] _kernel;
-
-        private readonly float _kernelTotal;
+        private readonly float[,] _gaussian;
 
         /// <summary>
         /// Create a Gaussian filter of specific square size and with a specified sigma
@@ -21,26 +19,26 @@ namespace INFOIBV.Filters
         /// <exception cref="ArgumentException"><see cref="size"/> is odd</exception>
         public GaussianFilter(byte size, float sigma)
         {
-            _kernel = CreateGaussianKernel(size, sigma);
-            _kernelTotal = _kernel.Cast<float>().Sum();
+            _gaussian = CreateGaussianKernel(size, sigma);
         }
         
         protected override byte ExecuteStep(int u, int v, byte[,] input)
         {
-            var value = 0;
+            byte value = 0;
 
             // For every filter index
-            for (var i = 0; i < _kernel.GetLength(0); i++)
+            for (var i = 0; i < _gaussian.GetLength(0); i++)
             {
-                for (var j = 0; j < _kernel.GetLength(1); j++)
+                for (var j = 0; j < _gaussian.GetLength(1); j++)
                 {
                     var du = MathExtensions.Clamp(u - i, 0, input.GetLength(0) - 1);
                     var dv = MathExtensions.Clamp(v - j, 0, input.GetLength(1) - 1);
 
-                    value += (byte)(input[du, dv] * _kernel[i, j]);
+                    value += (byte)(input[du, dv] * _gaussian[i, j]);
                 }
             }
-            return (byte)(value / _kernelTotal);
+
+            return value;
         }
         
         private static float[,] CreateGaussianKernel(byte size, float sigma)
