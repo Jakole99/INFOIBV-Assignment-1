@@ -264,7 +264,7 @@ namespace INFOIBV
         /// <param name="inputImage">Single-channel (byte) image</param>
         /// <param name="size">Length/width of the median filter kernel</param>
         /// <returns>Single-channel (byte) image</returns>
-        private byte[,] MedianFilter(byte[,] inputImage, byte size)
+        public byte[,] MedianFilter(byte[,] inputImage, byte size)
         {
             var outputImage = new byte[inputImage.GetLength(0), inputImage.GetLength(1)];
 

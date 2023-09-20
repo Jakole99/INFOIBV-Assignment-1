@@ -87,9 +87,10 @@ namespace INFOIBV
 
             var filters = new Filters(progressBar);
             var pipeline = new PipeLine()
+                .AddFilter(filters.AdjustContrast)
                 .AddFilter(image => filters.ConvolveImage(image, Filters.CreateGaussianFilter(5, 1)))
                 .AddFilter(image => filters.EdgeMagnitude(image, Filters.HorizontalKernel(), Filters.VerticalKernel()))
-                .AddFilter(image => filters.ThresholdImage(image, 100));
+                .AddFilter(image => filters.ThresholdImage(image, 70));
 
             // Execute pipeline
             outputImageBox.Image?.Dispose();
@@ -99,9 +100,18 @@ namespace INFOIBV
         private void pipeline2Button_Click(object sender, EventArgs e)
         {
             if (inputImageBox.Image == null)
-            {
                 return;
-            }
+
+            var filters = new Filters(progressBar);
+            var pipeline = new PipeLine()
+                .AddFilter(filters.AdjustContrast)
+                .AddFilter(image => filters.MedianFilter(image,5))
+                .AddFilter(image => filters.EdgeMagnitude(image, Filters.HorizontalKernel(), Filters.VerticalKernel()))
+                .AddFilter(image => filters.ThresholdImage(image, 85));
+
+            // Execute pipeline
+            outputImageBox.Image?.Dispose();
+            outputImageBox.Image = pipeline.Build((Bitmap)inputImageBox.Image);
         }
     }
 }
