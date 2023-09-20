@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using INFOIBV.Extensions;
 using INFOIBV.Framework;
 
 namespace INFOIBV.Filters
@@ -16,59 +14,48 @@ namespace INFOIBV.Filters
         /// </summary>
         /// <param name="size">Length and width of the Gaussian filter (only odd sizes)</param>
         /// <param name="sigma">Standard deviation of the Gaussian distribution</param>
-        /// <exception cref="ArgumentException"><see cref="size"/> is odd</exception>
+        /// <exception cref="ArgumentException"><see cref="size"/> is not an odd size</exception>
         public GaussianFilter(byte size, float sigma)
         {
+            if (size % 2 == 0)
+                throw new ArgumentException($"{size} is not an odd size");
+            
             _gaussian = CreateGaussianKernel(size, sigma);
         }
         
         protected override byte ExecuteStep(int u, int v, byte[,] input)
         {
-            byte value = 0;
-
-            // For every filter index
-            for (var i = 0; i < _gaussian.GetLength(0); i++)
-            {
-                for (var j = 0; j < _gaussian.GetLength(1); j++)
-                {
-                    var du = MathExtensions.Clamp(u - i, 0, input.GetLength(0) - 1);
-                    var dv = MathExtensions.Clamp(v - j, 0, input.GetLength(1) - 1);
-
-                    value += (byte)(input[du, dv] * _gaussian[i, j]);
-                }
-            }
-
-            return value;
+            return FilterHelper.Convolution(input, _gaussian, u, v);
         }
         
         private static float[,] CreateGaussianKernel(byte size, float sigma)
         {
-            if (size % 2 == 0)
-                throw new ArgumentException($"{size} is not an odd size");
-
-            var filter = new float[size, size];
+            var kernel = new float[size, size];
             var k = (size - 1) / 2;
+            var sum = 0f;
 
-
+            // Create gaussian
             for (var i = 0; i < size; i++)
             {
                 for (var j = 0; j < size; j++)
                 {
-                    filter[i, j] = Gaussian(i - k, j - k);
+                    var gaussian = Gaussian(i - k, j - k);
+
+                    kernel[i, j] = gaussian;
+                    sum += gaussian;
                 }
             }
 
-            var sum = filter.Cast<float>().Sum();
-
+            // Normalize gaussian
             for (var i = 0; i < size; i++)
             {
                 for (var j = 0; j < size; j++)
                 {
-                    filter[i, j] /= sum;
+                    kernel[i, j] /= sum;
                 }
             }
 
-            return filter;
+            return kernel;
 
 
             float Gaussian(int x, int y)
@@ -78,6 +65,15 @@ namespace INFOIBV.Filters
                 var a0 = 1 / (2 * Math.PI * sigma2);
                 return (float)(a0 * a1);
             }
+        }
+    }
+
+    public static partial class PipelineExtensions
+    {
+        /// <inheritdoc cref="GaussianFilter(byte, float)"/>
+        public static PipeLine AddGaussian(this PipeLine pipeLine, int size, int sigma)
+        {
+            return pipeLine.AddFilter(new GaussianFilter((byte)size, sigma));
         }
     }
 }

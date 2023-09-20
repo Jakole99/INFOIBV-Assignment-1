@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using INFOIBV.Extensions;
 
@@ -10,13 +9,12 @@ namespace INFOIBV.Framework
     /// </summary>
     public sealed class PipeLine
     {
-        private readonly Queue<Func<byte[,], byte[,]>> _filters = new Queue<Func<byte[,], byte[,]>>();
+        private readonly Queue<Filter> _filters = new Queue<Filter>();
 
         /// <summary>
         /// Queue a filter to the pipeline
         /// </summary>
-        /// <returns></returns>
-        public PipeLine AddFilter(Func<byte[,], byte[,]> filter)
+        public PipeLine AddFilter(Filter filter)
         {
             _filters.Enqueue(filter);
             return this;
@@ -34,7 +32,7 @@ namespace INFOIBV.Framework
             while (_filters.Count > 0)
             {
                 var filter =_filters.Dequeue();
-                singleChannel = filter(singleChannel);
+                singleChannel = filter.Convert(singleChannel);
             }
 
             return singleChannel.ToBitmap();

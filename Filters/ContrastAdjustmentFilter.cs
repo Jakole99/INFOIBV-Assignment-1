@@ -4,16 +4,36 @@ using INFOIBV.Framework;
 
 namespace INFOIBV.Filters
 {
+    /// <summary>
+    /// Create an image with the full range of intensity values used
+    /// </summary>
     public class ContrastAdjustmentFilter : Filter
     {
         public override string Identifier => "Contrast Adjustment";
+
+        private int _highest;
+        private int _lowest;
         
+        protected override void BeforeExecute(byte[,] input)
+        {
+            _highest = input.Cast<byte>().Max();
+            _lowest = input.Cast<byte>().Min();
+        }
+
         protected override byte ExecuteStep(int u, int v, byte[,] input)
         {
-            int aHigh = input.Cast<byte>().Max();
-            int aLow = input.Cast<byte>().Min();
-
-            return (byte)(Byte.MinValue + (input[u, v] - aLow) * Byte.MaxValue / (aHigh - aLow));
+            return (byte)(Byte.MinValue + (input[u, v] - _highest) * Byte.MaxValue / (_highest - _lowest));
+        }
+    }
+    
+    public static partial class PipelineExtensions
+    {
+        /// <summary>
+        /// Adds contrast adjustment filter to the pipeline
+        /// </summary>
+        public static PipeLine AddContrastAdjustment(this PipeLine pipeLine)
+        {
+            return pipeLine.AddFilter(new ContrastAdjustmentFilter());
         }
     }
 }

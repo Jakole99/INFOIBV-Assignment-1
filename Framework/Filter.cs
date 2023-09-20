@@ -27,6 +27,11 @@
         protected abstract byte ExecuteStep(int u, int v, byte[,] input);
 
         /// <summary>
+        /// Useful for pre-computation of values needed for every pixel
+        /// </summary>
+        protected virtual void BeforeExecute(byte[,] input) { }
+
+        /// <summary>
         /// Convert an image to the filtered image
         /// </summary>
         /// <param name="input">Single-channel image</param>
@@ -36,7 +41,9 @@
             _progress.Init(input.Length);
 
             var output = new byte[input.GetLength(0), input.GetLength(1)];
-
+            
+            BeforeExecute(input);
+            
             for (var u = 0; u < input.GetLength(0); u++)
             {
                 for (var v = 0; v < input.GetLength(1); v++)

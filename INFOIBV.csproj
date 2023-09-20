@@ -67,6 +67,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Framework\Filter.cs" />
+    <Compile Include="Framework\FilterHelper.cs" />
     <Compile Include="Framework\FilterProgress.cs" />
     <Compile Include="Framework\IReadonlyFilterProgress.cs" />
     <Compile Include="Framework\PipeLine.cs" />

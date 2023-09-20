@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using INFOIBV.Filters;
 using INFOIBV.Framework;
 
 namespace INFOIBV
 {
+    // ReSharper disable once InconsistentNaming
     public partial class INFOIBV : Form
     {
         public INFOIBV()
         {
             InitializeComponent();
-            
+
             cbFilter.DataSource = Enum.GetValues(typeof(FilterType));
             SetInputImage(new Bitmap("images/lena_color.jpg"));
         }
@@ -19,14 +21,15 @@ namespace INFOIBV
         /// Checks, sets and displays the input image
         /// </summary>
         /// <param name="value">Bitmap to display</param>
-        private void SetInputImage(Bitmap value)
+        private void SetInputImage(Image value)
         {
             if (value.Size.Height <= 0 || value.Size.Width <= 0 ||
                 value.Size.Height > 512 || value.Size.Width > 512)
             {
-                MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
+                MessageBox.Show(@"Error in image dimensions (have to be > 0 and <= 512)");
                 return;
             }
+
             inputImageBox.Image?.Dispose();
             inputImageBox.Image = value;
         }
@@ -46,8 +49,7 @@ namespace INFOIBV
         }
 
         /// <summary>
-        /// Process when user clicks on the "
-        /// " button
+        /// Process when user clicks on the "Apply" button
         /// </summary>
         private void ApplyButton_Click(object sender, EventArgs e)
         {
@@ -59,14 +61,12 @@ namespace INFOIBV
 
             if (filter == FilterType.None)
             {
-                MessageBox.Show("Please specify a filter");
+                MessageBox.Show(@"Please specify a filter");
                 return;
             }
 
             outputImageBox.Image?.Dispose();
-
-            var filters = new FilterMethods(progressBar);
-            outputImageBox.Image = filters.ApplyFilter(filter, (Bitmap)inputImageBox.Image);
+            outputImageBox.Image = FilterMethods.ApplyFilter(filter, (Bitmap)inputImageBox.Image);
         }
 
         /// <summary>
@@ -86,12 +86,11 @@ namespace INFOIBV
             if (inputImageBox.Image == null)
                 return;
 
-            var filters = new FilterMethods(progressBar);
             var pipeline = new PipeLine()
-                .AddFilter(filters.AdjustContrast)
-                .AddFilter(image => filters.ConvolveImage(image, FilterMethods.CreateGaussianFilter(5, 1)))
-                .AddFilter(image => filters.EdgeMagnitude(image, FilterMethods.HorizontalKernel(), FilterMethods.VerticalKernel()))
-                .AddFilter(image => filters.ThresholdImage(image, 70));
+                .AddContrastAdjustment()
+                .AddGaussian(5, 1)
+                .AddEdgeMagnitudeFilter()
+                .AddThresholdFilter(70);
 
             // Execute pipeline
             outputImageBox.Image?.Dispose();
@@ -103,12 +102,11 @@ namespace INFOIBV
             if (inputImageBox.Image == null)
                 return;
 
-            var filters = new FilterMethods(progressBar);
             var pipeline = new PipeLine()
-                .AddFilter(filters.AdjustContrast)
-                .AddFilter(image => filters.MedianFilter(image,5))
-                .AddFilter(image => filters.EdgeMagnitude(image, FilterMethods.HorizontalKernel(), FilterMethods.VerticalKernel()))
-                .AddFilter(image => filters.ThresholdImage(image, 85));
+                .AddContrastAdjustment()
+                .AddMedianFilter(5)
+                .AddEdgeMagnitudeFilter()
+                .AddThresholdFilter(85);
 
             // Execute pipeline
             outputImageBox.Image?.Dispose();

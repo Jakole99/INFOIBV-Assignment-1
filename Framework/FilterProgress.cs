@@ -26,12 +26,5 @@ namespace INFOIBV.Framework
         {
             CurrentStep++;
         }
-
-        /// <inheritdoc cref="Step()"/>
-        /// <param name="steps">Number of steps</param>
-        public void Step(int steps)
-        {
-            CurrentStep += steps;
-        }
     }
 }
