@@ -17,7 +17,7 @@ public sealed class PipeLine
     /// <summary>
     /// Queue a filter to the pipeline
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The same <see cref="PipeLine"/></returns>
     public PipeLine AddFilter(Func<byte[,], byte[,]> filter)
     {
         _filters.Enqueue(filter);
@@ -25,9 +25,9 @@ public sealed class PipeLine
     }
 
     /// <summary>
-    /// Grayscale a bitmap and apply all the filters then convert it back to a bitmap
+    /// Convert <see cref="Bitmap"/> to a single channel and apply all the filters then convert it back to a <see cref="Bitmap"/>
     /// </summary>
-    /// <returns>Filtered bitmap</returns>
+    /// <returns>Filtered <see cref="Bitmap"/></returns>
     public Bitmap Build(Bitmap image)
     {
         var singleChannel = image.ToSingleChannel();
@@ -36,7 +36,7 @@ public sealed class PipeLine
         while (_filters.Count > 0)
         {
             var filter =_filters.Dequeue();
-            singleChannel.Apply(filter);
+            singleChannel = filter(singleChannel);
         }
 
         return singleChannel.ToBitmap();

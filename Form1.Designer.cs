@@ -38,6 +38,8 @@
             this.outputImageBox = new System.Windows.Forms.PictureBox();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.cbFilter = new System.Windows.Forms.ComboBox();
+            this.pipeline1Button = new System.Windows.Forms.Button();
+            this.pipeline2Button = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.inputImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.outputImageBox)).BeginInit();
             this.SuspendLayout();
@@ -68,11 +70,11 @@
             this.imageFileName.Size = new System.Drawing.Size(420, 22);
             this.imageFileName.TabIndex = 1;
             // 
-            // pictureBox1
+            // inputImageBox
             // 
-            this.inputImageBox.Location = new System.Drawing.Point(17, 55);
+            this.inputImageBox.Location = new System.Drawing.Point(16, 86);
             this.inputImageBox.Margin = new System.Windows.Forms.Padding(4);
-            this.inputImageBox.Name = "pictureBox1";
+            this.inputImageBox.Name = "inputImageBox";
             this.inputImageBox.Size = new System.Drawing.Size(683, 630);
             this.inputImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.inputImageBox.TabIndex = 2;
@@ -80,7 +82,7 @@
             // 
             // applyButton
             // 
-            this.applyButton.Location = new System.Drawing.Point(729, 13);
+            this.applyButton.Location = new System.Drawing.Point(729, 17);
             this.applyButton.Margin = new System.Windows.Forms.Padding(4);
             this.applyButton.Name = "applyButton";
             this.applyButton.Size = new System.Drawing.Size(137, 28);
@@ -105,11 +107,11 @@
             this.saveButton.UseVisualStyleBackColor = true;
             this.saveButton.Click += new System.EventHandler(this.SaveButton_Click);
             // 
-            // pictureBox2
+            // outputImageBox
             // 
-            this.outputImageBox.Location = new System.Drawing.Point(708, 55);
+            this.outputImageBox.Location = new System.Drawing.Point(707, 86);
             this.outputImageBox.Margin = new System.Windows.Forms.Padding(4);
-            this.outputImageBox.Name = "pictureBox2";
+            this.outputImageBox.Name = "outputImageBox";
             this.outputImageBox.Size = new System.Drawing.Size(683, 630);
             this.outputImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.outputImageBox.TabIndex = 5;
@@ -129,16 +131,40 @@
             // 
             this.cbFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbFilter.FormattingEnabled = true;
-            this.cbFilter.Location = new System.Drawing.Point(601, 1);
+            this.cbFilter.Location = new System.Drawing.Point(601, 19);
             this.cbFilter.Name = "cbFilter";
             this.cbFilter.Size = new System.Drawing.Size(121, 24);
             this.cbFilter.TabIndex = 7;
+            // 
+            // pipeline1Button
+            // 
+            this.pipeline1Button.Location = new System.Drawing.Point(974, 50);
+            this.pipeline1Button.Margin = new System.Windows.Forms.Padding(4);
+            this.pipeline1Button.Name = "pipeline1Button";
+            this.pipeline1Button.Size = new System.Drawing.Size(137, 28);
+            this.pipeline1Button.TabIndex = 8;
+            this.pipeline1Button.Text = "Pipeline 1";
+            this.pipeline1Button.UseVisualStyleBackColor = true;
+            this.pipeline1Button.Click += new System.EventHandler(this.PipeLineButton1_Click);
+            // 
+            // pipeline2Button
+            // 
+            this.pipeline2Button.Location = new System.Drawing.Point(1119, 50);
+            this.pipeline2Button.Margin = new System.Windows.Forms.Padding(4);
+            this.pipeline2Button.Name = "pipeline2Button";
+            this.pipeline2Button.Size = new System.Drawing.Size(137, 28);
+            this.pipeline2Button.TabIndex = 9;
+            this.pipeline2Button.Text = "Pipeline 2";
+            this.pipeline2Button.UseVisualStyleBackColor = true;
+            this.pipeline2Button.Click += new System.EventHandler(this.pipeline2Button_Click);
             // 
             // INFOIBV
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1403, 709);
+            this.ClientSize = new System.Drawing.Size(1403, 729);
+            this.Controls.Add(this.pipeline2Button);
+            this.Controls.Add(this.pipeline1Button);
             this.Controls.Add(this.cbFilter);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.outputImageBox);
@@ -171,6 +197,8 @@
         private System.Windows.Forms.PictureBox outputImageBox;
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.ComboBox cbFilter;
+        private System.Windows.Forms.Button pipeline1Button;
+        private System.Windows.Forms.Button pipeline2Button;
     }
 }
 

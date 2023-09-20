@@ -45,7 +45,8 @@ namespace INFOIBV
         }
 
         /// <summary>
-        /// Process when user clicks on the "Apply" button
+        /// Process when user clicks on the "
+        /// " button
         /// </summary>
         private void ApplyButton_Click(object sender, EventArgs e)
         {
@@ -77,6 +78,30 @@ namespace INFOIBV
 
             if (saveImageDialog.ShowDialog() == DialogResult.OK)
                 outputImageBox.Image.Save(saveImageDialog.FileName);
+        }
+
+        private void PipeLineButton1_Click(object sender, EventArgs e)
+        {
+            if (inputImageBox.Image == null)
+                return;
+
+            var filters = new Filters(progressBar);
+            var pipeline = new PipeLine()
+                .AddFilter(image => filters.ConvolveImage(image, Filters.CreateGaussianFilter(5, 1)))
+                .AddFilter(image => filters.EdgeMagnitude(image, Filters.HorizontalKernel(), Filters.VerticalKernel()))
+                .AddFilter(image => filters.ThresholdImage(image, 100));
+
+            // Execute pipeline
+            outputImageBox.Image?.Dispose();
+            outputImageBox.Image = pipeline.Build((Bitmap)inputImageBox.Image);
+        }
+
+        private void pipeline2Button_Click(object sender, EventArgs e)
+        {
+            if (inputImageBox.Image == null)
+            {
+                return;
+            }
         }
     }
 }
