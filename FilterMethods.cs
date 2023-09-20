@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using INFOIBV.Extensions;
 using INFOIBV.Framework;
 
 namespace INFOIBV
 {
-    public class Filters
+    public class FilterMethods
     {
         private readonly ProgressBar _progressBar;
 
-        public Filters(ProgressBar progressBar)
+        public FilterMethods(ProgressBar progressBar)
         {
             _progressBar = progressBar;
         }
@@ -199,7 +200,7 @@ namespace INFOIBV
             {
                 for (var j = 0; j < size; j++)
                 {
-                    filter[i, j] = filter[i, j] / sum;
+                    filter[i, j] /= sum;
                 }
             }
 
@@ -245,11 +246,11 @@ namespace INFOIBV
                             var dv = Clamp(v - j, 0, height - 1);
 
                             values.Add((byte)(inputImage[du, dv] * filter[i, j]));
-                            kernelValues.Add((filter[i, j]));
+                            kernelValues.Add(filter[i, j]);
 
                         }
                     }
-                    var totalKernelValue = kernelValues.Aggregate((x, y) => (x + y));
+                    var totalKernelValue = kernelValues.Aggregate((x, y) => x + y);
                     outputImage[u, v] = values.Aggregate((x, y) => (byte)((x + y)/totalKernelValue));
                 }
             }
@@ -395,18 +396,5 @@ namespace INFOIBV
         // ====================================================================
         // ============= YOUR FUNCTIONS FOR ASSIGNMENT 3 GO HERE ==============
         // ====================================================================
-    }
-}
-
-/// <summary>
-/// Inversion of a pixel value
-/// </summary>
-public class InversionFilter : Filter
-{
-    public override string Identifier => "Inversion";
-
-    protected override byte ExecuteStep(int u, int v, byte[,] input)
-    {
-        return (byte)(Byte.MaxValue - input[u, v]);
     }
 }

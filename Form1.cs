@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using INFOIBV.Framework;
 
 namespace INFOIBV
 {
@@ -64,7 +65,7 @@ namespace INFOIBV
 
             outputImageBox.Image?.Dispose();
 
-            var filters = new Filters(progressBar);
+            var filters = new FilterMethods(progressBar);
             outputImageBox.Image = filters.ApplyFilter(filter, (Bitmap)inputImageBox.Image);
         }
 
@@ -85,11 +86,11 @@ namespace INFOIBV
             if (inputImageBox.Image == null)
                 return;
 
-            var filters = new Filters(progressBar);
+            var filters = new FilterMethods(progressBar);
             var pipeline = new PipeLine()
                 .AddFilter(filters.AdjustContrast)
-                .AddFilter(image => filters.ConvolveImage(image, Filters.CreateGaussianFilter(5, 1)))
-                .AddFilter(image => filters.EdgeMagnitude(image, Filters.HorizontalKernel(), Filters.VerticalKernel()))
+                .AddFilter(image => filters.ConvolveImage(image, FilterMethods.CreateGaussianFilter(5, 1)))
+                .AddFilter(image => filters.EdgeMagnitude(image, FilterMethods.HorizontalKernel(), FilterMethods.VerticalKernel()))
                 .AddFilter(image => filters.ThresholdImage(image, 70));
 
             // Execute pipeline
@@ -102,11 +103,11 @@ namespace INFOIBV
             if (inputImageBox.Image == null)
                 return;
 
-            var filters = new Filters(progressBar);
+            var filters = new FilterMethods(progressBar);
             var pipeline = new PipeLine()
                 .AddFilter(filters.AdjustContrast)
                 .AddFilter(image => filters.MedianFilter(image,5))
-                .AddFilter(image => filters.EdgeMagnitude(image, Filters.HorizontalKernel(), Filters.VerticalKernel()))
+                .AddFilter(image => filters.EdgeMagnitude(image, FilterMethods.HorizontalKernel(), FilterMethods.VerticalKernel()))
                 .AddFilter(image => filters.ThresholdImage(image, 85));
 
             // Execute pipeline

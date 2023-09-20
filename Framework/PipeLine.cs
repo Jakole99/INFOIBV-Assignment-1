@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using INFOIBV.Extensions;
 
 namespace INFOIBV.Framework
 {
@@ -33,7 +34,7 @@ namespace INFOIBV.Framework
             while (_filters.Count > 0)
             {
                 var filter =_filters.Dequeue();
-                singleChannel.Apply(filter);
+                singleChannel = filter(singleChannel);
             }
 
             return singleChannel.ToBitmap();

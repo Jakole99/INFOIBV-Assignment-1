@@ -1,22 +1,25 @@
 ﻿using System.Drawing;
 
-public static class BitmapExtensions
+namespace INFOIBV.Extensions
 {
-    public static byte[,] ToSingleChannel(this Bitmap source)
+    public static class BitmapExtensions
     {
-        var height = source.Size.Height;
-        var width = source.Size.Width;
-        var singleChannel = new byte[width, height];
-
-        for (var x = 0; x < width; x++)
+        public static byte[,] ToSingleChannel(this Bitmap source)
         {
-            for (var y = 0; y < height; y++)
-            {
-                var color = source.GetPixel(x, y);
-                singleChannel[x, y] = (byte)((color.R + color.B + color.G) / 3);
-            }
-        }
+            var height = source.Size.Height;
+            var width = source.Size.Width;
+            var singleChannel = new byte[width, height];
 
-        return singleChannel;
+            for (var x = 0; x < width; x++)
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    var color = source.GetPixel(x, y);
+                    singleChannel[x, y] = (byte)((color.R + color.B + color.G) / 3);
+                }
+            }
+
+            return singleChannel;
+        }
     }
 }

@@ -1,44 +1,46 @@
-﻿using INFOIBV;
-using System;
+﻿using System;
 using System.Drawing;
 
-public static class ByteArrayExtentions
+namespace INFOIBV.Extensions
 {
-    /// <summary>
-    /// Apply byte to byte function on the entire array
-    /// </summary>
-    /// <param name="array"></param>
-    /// <param name="func"></param>
-    public static void PointOperation(this byte[,] array, Func<byte, byte> func)
+    public static class ByteArrayExtentions
     {
-        var width = array.GetLength(0);
-        var height = array.GetLength(1);
-
-        for (var x = 0; x < width; x++)
+        /// <summary>
+        /// Apply byte to byte function on the entire array
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="func"></param>
+        public static void PointOperation(this byte[,] array, Func<byte, byte> func)
         {
-            for (var y = 0; y < height; y++)
-            {
-                array[x, y] = func(array[x, y]);
-            }
-        }
-    }
+            var width = array.GetLength(0);
+            var height = array.GetLength(1);
 
-    public static Bitmap ToBitmap(this byte[,] singleChannel)
-    {
-        var width = singleChannel.GetLength(0);
-        var height = singleChannel.GetLength(1);
-        var output = new Bitmap(width, height);
-
-        for (var x = 0; x < width; x++)
-        {
-            for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
             {
-                var value = singleChannel[x, y];
-                var newColor = Color.FromArgb(value, value, value);
-                output.SetPixel(x, y, newColor);
+                for (var y = 0; y < height; y++)
+                {
+                    array[x, y] = func(array[x, y]);
+                }
             }
         }
 
-        return output;
+        public static Bitmap ToBitmap(this byte[,] singleChannel)
+        {
+            var width = singleChannel.GetLength(0);
+            var height = singleChannel.GetLength(1);
+            var output = new Bitmap(width, height);
+
+            for (var x = 0; x < width; x++)
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    var value = singleChannel[x, y];
+                    var newColor = Color.FromArgb(value, value, value);
+                    output.SetPixel(x, y, newColor);
+                }
+            }
+
+            return output;
+        }
     }
 }
