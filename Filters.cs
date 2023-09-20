@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using INFOIBV.Framework;
 
 namespace INFOIBV
 {
@@ -51,7 +52,7 @@ namespace INFOIBV
                     return median.ToBitmap();
 
                 case FilterType.EdgeMagnitude:
-                    var edge = EdgeMagnitude(newSingleChannel, horizontalKernel(), verticalKernel());
+                    var edge = EdgeMagnitude(newSingleChannel, HorizontalKernel(), VerticalKernel());
                     return edge.ToBitmap();
 
                 case FilterType.Threshold:
@@ -75,7 +76,7 @@ namespace INFOIBV
             return value;
         }
 
-        private static sbyte[,] horizontalKernel()
+        private static sbyte[,] HorizontalKernel()
         {
             sbyte[,] kernel = new sbyte[3, 3];
             kernel[0, 0] = -1;
@@ -93,7 +94,7 @@ namespace INFOIBV
             return kernel;
         }
 
-        private static sbyte[,] verticalKernel()
+        private static sbyte[,] VerticalKernel()
         {
             sbyte[,] kernel = new sbyte[3, 3];
             kernel[0, 0] = -1;
@@ -175,7 +176,7 @@ namespace INFOIBV
         /// <param name="sigma">Standard deviation of the Gaussian distribution</param>
         /// <exception cref="ArgumentException"></exception>
         /// <returns>Gaussian filter</returns>
-        public float[,] CreateGaussianFilter(byte size, float sigma)
+        public static float[,] CreateGaussianFilter(byte size, float sigma)
         {
             if (size % 2 == 0)
                 throw new ArgumentException($"{size} is not an odd size");
@@ -256,8 +257,6 @@ namespace INFOIBV
             return outputImage;
         }
 
-        
-
         /// <summary>
         /// Apply median filtering on an input image with a kernel of specified size
         /// </summary>
@@ -318,7 +317,6 @@ namespace INFOIBV
                 for (int v = 0; v < height; v++)
                 {
                     var values = new List<sbyte>();
-                    var kernelValues = new List<sbyte>();
 
                     // For every Horizontal filter index
                     for (int i = 0; i < horizontalKernel.GetLength(0); i++)
@@ -329,16 +327,13 @@ namespace INFOIBV
                             var dv = Clamp(v - j, 0, height - 1);
 
                             values.Add((sbyte)(inputImage[du, dv] * horizontalKernel[i, j]));
-                            kernelValues.Add((horizontalKernel[i, j]));
-
                         }
                     }
 
                     var totalHorziontalValue = values.Aggregate((x, y) => { return (sbyte)(x + y); });
                     
                     values.Clear();
-                    kernelValues.Clear();
-
+                    
                     // For every Vertical filter index
                     for (int i = 0; i < verticalKernel.GetLength(0); i++)
                     {
@@ -348,8 +343,6 @@ namespace INFOIBV
                             var dv = Clamp(v - j, 0, height - 1);
 
                             values.Add((sbyte)(inputImage[du, dv] * verticalKernel[i, j]));
-                            kernelValues.Add((verticalKernel[i, j]));
-
                         }
                     }
                     var totalVerticalValue= values.Aggregate((x, y) => { return (sbyte)(x + y); });
@@ -358,7 +351,7 @@ namespace INFOIBV
 
                 }
             }
-
+            
             return outputImage;
         }
 
@@ -366,6 +359,7 @@ namespace INFOIBV
         /// Threshold a grayscale image
         /// </summary>
         /// <param name="inputImage">Single-channel (byte) image</param>
+        /// <param name="thresholdValue"></param>
         /// <returns>Single-channel (byte) image with on/off values</returns>
         private byte[,] ThresholdImage(byte[,] inputImage, int thresholdValue)
         {
@@ -401,5 +395,18 @@ namespace INFOIBV
         // ====================================================================
         // ============= YOUR FUNCTIONS FOR ASSIGNMENT 3 GO HERE ==============
         // ====================================================================
+    }
+}
+
+/// <summary>
+/// Inversion of a pixel value
+/// </summary>
+public class InversionFilter : Filter
+{
+    public override string Identifier => "Inversion";
+
+    protected override byte ExecuteStep(int u, int v, byte[,] input)
+    {
+        return (byte)(Byte.MaxValue - input[u, v]);
     }
 }

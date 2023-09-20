@@ -59,7 +59,10 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="PipeLine.cs" />
+    <Compile Include="Framework\Filter.cs" />
+    <Compile Include="Framework\FilterProgress.cs" />
+    <Compile Include="Framework\IReadonlyFilterProgress.cs" />
+    <Compile Include="Framework\PipeLine.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Extensions\ProgressBarExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
