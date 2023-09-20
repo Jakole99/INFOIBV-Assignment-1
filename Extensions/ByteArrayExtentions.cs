@@ -5,16 +5,6 @@ using System.Drawing;
 public static class ByteArrayExtentions
 {
     /// <summary>
-    /// Apply a filter funtion to the entire array
-    /// </summary>
-    /// <param name="input"></param>
-    /// <param name="func"></param>
-    public static void Apply(this byte[,] input, Func<byte[,], byte[,]> func)
-    {
-        func(input);
-    }
-
-    /// <summary>
     /// Apply byte to byte function on the entire array
     /// </summary>
     /// <param name="array"></param>
@@ -24,9 +14,9 @@ public static class ByteArrayExtentions
         var width = array.GetLength(0);
         var height = array.GetLength(1);
 
-        for (int x = 0; x < width; x++)
+        for (var x = 0; x < width; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (var y = 0; y < height; y++)
             {
                 array[x, y] = func(array[x, y]);
             }
@@ -39,9 +29,9 @@ public static class ByteArrayExtentions
         var height = singleChannel.GetLength(1);
         var output = new Bitmap(width, height);
 
-        for (int x = 0; x < width; x++)
+        for (var x = 0; x < width; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (var y = 0; y < height; y++)
             {
                 var value = singleChannel[x, y];
                 var newColor = Color.FromArgb(value, value, value);
