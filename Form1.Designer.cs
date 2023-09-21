@@ -40,6 +40,10 @@
             this.cbFilter = new System.Windows.Forms.ComboBox();
             this.pipeline1Button = new System.Windows.Forms.Button();
             this.pipeline2Button = new System.Windows.Forms.Button();
+            this.lenaButton = new System.Windows.Forms.Button();
+            this.gridButton = new System.Windows.Forms.Button();
+            this.cubeHousesButton = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.inputImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.outputImageBox)).BeginInit();
             this.SuspendLayout();
@@ -67,7 +71,7 @@
             this.imageFileName.Margin = new System.Windows.Forms.Padding(4);
             this.imageFileName.Name = "imageFileName";
             this.imageFileName.ReadOnly = true;
-            this.imageFileName.Size = new System.Drawing.Size(420, 22);
+            this.imageFileName.Size = new System.Drawing.Size(427, 22);
             this.imageFileName.TabIndex = 1;
             // 
             // inputImageBox
@@ -156,13 +160,60 @@
             this.pipeline2Button.TabIndex = 9;
             this.pipeline2Button.Text = "Pipeline 2";
             this.pipeline2Button.UseVisualStyleBackColor = true;
-            this.pipeline2Button.Click += new System.EventHandler(this.pipeline2Button_Click);
+            this.pipeline2Button.Click += new System.EventHandler(this.Pipeline2Button_Click);
+            // 
+            // lenaButton
+            // 
+            this.lenaButton.Location = new System.Drawing.Point(155, 50);
+            this.lenaButton.Margin = new System.Windows.Forms.Padding(4);
+            this.lenaButton.Name = "lenaButton";
+            this.lenaButton.Size = new System.Drawing.Size(137, 28);
+            this.lenaButton.TabIndex = 10;
+            this.lenaButton.Text = "Lena";
+            this.lenaButton.UseVisualStyleBackColor = true;
+            this.lenaButton.Click += new System.EventHandler(this.LenaButton_Click);
+            // 
+            // gridButton
+            // 
+            this.gridButton.Location = new System.Drawing.Point(300, 50);
+            this.gridButton.Margin = new System.Windows.Forms.Padding(4);
+            this.gridButton.Name = "gridButton";
+            this.gridButton.Size = new System.Drawing.Size(137, 28);
+            this.gridButton.TabIndex = 11;
+            this.gridButton.Text = "Grid";
+            this.gridButton.UseVisualStyleBackColor = true;
+            this.gridButton.Click += new System.EventHandler(this.GridButton_Click);
+            // 
+            // cubeHousesButton
+            // 
+            this.cubeHousesButton.Location = new System.Drawing.Point(445, 50);
+            this.cubeHousesButton.Margin = new System.Windows.Forms.Padding(4);
+            this.cubeHousesButton.Name = "cubeHousesButton";
+            this.cubeHousesButton.Size = new System.Drawing.Size(137, 28);
+            this.cubeHousesButton.TabIndex = 12;
+            this.cubeHousesButton.Text = "Cube Houses";
+            this.cubeHousesButton.UseVisualStyleBackColor = true;
+            this.cubeHousesButton.Click += new System.EventHandler(this.CubeHousesButton_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(22, 56);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(119, 16);
+            this.label1.TabIndex = 13;
+            this.label1.Text = "Quick Image Load:";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // INFOIBV
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1403, 729);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.cubeHousesButton);
+            this.Controls.Add(this.gridButton);
+            this.Controls.Add(this.lenaButton);
             this.Controls.Add(this.pipeline2Button);
             this.Controls.Add(this.pipeline1Button);
             this.Controls.Add(this.cbFilter);
@@ -199,6 +250,10 @@
         private System.Windows.Forms.ComboBox cbFilter;
         private System.Windows.Forms.Button pipeline1Button;
         private System.Windows.Forms.Button pipeline2Button;
+        private System.Windows.Forms.Button lenaButton;
+        private System.Windows.Forms.Button gridButton;
+        private System.Windows.Forms.Button cubeHousesButton;
+        private System.Windows.Forms.Label label1;
     }
 }
 

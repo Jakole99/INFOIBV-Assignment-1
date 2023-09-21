@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using INFOIBV.Filters;
 using INFOIBV.Framework;
+
 
 namespace INFOIBV
 {
@@ -12,9 +14,7 @@ namespace INFOIBV
         public INFOIBV()
         {
             InitializeComponent();
-
             cbFilter.DataSource = Enum.GetValues(typeof(FilterType));
-            SetInputImage(new Bitmap("images/cube_houses.jpg"));
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace INFOIBV
             outputImageBox.Image = pipeline.Build((Bitmap)inputImageBox.Image);
         }
 
-        private void pipeline2Button_Click(object sender, EventArgs e)
+        private void Pipeline2Button_Click(object sender, EventArgs e)
         {
             if (inputImageBox.Image == null)
                 return;
@@ -111,6 +111,26 @@ namespace INFOIBV
             // Execute pipeline
             outputImageBox.Image?.Dispose();
             outputImageBox.Image = pipeline.Build((Bitmap)inputImageBox.Image);
+        }
+
+        private void LenaButton_Click(object sender, EventArgs e)
+        {
+            SetInputImage(new Bitmap("Images/lena_color.jpg"));
+        }
+
+        private void GridButton_Click(object sender, EventArgs e)
+        {
+            SetInputImage(new Bitmap("Images/grid.jpg"));
+        }
+
+        private void CubeHousesButton_Click(object sender, EventArgs e)
+        {
+            SetInputImage(new Bitmap("Images/cube_houses.jpg"));
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
