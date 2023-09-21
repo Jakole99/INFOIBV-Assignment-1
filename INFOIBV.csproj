@@ -99,6 +99,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\cube_houses.jpg" />
     <Content Include="Images\grid.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

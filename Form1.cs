@@ -14,7 +14,7 @@ namespace INFOIBV
             InitializeComponent();
 
             cbFilter.DataSource = Enum.GetValues(typeof(FilterType));
-            SetInputImage(new Bitmap("images/lena_color.jpg"));
+            SetInputImage(new Bitmap("images/cube_houses.jpg"));
         }
 
         /// <summary>
