@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 using INFOIBV.Extensions;
 
 namespace INFOIBV.Framework
@@ -23,16 +25,16 @@ namespace INFOIBV.Framework
         /// <summary>
         /// Grayscale a bitmap and apply all the filters then convert it back to a bitmap
         /// </summary>
-        /// <returns>Filtered bitmap</returns>
-        public Bitmap Build(Bitmap image)
+        /// <remarks>Run asynchronously because we are doing cpu bound computation</remarks>
+        public async Task<Bitmap> Build(Bitmap image, IProgress<(string, int)> progress)
         {
             var singleChannel = image.ToSingleChannel();
 
             // Apply filters
             while (_filters.Count > 0)
             {
-                var filter =_filters.Dequeue();
-                singleChannel = filter.Convert(singleChannel);
+                var filter = _filters.Dequeue();
+                singleChannel = await filter.ConvertParallel(singleChannel, progress);
             }
 
             return singleChannel.ToBitmap();

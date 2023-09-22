@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using INFOIBV.Filters;
 using INFOIBV.Framework;
@@ -9,6 +10,7 @@ namespace INFOIBV
     // ReSharper disable once InconsistentNaming
     public partial class INFOIBV : Form
     {
+
         public INFOIBV()
         {
             InitializeComponent();
@@ -81,11 +83,8 @@ namespace INFOIBV
                 outputImageBox.Image.Save(saveImageDialog.FileName);
         }
 
-        private void PipeLineButton1_Click(object sender, EventArgs e)
+        private async void PipeLineButton1_Click(object sender, EventArgs e)
         {
-            if (inputImageBox.Image == null)
-                return;
-
             var pipeline = new PipeLine()
                 .AddContrastAdjustment()
                 .AddGaussian(5, 1)
@@ -93,24 +92,34 @@ namespace INFOIBV
                 .AddThresholdFilter(70);
 
             // Execute pipeline
-            outputImageBox.Image?.Dispose();
-            outputImageBox.Image = pipeline.Build((Bitmap)inputImageBox.Image);
+            await ProcessPipeline(pipeline);
         }
 
-        private void pipeline2Button_Click(object sender, EventArgs e)
+        private async void pipeline2Button_Click(object sender, EventArgs e)
         {
-            if (inputImageBox.Image == null)
-                return;
-
             var pipeline = new PipeLine()
                 .AddContrastAdjustment()
                 .AddMedianFilter(5)
                 .AddEdgeMagnitudeFilter()
                 .AddThresholdFilter(85);
 
-            // Execute pipeline
-            outputImageBox.Image?.Dispose();
-            outputImageBox.Image = pipeline.Build((Bitmap)inputImageBox.Image);
+            await ProcessPipeline(pipeline);
+        }
+
+        private async Task ProcessPipeline(PipeLine pipeLine)
+        {
+            if (inputImageBox.Image == null)
+                return;
+
+            var progress = new Progress<(string, int)>(x =>
+            {
+                label1.Text = x.Item1;
+                progressBar.Value = x.Item2;
+            });
+
+            progressBar.Show();
+            outputImageBox.Image = await pipeLine.Build((Bitmap)inputImageBox.Image, progress);
+            progressBar.Hide();
         }
     }
 }

@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\BitmapExtensions.cs" />
-    <Compile Include="Extensions\ByteArrayExtentions.cs" />
+    <Compile Include="Extensions\ByteArrayExtensions.cs" />
     <Compile Include="Extensions\MathExtensions.cs" />
     <Compile Include="FilterMethods.cs" />
     <Compile Include="Filters\ContrastAdjustmentFilter.cs" />
@@ -68,8 +68,6 @@
     </Compile>
     <Compile Include="Framework\Filter.cs" />
     <Compile Include="Framework\FilterHelper.cs" />
-    <Compile Include="Framework\FilterProgress.cs" />
-    <Compile Include="Framework\IReadonlyFilterProgress.cs" />
     <Compile Include="Framework\PipeLine.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Extensions\ProgressBarExtensions.cs" />

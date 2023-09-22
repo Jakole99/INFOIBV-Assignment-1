@@ -1,17 +1,13 @@
-﻿namespace INFOIBV.Framework
+﻿using System;
+using System.Threading.Tasks;
+
+namespace INFOIBV.Framework
 {
     /// <summary>
     /// Abstract definition of a filter
     /// </summary>
     public abstract class Filter
     {
-        /// <summary>
-        /// Progress of the filter
-        /// </summary>
-        public IReadonlyFilterProgress Progress => _progress;
-
-        private readonly FilterProgress _progress = new FilterProgress();
-
         /// <summary>
         /// User friendly name of the filter
         /// </summary>
@@ -36,25 +32,60 @@
         /// </summary>
         /// <param name="input">Single-channel image</param>
         /// <returns>Filtered single-channel image</returns>
+        [Obsolete("Use ConvertParallel instead")]
         public byte[,] Convert(byte[,] input)
         {
-            _progress.Init(input.Length);
+            var width = input.GetLength(0);
+            var height = input.GetLength(1);
 
-            var output = new byte[input.GetLength(0), input.GetLength(1)];
-            
+            var output = new byte[width, height];
+
             BeforeExecute(input);
-            
-            for (var u = 0; u < input.GetLength(0); u++)
+
+            for (var u = 0; u < width; u++)
             {
-                for (var v = 0; v < input.GetLength(1); v++)
+                for (var v = 0; v < height; v++)
                 {
                     output[u, v] = ExecuteStep(u, v, input);
-                    _progress.Step();
                 }
             }
 
             return output;
         }
 
+        public async Task<byte[,]> ConvertParallel(byte[,] input, IProgress<(string, int)> progress)
+        {
+            // Run the convert on another thread
+            return await Task.Run(() =>
+            {
+                BeforeExecute(input);
+
+                var width = input.GetLength(0);
+                var height = input.GetLength(1);
+                var output = new byte[width, height];
+                var current = 0;
+
+                progress.Report((Identifier, Percentage(current)));
+
+                Parallel.For(0, input.Length, i =>
+                {
+                    var u = i / width;
+                    var v = i % width;
+                    current++;
+
+                    output[u, v] = ExecuteStep(u, v, input);
+
+                    if (Percentage(current) > Percentage(current - 1))
+                        progress.Report((Identifier, Percentage(current)));
+                });
+
+                return output;
+
+                int Percentage(int value)
+                {
+                    return value * 100 / input.Length;
+                }
+            });
+        }
     }
 }

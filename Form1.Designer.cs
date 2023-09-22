@@ -40,6 +40,7 @@
             this.cbFilter = new System.Windows.Forms.ComboBox();
             this.pipeline1Button = new System.Windows.Forms.Button();
             this.pipeline2Button = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.inputImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.outputImageBox)).BeginInit();
             this.SuspendLayout();
@@ -57,8 +58,7 @@
             // 
             // openImageDialog
             // 
-            this.openImageDialog.Filter = "Bitmap files (*.bmp;*.gif;*.jpg;*.png;*.tiff;*.jpeg)|*.bmp;*.gif;*.jpg;*.png;*.ti" +
-    "ff;*.jpeg";
+            this.openImageDialog.Filter = "Bitmap files (*.bmp;*.gif;*.jpg;*.png;*.tiff;*.jpeg)|*.bmp;*.gif;*.jpg;*.png;*.ti" + "ff;*.jpeg";
             this.openImageDialog.InitialDirectory = "..\\..\\images";
             // 
             // imageFileName
@@ -158,11 +158,20 @@
             this.pipeline2Button.UseVisualStyleBackColor = true;
             this.pipeline2Button.Click += new System.EventHandler(this.pipeline2Button_Click);
             // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(611, 55);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(356, 22);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "label1";
+            // 
             // INFOIBV
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1403, 729);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.pipeline2Button);
             this.Controls.Add(this.pipeline1Button);
             this.Controls.Add(this.cbFilter);
@@ -182,8 +191,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.outputImageBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
+
+        private System.Windows.Forms.Label label1;
 
         #endregion
 
