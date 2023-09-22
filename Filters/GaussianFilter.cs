@@ -15,12 +15,12 @@ namespace INFOIBV.Filters
         /// <param name="size">Length and width of the Gaussian filter (only odd sizes)</param>
         /// <param name="sigma">Standard deviation of the Gaussian distribution</param>
         /// <exception cref="ArgumentException"><see cref="size"/> is not an odd size</exception>
-        public GaussianFilter(byte size, float sigma)
+        public GaussianFilter(int size, float sigma)
         {
             if (size % 2 == 0)
                 throw new ArgumentException($"{size} is not an odd size");
             
-            _gaussian = CreateGaussianKernel(size, sigma);
+            _gaussian = CreateGaussianKernel((byte)size, sigma);
         }
         
         protected override byte ExecuteStep(int u, int v, byte[,] input)
@@ -70,10 +70,20 @@ namespace INFOIBV.Filters
 
     public static partial class PipelineExtensions
     {
-        /// <inheritdoc cref="GaussianFilter(byte, float)"/>
+        /// <inheritdoc cref="GaussianFilter(int, float)"/>
         public static PipeLine AddGaussian(this PipeLine pipeLine, int size, int sigma)
         {
-            return pipeLine.AddFilter(new GaussianFilter((byte)size, sigma));
+            return pipeLine.AddFilter(new GaussianFilter(size, sigma));
+        }
+
+        public static PipeLine AddGaussian(this PipeLine pipeLine, int size, int sigma, int times)
+        {
+            for (var i = 0; i < times; i++)
+            {
+                pipeLine.AddGaussian(size, sigma);
+            }
+
+            return pipeLine;
         }
     }
 }

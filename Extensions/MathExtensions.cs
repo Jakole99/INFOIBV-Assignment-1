@@ -7,7 +7,7 @@ namespace INFOIBV.Extensions
         /// <summary>
         /// Clamps a value between a minimum and a maximum
         /// </summary>
-        public static T Clamp<T>(T value, T min, T max) where T : IComparable<T>
+        public static T Clamp<T>(this T value, T min, T max) where T : IComparable<T>
         {
             if (value.CompareTo(min) < 0)
                 value = min;

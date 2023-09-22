@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using INFOIBV.Extensions;
 using INFOIBV.Framework;
 
@@ -22,21 +21,21 @@ namespace INFOIBV.Filters
         
         protected override byte ExecuteStep(int u, int v, byte[,] input)
         {
-            var values = new List<byte>();
+            var values = new byte[_size*_size];
 
             // For every median size
-            for (var i = 0; i < _size; i++)
+            for (var n = 0; n < _size*_size; n++)
             {
-                for (var j = 0; j < _size; j++)
-                {
-                    var du = MathExtensions.Clamp(u - i, 0, input.GetLength(0) - 1);
-                    var dv = MathExtensions.Clamp(v - j, 0, input.GetLength(1) - 1);
+                var i = n / _size - _size/2;
+                var j = n % _size - _size/2;
 
-                    values.Add(input[du, dv]);
-                }
+                var du = (u - i).Clamp(0, input.GetLength(0) - 1);
+                var dv = (v - j).Clamp(0, input.GetLength(1) - 1);
+
+                values[n] = input[du, dv];
             }
-            
-            return values.OrderBy(x => x).ElementAt(values.Count / 2);
+
+            return values.OrderBy(x => x).ElementAt(_size / 2);
         }
     }
     

@@ -10,39 +10,34 @@ namespace INFOIBV.Framework
         /// </summary>
         public static byte Convolution(byte[,] input, float[,] kernel, int u, int v)
         {
-            byte value = 0;
-            
-            // For every filter index
-            for (var i = 0; i < kernel.GetLength(0); i++)
-            {
-                for (var j = 0; j < kernel.GetLength(1); j++)
-                {
-                    // Clamping is the same as extending the border values 
-                    var du = MathExtensions.Clamp(u - i, 0, input.GetLength(0) - 1);
-                    var dv = MathExtensions.Clamp(v - j, 0, input.GetLength(1) - 1);
-
-                    value += (byte)(input[du, dv] * kernel[i, j]);
-                }
-            }
-
-            return value;
+            return Convolution(input, kernel, u, v, (b, f) => (byte)Math.Round(b * f));
         }
 
         /// <inheritdoc cref="Convolution(byte[,],float[,],int,int)"/>
-        public static sbyte Convolution(byte[,] input, sbyte[,] kernel, int u, int v)
+        public static byte Convolution(byte[,] input, sbyte[,] kernel, int u, int v)
         {
-            sbyte value = 0;
-            
-            // For every filter index
-            for (var i = 0; i < kernel.GetLength(0); i++)
-            {
-                for (var j = 0; j < kernel.GetLength(1); j++)
-                {
-                    // Clamping is the same as extending the border values 
-                    var du = MathExtensions.Clamp(u - i, 0, input.GetLength(0) - 1);
-                    var dv = MathExtensions.Clamp(v - j, 0, input.GetLength(1) - 1);
+            return Convolution(input, kernel, u, v, (b, f) => (byte)(b * f));
+        }
 
-                    value += (sbyte)(input[du, dv] * kernel[i, j]);
+        public static byte Convolution<T>(byte[,] input, T[,] kernel, int u, int v, Func<byte, T, byte> aggregator) where T : new()
+        {
+            byte value = 0;
+
+            var kernelSize = kernel.GetLength(0);
+
+            // For every filter index
+            for (var i = 0; i < kernelSize; i++)
+            {
+                for (var j = 0; j < kernelSize; j++)
+                {
+                    var i2 = u - i + kernelSize / 2;
+                    var j2 = v - j + kernelSize / 2;
+
+                    // Clamping is the same as extending the border values
+                    var du = i2.Clamp(0, input.GetLength(0) - 1);
+                    var dv = j2.Clamp(0, input.GetLength(1) - 1);
+
+                    value += aggregator(input[du, dv], kernel[i, j]);
                 }
             }
 
