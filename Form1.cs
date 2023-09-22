@@ -134,10 +134,5 @@ namespace INFOIBV
         {
             SetInputImage(new Bitmap("Images/cube_houses.jpg"));
         }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }

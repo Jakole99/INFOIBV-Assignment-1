@@ -202,7 +202,6 @@
             this.label1.Size = new System.Drawing.Size(126, 17);
             this.label1.TabIndex = 13;
             this.label1.Text = "Quick Image Load:";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             //
             // filterLabel
             //
