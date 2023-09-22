@@ -69,8 +69,8 @@ namespace INFOIBV.Framework
 
                 Parallel.For(0, input.Length, i =>
                 {
-                    var u = i / width;
-                    var v = i % width;
+                    var u = i % width;
+                    var v = i / width;
                     current++;
 
                     output[u, v] = ExecuteStep(u, v, input);

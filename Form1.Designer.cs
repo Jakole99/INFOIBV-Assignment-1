@@ -44,13 +44,14 @@
             this.gridButton = new System.Windows.Forms.Button();
             this.cubeHousesButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.filterLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.inputImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.outputImageBox)).BeginInit();
             this.SuspendLayout();
-            // 
+            //
             // LoadImageButton
-            // 
-            this.LoadImageButton.Location = new System.Drawing.Point(16, 15);
+            //
+            this.LoadImageButton.Location = new System.Drawing.Point(22, 17);
             this.LoadImageButton.Margin = new System.Windows.Forms.Padding(4);
             this.LoadImageButton.Name = "LoadImageButton";
             this.LoadImageButton.Size = new System.Drawing.Size(131, 28);
@@ -58,24 +59,23 @@
             this.LoadImageButton.Text = "Load image...";
             this.LoadImageButton.UseVisualStyleBackColor = true;
             this.LoadImageButton.Click += new System.EventHandler(this.LoadImageButton_Click);
-            // 
+            //
             // openImageDialog
-            // 
-            this.openImageDialog.Filter = "Bitmap files (*.bmp;*.gif;*.jpg;*.png;*.tiff;*.jpeg)|*.bmp;*.gif;*.jpg;*.png;*.ti" +
-    "ff;*.jpeg";
+            //
+            this.openImageDialog.Filter = "Bitmap files (*.bmp;*.gif;*.jpg;*.png;*.tiff;*.jpeg)|*.bmp;*.gif;*.jpg;*.png;*.ti" + "ff;*.jpeg";
             this.openImageDialog.InitialDirectory = "..\\..\\images";
-            // 
+            //
             // imageFileName
-            // 
-            this.imageFileName.Location = new System.Drawing.Point(155, 17);
+            //
+            this.imageFileName.Location = new System.Drawing.Point(161, 21);
             this.imageFileName.Margin = new System.Windows.Forms.Padding(4);
             this.imageFileName.Name = "imageFileName";
             this.imageFileName.ReadOnly = true;
             this.imageFileName.Size = new System.Drawing.Size(427, 22);
             this.imageFileName.TabIndex = 1;
-            // 
+            //
             // inputImageBox
-            // 
+            //
             this.inputImageBox.Location = new System.Drawing.Point(16, 86);
             this.inputImageBox.Margin = new System.Windows.Forms.Padding(4);
             this.inputImageBox.Name = "inputImageBox";
@@ -83,9 +83,9 @@
             this.inputImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.inputImageBox.TabIndex = 2;
             this.inputImageBox.TabStop = false;
-            // 
+            //
             // applyButton
-            // 
+            //
             this.applyButton.Location = new System.Drawing.Point(729, 17);
             this.applyButton.Margin = new System.Windows.Forms.Padding(4);
             this.applyButton.Name = "applyButton";
@@ -94,15 +94,15 @@
             this.applyButton.Text = "Apply";
             this.applyButton.UseVisualStyleBackColor = true;
             this.applyButton.Click += new System.EventHandler(this.ApplyButton_Click);
-            // 
+            //
             // saveImageDialog
-            // 
+            //
             this.saveImageDialog.Filter = "Bitmap file (*.bmp)|*.bmp";
             this.saveImageDialog.InitialDirectory = "..\\..\\images";
-            // 
+            //
             // saveButton
-            // 
-            this.saveButton.Location = new System.Drawing.Point(1264, 14);
+            //
+            this.saveButton.Location = new System.Drawing.Point(1268, 17);
             this.saveButton.Margin = new System.Windows.Forms.Padding(4);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(127, 28);
@@ -110,9 +110,9 @@
             this.saveButton.Text = "Save as BMP...";
             this.saveButton.UseVisualStyleBackColor = true;
             this.saveButton.Click += new System.EventHandler(this.SaveButton_Click);
-            // 
+            //
             // outputImageBox
-            // 
+            //
             this.outputImageBox.Location = new System.Drawing.Point(707, 86);
             this.outputImageBox.Margin = new System.Windows.Forms.Padding(4);
             this.outputImageBox.Name = "outputImageBox";
@@ -120,28 +120,27 @@
             this.outputImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.outputImageBox.TabIndex = 5;
             this.outputImageBox.TabStop = false;
-            // 
+            //
             // progressBar
-            // 
-            this.progressBar.Location = new System.Drawing.Point(888, 15);
+            //
+            this.progressBar.Location = new System.Drawing.Point(974, 18);
             this.progressBar.Margin = new System.Windows.Forms.Padding(4);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(368, 25);
-            this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.progressBar.Size = new System.Drawing.Size(286, 25);
             this.progressBar.TabIndex = 6;
             this.progressBar.Visible = false;
-            // 
+            //
             // cbFilter
-            // 
+            //
             this.cbFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbFilter.FormattingEnabled = true;
             this.cbFilter.Location = new System.Drawing.Point(601, 19);
             this.cbFilter.Name = "cbFilter";
             this.cbFilter.Size = new System.Drawing.Size(121, 24);
             this.cbFilter.TabIndex = 7;
-            // 
+            //
             // pipeline1Button
-            // 
+            //
             this.pipeline1Button.Location = new System.Drawing.Point(974, 50);
             this.pipeline1Button.Margin = new System.Windows.Forms.Padding(4);
             this.pipeline1Button.Name = "pipeline1Button";
@@ -150,9 +149,9 @@
             this.pipeline1Button.Text = "Pipeline 1";
             this.pipeline1Button.UseVisualStyleBackColor = true;
             this.pipeline1Button.Click += new System.EventHandler(this.PipeLineButton1_Click);
-            // 
+            //
             // pipeline2Button
-            // 
+            //
             this.pipeline2Button.Location = new System.Drawing.Point(1119, 50);
             this.pipeline2Button.Margin = new System.Windows.Forms.Padding(4);
             this.pipeline2Button.Name = "pipeline2Button";
@@ -161,9 +160,9 @@
             this.pipeline2Button.Text = "Pipeline 2";
             this.pipeline2Button.UseVisualStyleBackColor = true;
             this.pipeline2Button.Click += new System.EventHandler(this.Pipeline2Button_Click);
-            // 
+            //
             // lenaButton
-            // 
+            //
             this.lenaButton.Location = new System.Drawing.Point(155, 50);
             this.lenaButton.Margin = new System.Windows.Forms.Padding(4);
             this.lenaButton.Name = "lenaButton";
@@ -172,9 +171,9 @@
             this.lenaButton.Text = "Lena";
             this.lenaButton.UseVisualStyleBackColor = true;
             this.lenaButton.Click += new System.EventHandler(this.LenaButton_Click);
-            // 
+            //
             // gridButton
-            // 
+            //
             this.gridButton.Location = new System.Drawing.Point(300, 50);
             this.gridButton.Margin = new System.Windows.Forms.Padding(4);
             this.gridButton.Name = "gridButton";
@@ -183,9 +182,9 @@
             this.gridButton.Text = "Grid";
             this.gridButton.UseVisualStyleBackColor = true;
             this.gridButton.Click += new System.EventHandler(this.GridButton_Click);
-            // 
+            //
             // cubeHousesButton
-            // 
+            //
             this.cubeHousesButton.Location = new System.Drawing.Point(445, 50);
             this.cubeHousesButton.Margin = new System.Windows.Forms.Padding(4);
             this.cubeHousesButton.Name = "cubeHousesButton";
@@ -194,22 +193,33 @@
             this.cubeHousesButton.Text = "Cube Houses";
             this.cubeHousesButton.UseVisualStyleBackColor = true;
             this.cubeHousesButton.Click += new System.EventHandler(this.CubeHousesButton_Click);
-            // 
+            //
             // label1
-            // 
+            //
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(22, 56);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(119, 16);
+            this.label1.Size = new System.Drawing.Size(126, 17);
             this.label1.TabIndex = 13;
             this.label1.Text = "Quick Image Load:";
             this.label1.Click += new System.EventHandler(this.label1_Click);
-            // 
+            //
+            // filterLabel
+            //
+            this.filterLabel.BackColor = System.Drawing.Color.Transparent;
+            this.filterLabel.Location = new System.Drawing.Point(873, 20);
+            this.filterLabel.Name = "filterLabel";
+            this.filterLabel.Size = new System.Drawing.Size(100, 20);
+            this.filterLabel.TabIndex = 14;
+            this.filterLabel.Text = "Pipeline";
+            this.filterLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            //
             // INFOIBV
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1403, 729);
+            this.Controls.Add(this.filterLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cubeHousesButton);
             this.Controls.Add(this.gridButton);
@@ -233,8 +243,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.outputImageBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
+
+        private System.Windows.Forms.Label filterLabel;
 
         #endregion
 

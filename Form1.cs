@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using INFOIBV.Filters;
 using INFOIBV.Framework;
-
 
 namespace INFOIBV
 {
@@ -113,7 +111,7 @@ namespace INFOIBV
 
             var progress = new Progress<(string, int)>(x =>
             {
-                label1.Text = x.Item1;
+                filterLabel.Text = x.Item1;
                 progressBar.Value = x.Item2;
             });
 
