@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using INFOIBV.Filters;
 using INFOIBV.Framework;
+
 
 namespace INFOIBV
 {
@@ -14,9 +16,7 @@ namespace INFOIBV
         public INFOIBV()
         {
             InitializeComponent();
-
             cbFilter.DataSource = Enum.GetValues(typeof(FilterType));
-            SetInputImage(new Bitmap("images/lena_color.jpg"));
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace INFOIBV
             await ProcessPipeline(pipeline);
         }
 
-        private async void pipeline2Button_Click(object sender, EventArgs e)
+        private async void Pipeline2Button_Click(object sender, EventArgs e)
         {
             var pipeline = new PipeLine()
                 .AddContrastAdjustment()
@@ -120,6 +120,26 @@ namespace INFOIBV
             progressBar.Show();
             outputImageBox.Image = await pipeLine.Build((Bitmap)inputImageBox.Image, progress);
             progressBar.Hide();
+        }
+
+        private void LenaButton_Click(object sender, EventArgs e)
+        {
+            SetInputImage(new Bitmap("Images/lena_color.jpg"));
+        }
+
+        private void GridButton_Click(object sender, EventArgs e)
+        {
+            SetInputImage(new Bitmap("Images/grid.jpg"));
+        }
+
+        private void CubeHousesButton_Click(object sender, EventArgs e)
+        {
+            SetInputImage(new Bitmap("Images/cube_houses.jpg"));
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
