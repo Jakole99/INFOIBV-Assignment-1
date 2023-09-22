@@ -25,7 +25,7 @@ namespace INFOIBV.Filters
         
         protected override byte ExecuteStep(int u, int v, byte[,] input)
         {
-            return FilterHelper.Convolution(input, _gaussian, u, v);
+            return FilterHelper.FloatToByteConvolution(input, _gaussian, u, v);
         }
         
         private static float[,] CreateGaussianKernel(byte size, float sigma)

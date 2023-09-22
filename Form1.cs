@@ -51,22 +51,42 @@ namespace INFOIBV
         /// <summary>
         /// Process when user clicks on the "Apply" button
         /// </summary>
-        private void ApplyButton_Click(object sender, EventArgs e)
+        private async void ApplyButton_Click(object sender, EventArgs e)
         {
-            if (inputImageBox.Image == null)
-                return;
-
             if (!Enum.TryParse<FilterType>(cbFilter.SelectedValue.ToString(), out var filter))
                 return;
 
-            if (filter == FilterType.None)
+            var pipeline = new PipeLine();
+
+            switch (filter)
             {
-                MessageBox.Show(@"Please specify a filter");
-                return;
+                case FilterType.GrayScale: // Pipeline already converts to grayscale
+                    break;
+                case FilterType.Invert:
+                    pipeline.AddInversionFilter();
+                    break;
+                case FilterType.AdjustContrast:
+                    pipeline.AddContrastAdjustment();
+                    break;
+                case FilterType.Gaussian:
+                    pipeline.AddGaussian(5, 1);
+                    break;
+                case FilterType.Median:
+                    pipeline.AddMedianFilter(5);
+                    break;
+                case FilterType.EdgeMagnitude:
+                    pipeline.AddEdgeMagnitudeFilter();
+                    break;
+                case FilterType.Threshold:
+                    pipeline.AddThresholdFilter(128);
+                    break;
+
+                case FilterType.None:
+                default:
+                    return;
             }
 
-            outputImageBox.Image?.Dispose();
-            outputImageBox.Image = FilterMethods.ApplyFilter(filter, (Bitmap)inputImageBox.Image);
+            await ProcessPipeline(pipeline);
         }
 
         /// <summary>
@@ -115,9 +135,11 @@ namespace INFOIBV
                 progressBar.Value = x.Item2;
             });
 
+            pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = false;
             progressBar.Show();
             outputImageBox.Image = await pipeLine.Build((Bitmap)inputImageBox.Image, progress);
             progressBar.Hide();
+            pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = true;
         }
 
         private void LenaButton_Click(object sender, EventArgs e)
