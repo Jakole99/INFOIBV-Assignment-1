@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using INFOIBV.Extensions;
 
 namespace INFOIBV.Framework
@@ -56,6 +57,33 @@ namespace INFOIBV.Framework
             }
 
             return value;
+        }
+
+        public static async Task<int[]> CreateHistogram(byte[,] input)
+        {
+            var histogramTable = new int[Byte.MaxValue+1];
+            var width = input.GetLength(0);
+
+            // Run the mapping on another thread
+            await Task.Run(() =>
+            {
+                Parallel.For(0, input.Length, i =>
+                {
+                    var u = i % width;
+                    var v = i / width;
+
+                    var intensity = input[u,v];
+                    histogramTable[intensity] += 1;
+                });
+            });
+
+            return histogramTable;
+        }
+
+        public static async Task<int[]> CreateCumulativeHistogram(byte[,] input)
+        {
+            var histogram = await CreateHistogram(input);
+            return Accumulation(histogram);
         }
 
         public static int[] Accumulation(int[] input)

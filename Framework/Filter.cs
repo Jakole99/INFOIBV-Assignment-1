@@ -14,6 +14,25 @@ namespace INFOIBV.Framework
         public abstract string Identifier { get; }
 
         /// <summary>
+        /// Output Width
+        /// </summary>
+        protected int Width { get; private set; }
+
+        /// <summary>
+        /// Output Height
+        /// </summary>
+        protected int Height { get; private set; }
+
+        /// <summary>
+        /// Set size of the output
+        /// </summary>
+        protected void SetOutputDimensions(int width, int height)
+        {
+            Width = width;
+            Height = height;
+        }
+
+        /// <summary>
         /// Execute a single conversion on a specific point using the input. 
         /// </summary>
         /// <param name="u">Horizontal index</param>
@@ -41,19 +60,20 @@ namespace INFOIBV.Framework
             // Run the convert on another thread
             return await Task.Run(async () =>
             {
+                Width = input.GetLength(0);
+                Height = input.GetLength(1);
+
                 await BeforeExecuteAsync(input);
 
-                var width = input.GetLength(0);
-                var height = input.GetLength(1);
-                var output = new byte[width, height];
+                var output = new byte[Width, Height];
                 var current = 0;
 
                 progress.Report((Identifier, Percentage(current)));
 
-                Parallel.For(0, input.Length, i =>
+                Parallel.For(0, output.Length, i =>
                 {
-                    var u = i % width;
-                    var v = i / width;
+                    var u = i % Width;
+                    var v = i / Width;
                     current++;
 
                     output[u, v] = ExecuteStep(u, v, input);
@@ -66,7 +86,7 @@ namespace INFOIBV.Framework
 
                 int Percentage(int value)
                 {
-                    return value * 100 / input.Length;
+                    return value * 100 / output.Length;
                 }
             });
         }

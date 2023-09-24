@@ -23,7 +23,7 @@ namespace INFOIBV.Framework
         }
 
         /// <summary>
-        /// Grayscale a bitmap and apply all the filters then convert it back to a bitmap
+        /// Convert an <see cref="Bitmap"/> to single-channel byte array and apply all the filters
         /// </summary>
         /// <remarks>Run asynchronously because we are doing cpu bound computation</remarks>
         public async Task<Bitmap> Build(Bitmap image, IProgress<(string, int)> progress)

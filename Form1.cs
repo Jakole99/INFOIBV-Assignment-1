@@ -15,6 +15,7 @@ namespace INFOIBV
         {
             InitializeComponent();
             cbFilter.DataSource = Enum.GetValues(typeof(FilterType));
+            cbMode.DataSource = Enum.GetValues(typeof(ModeType));
         }
 
         /// <summary>
@@ -142,6 +143,9 @@ namespace INFOIBV
             if (inputImageBox.Image == null)
                 return;
 
+            if (!Enum.TryParse<ModeType>(cbMode.SelectedValue.ToString(), out var mode))
+                return;
+
             var progress = new Progress<(string, int)>(x =>
             {
                 filterLabel.Text = x.Item1;
@@ -150,8 +154,23 @@ namespace INFOIBV
 
             pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = false;
             progressBar.Show();
-
-            outputImageBox.Image = await pipeLine.Build((Bitmap)inputImageBox.Image, progress);
+            switch (mode)
+            {
+                case ModeType.Normal:
+                    outputImageBox.Image =
+                        await pipeLine.Build((Bitmap)inputImageBox.Image, progress);
+                    break;
+                case ModeType.Histogram:
+                    outputImageBox.Image =
+                        await pipeLine.DisplayHistogram((Bitmap)inputImageBox.Image, progress);
+                    break;
+                case ModeType.CumulativeHistogram:
+                    outputImageBox.Image =
+                        await pipeLine.DisplayCumulativeHistogram((Bitmap)inputImageBox.Image, progress);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             progressBar.Hide();
             pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = true;
         }

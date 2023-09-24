@@ -45,6 +45,8 @@
             this.cubeHousesButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.filterLabel = new System.Windows.Forms.Label();
+            this.cbMode = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.inputImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.outputImageBox)).BeginInit();
             this.SuspendLayout();
@@ -213,11 +215,30 @@
             this.filterLabel.Text = "Pipeline";
             this.filterLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             //
+            // cbMode
+            //
+            this.cbMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbMode.FormattingEnabled = true;
+            this.cbMode.Location = new System.Drawing.Point(745, 49);
+            this.cbMode.Name = "cbMode";
+            this.cbMode.Size = new System.Drawing.Size(121, 24);
+            this.cbMode.TabIndex = 15;
+            //
+            // label2
+            //
+            this.label2.Location = new System.Drawing.Point(692, 52);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(47, 23);
+            this.label2.TabIndex = 16;
+            this.label2.Text = "Mode:";
+            //
             // INFOIBV
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1403, 729);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.cbMode);
             this.Controls.Add(this.filterLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cubeHousesButton);
@@ -243,6 +264,9 @@
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.ComboBox cbMode;
+        private System.Windows.Forms.Label label2;
 
         private System.Windows.Forms.Label filterLabel;
 

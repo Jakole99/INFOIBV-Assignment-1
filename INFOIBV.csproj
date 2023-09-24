@@ -57,6 +57,7 @@
     <Compile Include="Filters\EdgeMagnitudeFilter.cs" />
     <Compile Include="Filters\GaussianFilter.cs" />
     <Compile Include="Filters\HistogramEqualizationFilter.cs" />
+    <Compile Include="Filters\DisplayHistogramFilter.cs" />
     <Compile Include="Filters\InversionFilter.cs" />
     <Compile Include="Filters\MedianFilter.cs" />
     <Compile Include="Filters\ThresholdFilter.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Framework\Filter.cs" />
     <Compile Include="Framework\FilterHelper.cs" />
     <Compile Include="Framework\PipeLine.cs" />
+    <Compile Include="ModeType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Extensions\ProgressBarExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
