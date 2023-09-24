@@ -23,9 +23,9 @@ namespace INFOIBV.Filters
             _gaussian = CreateGaussianKernel((byte)size, sigma);
         }
         
-        protected override byte ExecuteStep(int u, int v, byte[,] input)
+        protected override byte TransformPixel(int u, int v, byte[,] input)
         {
-            return FilterHelper.FloatToByteConvolution(input, _gaussian, u, v);
+            return FilterHelper.ConvolvePixel(input, _gaussian, u, v);
         }
         
         private static float[,] CreateGaussianKernel(byte size, float sigma)
@@ -72,18 +72,6 @@ namespace INFOIBV.Filters
     {
         /// <inheritdoc cref="GaussianFilter(int, float)"/>
         public static PipeLine AddGaussian(this PipeLine pipeLine, int size, int sigma)
-        {
-            return pipeLine.AddFilter(new GaussianFilter(size, sigma));
-        }
-
-        public static PipeLine AddGaussian(this PipeLine pipeLine, int size, int sigma, int times)
-        {
-            for (var i = 0; i < times; i++)
-            {
-                pipeLine.AddGaussian(size, sigma);
-            }
-
-            return pipeLine;
-        }
+            => pipeLine.AddFilter(new GaussianFilter(size, sigma));
     }
 }

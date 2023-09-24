@@ -22,13 +22,13 @@ namespace INFOIBV.Filters
             { -1, 0, 1 }
         };
 
-        protected override byte ExecuteStep(int u, int v, byte[,] input)
+        protected override byte TransformPixel(int u, int v, byte[,] input)
         {
             // For every Horizontal filter index
-            var horizontalValue = FilterHelper.Convolution(input, _horizontalKernel, u, v);
+            var horizontalValue = FilterHelper.ConvolvePixel(input, _horizontalKernel, u, v);
 
             // For every Vertical filter index
-            var verticalValue = FilterHelper.Convolution(input, _verticalKernel, u, v);
+            var verticalValue = FilterHelper.ConvolvePixel(input, _verticalKernel, u, v);
 
             return (byte)Math.Sqrt(horizontalValue * horizontalValue + verticalValue * verticalValue);
         }

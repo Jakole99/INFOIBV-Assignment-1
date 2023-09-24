@@ -18,7 +18,7 @@ namespace INFOIBV.Filters
             _threshold = threshold;
         }
         
-        protected override byte ExecuteStep(int u, int v, byte[,] input)
+        protected override byte TransformPixel(int u, int v, byte[,] input)
         {
             return input[u, v] < _threshold ? Byte.MinValue : Byte.MaxValue;
         }

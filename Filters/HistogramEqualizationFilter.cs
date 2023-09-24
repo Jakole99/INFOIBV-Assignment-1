@@ -12,7 +12,7 @@ namespace INFOIBV.Filters
         
         public override string Identifier => "Equalization";
 
-        protected override async Task BeforeExecuteAsync(byte[,] input)
+        protected override async Task BeforeTransform(byte[,] input)
         {
             _m = input.GetLength(0);
             _n = input.GetLength(1);
@@ -24,7 +24,7 @@ namespace INFOIBV.Filters
             _lookUpTable = await FilterHelper.CreateCumulativeHistogram(input);
         }
 
-        protected override byte ExecuteStep(int u, int v, byte[,] input)
+        protected override byte TransformPixel(int u, int v, byte[,] input)
         {
             var a = input[u, v];
             var equalizedIntensity = (byte)(_lookUpTable[a] * (_k - 1) / (_m*_n));

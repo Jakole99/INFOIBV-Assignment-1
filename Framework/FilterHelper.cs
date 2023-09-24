@@ -9,7 +9,7 @@ namespace INFOIBV.Framework
         /// <summary>
         /// Helper function to perform basic convolution
         /// </summary>
-        public static byte FloatToByteConvolution(byte[,] input, float[,] kernel, int u, int v)
+        public static byte ConvolvePixel(byte[,] input, float[,] kernel, int u, int v)
         {
             byte value = 0;
             var kernelSize = kernel.GetLength(0);
@@ -33,8 +33,8 @@ namespace INFOIBV.Framework
             return value;
         }
 
-        /// <inheritdoc cref="FloatToByteConvolution"/>
-        public static sbyte Convolution(byte[,] input, sbyte[,] kernel, int u, int v)
+        /// <inheritdoc cref="ConvolvePixel(byte[,],float[,],int,int)"/>
+        public static sbyte ConvolvePixel(byte[,] input, sbyte[,] kernel, int u, int v)
         {
             sbyte value = 0;
 
@@ -63,18 +63,18 @@ namespace INFOIBV.Framework
         {
             var histogramTable = new int[Byte.MaxValue+1];
             var width = input.GetLength(0);
+            var height = input.GetLength(1);
 
-            // Run the mapping on another thread
             await Task.Run(() =>
             {
-                Parallel.For(0, input.Length, i =>
+                for (var u = 0; u < width; u++)
                 {
-                    var u = i % width;
-                    var v = i / width;
-
-                    var intensity = input[u,v];
-                    histogramTable[intensity] += 1;
-                });
+                    for (var v = 0; v < height; v++)
+                    {
+                        var intensity = input[u, v];
+                        histogramTable[intensity] += 1;
+                    }
+                }
             });
 
             return histogramTable;
@@ -83,17 +83,16 @@ namespace INFOIBV.Framework
         public static async Task<int[]> CreateCumulativeHistogram(byte[,] input)
         {
             var histogram = await CreateHistogram(input);
-            return Accumulation(histogram);
-        }
 
-        public static int[] Accumulation(int[] input)
-        {
-            for (var i = 1; i < input.Length; i++)
+            await Task.Run(() =>
             {
-                input[i] += input[i - 1];
-            }
+                for (var i = 1; i < histogram.Length; i++)
+                {
+                    histogram[i] += histogram[i - 1];
+                }
 
-            return input;
+            });
+            return histogram;
         }
     }
 }

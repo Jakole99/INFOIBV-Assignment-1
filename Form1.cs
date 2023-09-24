@@ -10,10 +10,11 @@ namespace INFOIBV
     // ReSharper disable once InconsistentNaming
     public partial class INFOIBV : Form
     {
-
         public INFOIBV()
         {
             InitializeComponent();
+
+            // Set combo boxes
             cbFilter.DataSource = Enum.GetValues(typeof(FilterType));
             cbMode.DataSource = Enum.GetValues(typeof(ModeType));
         }
@@ -153,7 +154,7 @@ namespace INFOIBV
             });
 
             pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = false;
-            progressBar.Show();
+            progressBar.Visible = filterLabel.Visible = true;
             switch (mode)
             {
                 case ModeType.Normal:
@@ -171,7 +172,7 @@ namespace INFOIBV
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            progressBar.Hide();
+            progressBar.Visible = filterLabel.Visible = false;
             pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = true;
         }
 
