@@ -10,7 +10,7 @@ namespace INFOIBV.Filters
     {
         public override string Identifier => "Inversion";
 
-        protected override byte TransformPixel(int u, int v, byte[,] input)
+        protected override byte ConvertPixel(int u, int v, byte[,] input)
         {
             return (byte)(Byte.MaxValue - input[u, v]);
         }

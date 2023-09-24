@@ -15,14 +15,14 @@ namespace INFOIBV.Filters
         private int _highest;
         private int _lowest;
 
-        protected override Task BeforeTransform(byte[,] input)
+        protected override Task BeforeConvert(byte[,] input)
         {
             _highest = input.Cast<byte>().Max();
             _lowest = input.Cast<byte>().Min();
             return Task.CompletedTask;
         }
 
-        protected override byte TransformPixel(int u, int v, byte[,] input)
+        protected override byte ConvertPixel(int u, int v, byte[,] input)
         {
             return (byte)(Byte.MinValue + (input[u, v] - _highest) * Byte.MaxValue / (_highest - _lowest));
         }

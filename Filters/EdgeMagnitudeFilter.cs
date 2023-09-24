@@ -22,7 +22,7 @@ namespace INFOIBV.Filters
             { -1, 0, 1 }
         };
 
-        protected override byte TransformPixel(int u, int v, byte[,] input)
+        protected override byte ConvertPixel(int u, int v, byte[,] input)
         {
             // For every Horizontal filter index
             var horizontalValue = FilterHelper.ConvolvePixel(input, _horizontalKernel, u, v);

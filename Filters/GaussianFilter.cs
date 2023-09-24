@@ -23,7 +23,7 @@ namespace INFOIBV.Filters
             _gaussian = CreateGaussianKernel((byte)size, sigma);
         }
         
-        protected override byte TransformPixel(int u, int v, byte[,] input)
+        protected override byte ConvertPixel(int u, int v, byte[,] input)
         {
             return FilterHelper.ConvolvePixel(input, _gaussian, u, v);
         }

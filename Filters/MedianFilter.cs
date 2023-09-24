@@ -19,7 +19,7 @@ namespace INFOIBV.Filters
             _size = size;
         }
         
-        protected override byte TransformPixel(int u, int v, byte[,] input)
+        protected override byte ConvertPixel(int u, int v, byte[,] input)
         {
             var values = new byte[_size*_size];
 

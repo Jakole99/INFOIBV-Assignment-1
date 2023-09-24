@@ -39,12 +39,12 @@ namespace INFOIBV.Framework
         /// <param name="v">Vertical index</param>
         /// <param name="input">Single-channel image</param>
         /// <returns>Resulting value</returns>
-        protected abstract byte TransformPixel(int u, int v, byte[,] input);
+        protected abstract byte ConvertPixel(int u, int v, byte[,] input);
 
         /// <summary>
         /// Useful for pre-computation of values needed for every pixel
         /// </summary>
-        protected virtual Task BeforeTransform(byte[,] input)
+        protected virtual Task BeforeConvert(byte[,] input)
         {
             return Task.CompletedTask;
         }
@@ -63,7 +63,7 @@ namespace INFOIBV.Framework
                 Width = input.GetLength(0);
                 Height = input.GetLength(1);
 
-                await BeforeTransform(input);
+                await BeforeConvert(input);
 
                 var output = new byte[Width, Height];
                 var current = 0;
@@ -76,7 +76,7 @@ namespace INFOIBV.Framework
                     var v = i / Width;
                     current++;
 
-                    output[u, v] = TransformPixel(u, v, input);
+                    output[u, v] = ConvertPixel(u, v, input);
 
                     if (Percentage(current) > Percentage(current - 1))
                         progress.Report((Identifier, Percentage(current)));

@@ -20,7 +20,7 @@ namespace INFOIBV.Filters
 
         public override string Identifier => "Display histogram";
 
-        protected override async Task BeforeTransform(byte[,] input)
+        protected override async Task BeforeConvert(byte[,] input)
         {
             SetOutputDimensions(512, 300);
 
@@ -33,7 +33,7 @@ namespace INFOIBV.Filters
 
         }
 
-        protected override byte TransformPixel(int u, int v, byte[,] input)
+        protected override byte ConvertPixel(int u, int v, byte[,] input)
         {
             // check horizontal which histogram entry were at
             var value = _histogram[(int)(u / _columnWidth)];
