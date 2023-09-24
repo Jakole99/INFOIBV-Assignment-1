@@ -80,6 +80,9 @@ namespace INFOIBV
                 case FilterType.Threshold:
                     pipeline.AddThresholdFilter(128);
                     break;
+                case FilterType.HistogramEqualization:
+                    pipeline.AddHistogramEqualization();
+                    break;
 
                 case FilterType.None:
                 default:
@@ -107,7 +110,7 @@ namespace INFOIBV
                 .AddContrastAdjustment()
                 .AddGaussian(5, 1)
                 .AddEdgeMagnitudeFilter()
-                .AddThresholdFilter(70);
+                .AddThresholdFilter(80);
 
             // Execute pipeline
             await ProcessPipeline(pipeline);
@@ -115,11 +118,21 @@ namespace INFOIBV
 
         private async void Pipeline2Button_Click(object sender, EventArgs e)
         {
-            var pipeline = new PipeLine()
-                .AddContrastAdjustment()
-                .AddMedianFilter(5)
-                .AddEdgeMagnitudeFilter()
-                .AddThresholdFilter(85);
+            //var pipeline = new PipeLine()
+              //  .AddContrastAdjustment()
+               // .AddMedianFilter(5)
+               // .AddEdgeMagnitudeFilter()
+               // .AddThresholdFilter(100);
+
+               var pipeline = new PipeLine()
+                   .AddContrastAdjustment()
+                   .AddGaussian(3, 1)
+                   .AddGaussian(5, (int)(1*Math.Sqrt(2)))
+                   .AddGaussian(7, (int)(1 * Math.Sqrt(3)))
+                   .AddGaussian(9, (int)(1 * Math.Sqrt(4)))
+                   .AddGaussian(11, (int)(1 * Math.Sqrt(5)))
+                   .AddEdgeMagnitudeFilter()
+                   .AddThresholdFilter(80);
 
             await ProcessPipeline(pipeline);
         }
@@ -137,6 +150,7 @@ namespace INFOIBV
 
             pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = false;
             progressBar.Show();
+
             outputImageBox.Image = await pipeLine.Build((Bitmap)inputImageBox.Image, progress);
             progressBar.Hide();
             pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = true;

@@ -13,6 +13,7 @@ namespace INFOIBV
         Gaussian,
         Median,
         EdgeMagnitude,
-        Threshold
+        Threshold,
+        HistogramEqualization
     }
 }

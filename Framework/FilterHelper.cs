@@ -57,5 +57,15 @@ namespace INFOIBV.Framework
 
             return value;
         }
+
+        public static int[] Accumulation(int[] input)
+        {
+            for (var i = 1; i < input.Length; i++)
+            {
+                input[i] += input[i - 1];
+            }
+
+            return input;
+        }
     }
 }
