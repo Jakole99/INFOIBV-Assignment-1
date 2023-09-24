@@ -58,11 +58,11 @@ namespace INFOIBV.Framework
             return value;
         }
 
-        public static byte[] Cumulation(byte[] input)
+        public static int[] Accumulation(int[] input)
         {
-            for (int i = 1; i < input.Length; i++)
+            for (var i = 1; i < input.Length; i++)
             {
-                input[i] = (byte)(input[i] + input[i - 1]);
+                input[i] += input[i - 1];
             }
 
             return input;

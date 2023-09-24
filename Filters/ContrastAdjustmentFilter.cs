@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using INFOIBV.Framework;
 
 namespace INFOIBV.Filters
@@ -13,11 +14,12 @@ namespace INFOIBV.Filters
 
         private int _highest;
         private int _lowest;
-        
-        protected override void BeforeExecute(byte[,] input)
+
+        protected override Task BeforeExecuteAsync(byte[,] input)
         {
             _highest = input.Cast<byte>().Max();
             _lowest = input.Cast<byte>().Min();
+            return Task.CompletedTask;
         }
 
         protected override byte ExecuteStep(int u, int v, byte[,] input)
@@ -25,7 +27,7 @@ namespace INFOIBV.Filters
             return (byte)(Byte.MinValue + (input[u, v] - _highest) * Byte.MaxValue / (_highest - _lowest));
         }
     }
-    
+
     public static partial class PipelineExtensions
     {
         /// <summary>
