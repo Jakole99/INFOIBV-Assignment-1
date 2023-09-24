@@ -81,8 +81,7 @@ namespace INFOIBV
                     pipeline.AddThresholdFilter(128);
                     break;
                 case FilterType.HistogramEqualization:
-                    var h = await pipeline.GetLookUpTable((Bitmap)inputImageBox.Image);
-                    pipeline.AddHistogramEqualization(h);
+                    pipeline.AddHistogramEqualization();
                     break;
 
                 case FilterType.None:

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using INFOIBV.Extensions;
-using INFOIBV.Filters;
 
 namespace INFOIBV.Framework
 {
@@ -39,16 +38,6 @@ namespace INFOIBV.Framework
             }
 
             return singleChannel.ToBitmap();
-        }
-
-        public async Task<HistogramEqualizationFilter> GetLookUpTable(Bitmap image)
-        {
-            var singleChannel = image.ToSingleChannel();
-
-            var histogramFilter = new HistogramEqualizationFilter();
-            histogramFilter.LookUpTable = await histogramFilter.CreateLookUpTable(singleChannel);
-
-            return histogramFilter;
         }
     }
 }

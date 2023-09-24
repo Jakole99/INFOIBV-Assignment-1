@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using INFOIBV.Framework;
 
@@ -9,16 +7,21 @@ namespace INFOIBV.Filters
 {
     public class HistogramEqualizationFilter: Filter
     {
-        public byte[] LookUpTable;
-        private int _M, _N, _K;
+        private byte[] _lookUpTable;
+        private int _m, _n, _k;
         private int _highest, _lowest;
         
         public override string Identifier => "Equalization";
 
+        protected override async Task BeforeExecuteAsync(byte[,] input)
+        {
+            _lookUpTable = await CreateLookUpTable(input);
+        }
+
         protected override byte ExecuteStep(int u, int v, byte[,] input)
         {
             var a = input[u, v];
-            var equalizedIntensity = (byte)(LookUpTable[a] * (_K - 1) / (_M*_N));
+            var equalizedIntensity = (byte)(_lookUpTable[a] * (_k - 1) / (_m*_n));
             //var equalizedIntensity = (byte)(((LookUpTable[a] - _lowest) / (_highest - _lowest)) * (_K - 1));
             return equalizedIntensity;
         }
@@ -26,20 +29,20 @@ namespace INFOIBV.Filters
         internal async Task<byte[]> CreateLookUpTable(byte[,] input)
         {
             var histogramTable = new byte[Byte.MaxValue+1];
-            _M = input.GetLength(0);
-            _N = input.GetLength(1);
+            _m = input.GetLength(0);
+            _n = input.GetLength(1);
 
             _highest = input.Cast<byte>().Max();
             _lowest = input.Cast<byte>().Min();
-            _K = _highest - _lowest;
+            _k = _highest - _lowest;
 
             // Run the mapping on another thread
             await Task.Run(() =>
             {
                 Parallel.For(0, input.Length, i =>
                 {
-                    var u = i % _M;
-                    var v = i / _M;
+                    var u = i % _m;
+                    var v = i / _m;
 
                     var intensity = input[u,v];
                     histogramTable[intensity] += 1;
@@ -54,10 +57,9 @@ namespace INFOIBV.Filters
     }
     public static partial class PipelineExtensions
     {
-        public static PipeLine AddHistogramEqualization(this PipeLine pipeLine, HistogramEqualizationFilter h)
+        public static PipeLine AddHistogramEqualization(this PipeLine pipeLine)
         {
-            
-            return pipeLine.AddFilter(h);
+            return pipeLine.AddFilter(new HistogramEqualizationFilter());
         }
     }
 }

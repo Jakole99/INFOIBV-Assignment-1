@@ -27,6 +27,12 @@ namespace INFOIBV.Framework
         /// </summary>
         protected virtual void BeforeExecute(byte[,] input) { }
 
+        /// <inheritdoc cref="BeforeExecute"/>
+        protected virtual Task BeforeExecuteAsync(byte[,] input)
+        {
+            return Task.CompletedTask;
+        }
+
         /// <summary>
         /// Convert an image to the filtered image
         /// </summary>
@@ -56,9 +62,9 @@ namespace INFOIBV.Framework
         public async Task<byte[,]> ConvertParallel(byte[,] input, IProgress<(string, int)> progress)
         {
             // Run the convert on another thread
-            return await Task.Run(() =>
+            return await Task.Run(async () =>
             {
-                BeforeExecute(input);
+                await BeforeExecuteAsync(input);
 
                 var width = input.GetLength(0);
                 var height = input.GetLength(1);
