@@ -65,6 +65,7 @@ namespace INFOIBV.Framework
 
                 await BeforeConvert(input);
 
+                // Origin of small object heap size but is allowed
                 var output = new byte[Width, Height];
                 var current = 0;
 
