@@ -7,7 +7,7 @@ public class MedianFilter : Filter
     private readonly int _size;
 
     /// <summary>
-    ///     Apply median filtering on an input image with a kernel of specified size
+    /// Apply median filtering on an input image with a kernel of specified size
     /// </summary>
     /// <param name="size">Length/width of the median filter kernel</param>
     public MedianFilter(int size)

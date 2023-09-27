@@ -3,7 +3,7 @@
 namespace INFOIBV.Filters;
 
 /// <summary>
-///     Create an image with the full range of intensity values used
+/// Create an image with the full range of intensity values used
 /// </summary>
 public class ContrastAdjustmentFilter : Filter
 {
@@ -27,7 +27,7 @@ public class ContrastAdjustmentFilter : Filter
 public static partial class PipelineExtensions
 {
     /// <summary>
-    ///     Adds contrast adjustment filter to the pipeline
+    /// Adds contrast adjustment filter to the pipeline
     /// </summary>
     public static PipeLine AddContrastAdjustment(this PipeLine pipeLine)
     {

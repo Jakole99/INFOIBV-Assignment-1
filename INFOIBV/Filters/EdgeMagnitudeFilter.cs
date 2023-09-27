@@ -3,7 +3,7 @@
 namespace INFOIBV.Filters;
 
 /// <summary>
-///     Calculate the image derivative of an input image and a provided edge kernel
+/// Calculate the image derivative of an input image and a provided edge kernel
 /// </summary>
 public class EdgeMagnitudeFilter : Filter
 {

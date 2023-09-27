@@ -3,9 +3,11 @@
 public static class SingleChannelExtensions
 {
     /// <summary>
-    /// Convert a <see cref="Bitmap"/> to a single-channel image
+    /// Convert a <see cref="Bitmap" /> to a single-channel image
     /// </summary>
-    /// <param name="source"><see cref="Bitmap"/></param>
+    /// <param name="source">
+    ///     <see cref="Bitmap" />
+    /// </param>
     /// <returns>Single-channel image</returns>
     public static byte[,] ToSingleChannel(this Bitmap source)
     {
@@ -14,22 +16,22 @@ public static class SingleChannelExtensions
         var singleChannel = new byte[width, height];
 
         for (var x = 0; x < width; x++)
+        for (var y = 0; y < height; y++)
         {
-            for (var y = 0; y < height; y++)
-            {
-                var color = source.GetPixel(x, y);
-                singleChannel[x, y] = (byte)((color.R + color.B + color.G) / 3);
-            }
+            var color = source.GetPixel(x, y);
+            singleChannel[x, y] = (byte)((color.R + color.B + color.G) / 3);
         }
 
         return singleChannel;
     }
 
     /// <summary>
-    /// Convert a single-channel image to a <see cref="Bitmap"/>
+    /// Convert a single-channel image to a <see cref="Bitmap" />
     /// </summary>
     /// <param name="singleChannel">Single-channel image</param>
-    /// <returns><see cref="Bitmap"/></returns>
+    /// <returns>
+    ///     <see cref="Bitmap" />
+    /// </returns>
     public static Bitmap ToBitmap(this byte[,] singleChannel)
     {
         var width = singleChannel.GetLength(0);
@@ -37,13 +39,11 @@ public static class SingleChannelExtensions
         var output = new Bitmap(width, height);
 
         for (var x = 0; x < width; x++)
+        for (var y = 0; y < height; y++)
         {
-            for (var y = 0; y < height; y++)
-            {
-                var value = singleChannel[x, y];
-                var newColor = Color.FromArgb(value, value, value);
-                output.SetPixel(x, y, newColor);
-            }
+            var value = singleChannel[x, y];
+            var newColor = Color.FromArgb(value, value, value);
+            output.SetPixel(x, y, newColor);
         }
 
         return output;

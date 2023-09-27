@@ -3,7 +3,7 @@
 namespace INFOIBV.Filters;
 
 /// <summary>
-///     Invert a single channel (grayscale) image
+/// Invert a single channel (grayscale) image
 /// </summary>
 public class InversionFilter : Filter
 {

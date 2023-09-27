@@ -1,14 +1,14 @@
 ﻿namespace INFOIBV.Framework;
 
 /// <summary>
-///     Pipeline for bitmap conversion using filters
+/// Pipeline for bitmap conversion using filters
 /// </summary>
 public sealed class PipeLine
 {
     private readonly Queue<Filter> _filters = new();
 
     /// <summary>
-    ///     Queue a filter to the pipeline
+    /// Queue a filter to the pipeline
     /// </summary>
     public PipeLine AddFilter(Filter filter)
     {
@@ -17,7 +17,7 @@ public sealed class PipeLine
     }
 
     /// <summary>
-    ///     Convert an <see cref="Bitmap" /> to single-channel byte array and apply all the filters
+    /// Convert an <see cref="Bitmap" /> to single-channel byte array and apply all the filters
     /// </summary>
     /// <remarks>Run asynchronously because we are doing cpu bound computation</remarks>
     public async Task<Bitmap> Build(Bitmap image, IProgress<(string, int)> progress)

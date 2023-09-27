@@ -43,7 +43,7 @@ public class DisplayHistogramFilter : Filter
 public static partial class PipelineExtensions
 {
     /// <summary>
-    ///     Convert an <see cref="Bitmap" /> to single-channel byte array and apply all the filters then display the histogram
+    /// Convert an <see cref="Bitmap" /> to single-channel byte array and apply all the filters then display the histogram
     /// </summary>
     /// <remarks>Run asynchronously because we are doing cpu bound computation</remarks>
     public static async Task<Bitmap> DisplayHistogram(this PipeLine pipeLine, Bitmap image,
@@ -53,8 +53,8 @@ public static partial class PipelineExtensions
     }
 
     /// <summary>
-    ///     Convert an <see cref="Bitmap" /> to single-channel byte array and apply all the filters then display the cumulative
-    ///     histogram
+    /// Convert an <see cref="Bitmap" /> to single-channel byte array and apply all the filters then display the cumulative
+    /// histogram
     /// </summary>
     /// <remarks>Run asynchronously because we are doing cpu bound computation</remarks>
     public static async Task<Bitmap> DisplayCumulativeHistogram(this PipeLine pipeLine, Bitmap image,

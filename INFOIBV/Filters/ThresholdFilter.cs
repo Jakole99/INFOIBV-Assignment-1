@@ -7,7 +7,7 @@ public class ThresholdFilter : Filter
     private readonly int _threshold;
 
     /// <summary>
-    ///     Threshold a single-channel image
+    /// Threshold a single-channel image
     /// </summary>
     /// <param name="threshold">threshold value</param>
     public ThresholdFilter(int threshold)

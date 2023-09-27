@@ -1,27 +1,27 @@
 ﻿namespace INFOIBV.Framework;
 
 /// <summary>
-///     Abstract definition of a filter
+/// Abstract definition of a filter
 /// </summary>
 public abstract class Filter
 {
     /// <summary>
-    ///     User friendly name of the filter
+    /// User friendly name of the filter
     /// </summary>
     public abstract string Name { get; }
 
     /// <summary>
-    ///     Output Width
+    /// Output Width
     /// </summary>
     protected int Width { get; private set; }
 
     /// <summary>
-    ///     Output Height
+    /// Output Height
     /// </summary>
     protected int Height { get; private set; }
 
     /// <summary>
-    ///     Set size of the output
+    /// Set size of the output
     /// </summary>
     protected void SetOutputDimensions(int width, int height)
     {
@@ -30,7 +30,7 @@ public abstract class Filter
     }
 
     /// <summary>
-    ///     Execute a single conversion on a specific point using the input.
+    /// Execute a single conversion on a specific point using the input.
     /// </summary>
     /// <param name="u">Horizontal index</param>
     /// <param name="v">Vertical index</param>
@@ -39,7 +39,7 @@ public abstract class Filter
     protected abstract byte ConvertPixel(int u, int v, byte[,] input);
 
     /// <summary>
-    ///     Useful for pre-computation of values needed for every pixel
+    /// Useful for pre-computation of values needed for every pixel
     /// </summary>
     protected virtual Task BeforeConvert(byte[,] input)
     {
@@ -47,7 +47,7 @@ public abstract class Filter
     }
 
     /// <summary>
-    ///     Convert an image to the filtered image
+    /// Convert an image to the filtered image
     /// </summary>
     /// <param name="input">Single-channel image</param>
     /// <param name="progress">Progress tuple (Identifier, Percentage)</param>

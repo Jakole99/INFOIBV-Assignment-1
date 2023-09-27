@@ -12,24 +12,16 @@ public static class FilterHelper
             case StructureElementType.Square:
                 var squareElement = new byte [size, size];
                 for (var i = 0; i < size; i++)
-                {
-                    for (var j = 0; j < size; j++)
-                    {
-                        squareElement[i, j] = 1;
-                    }
-                }
+                for (var j = 0; j < size; j++)
+                    squareElement[i, j] = 1;
 
                 return squareElement;
             case StructureElementType.Plus:
                 var plusElement = new byte[size, size];
                 for (var i = 0; i < size; i++)
-                {
-                    for (var j = 0; j < size; j++)
-                    {
-                        if (i == size / 2 || j == size / 2)
-                            plusElement[i, j] = 1;
-                    }
-                }
+                for (var j = 0; j < size; j++)
+                    if (i == size / 2 || j == size / 2)
+                        plusElement[i, j] = 1;
 
                 return plusElement;
             default:
@@ -38,7 +30,7 @@ public static class FilterHelper
     }
 
     /// <summary>
-    ///     Helper function to perform basic convolution
+    /// Helper function to perform basic convolution
     /// </summary>
     public static byte ConvolvePixel(byte[,] input, float[,] kernel, int u, int v)
     {

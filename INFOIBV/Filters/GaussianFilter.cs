@@ -7,7 +7,7 @@ public class GaussianFilter : Filter
     private readonly float[,] _gaussian;
 
     /// <summary>
-    ///     Create a Gaussian filter of specific square size and with a specified sigma
+    /// Create a Gaussian filter of specific square size and with a specified sigma
     /// </summary>
     /// <param name="size">Length and width of the Gaussian filter (only odd sizes)</param>
     /// <param name="sigma">Standard deviation of the Gaussian distribution</param>
