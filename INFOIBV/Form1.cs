@@ -133,6 +133,8 @@ public partial class Form1 : Form
         if (!Enum.TryParse<ModeType>(cbMode.SelectedValue?.ToString(), out var mode))
             return;
 
+        outputImageBox.Image?.Dispose();
+
         var progress = new Progress<(string, int)>(x =>
         {
             filterLabel.Text = x.Item1;
