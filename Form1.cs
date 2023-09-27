@@ -120,21 +120,12 @@ namespace INFOIBV
 
         private async void Pipeline2Button_Click(object sender, EventArgs e)
         {
-            //var pipeline = new PipeLine()
-              //  .AddContrastAdjustment()
-               // .AddMedianFilter(5)
-               // .AddEdgeMagnitudeFilter()
-               // .AddThresholdFilter(100);
+            var pipeline = new PipeLine()
+                .AddContrastAdjustment()
+                .AddMedianFilter(5)
+                .AddEdgeMagnitudeFilter()
+                .AddThresholdFilter(60);
 
-               var pipeline = new PipeLine()
-                   .AddContrastAdjustment()
-                   .AddGaussian(3, 1)
-                   .AddGaussian(5, (int)(1*Math.Sqrt(2)))
-                   .AddGaussian(7, (int)(1 * Math.Sqrt(3)))
-                   .AddGaussian(9, (int)(1 * Math.Sqrt(4)))
-                   .AddGaussian(11, (int)(1 * Math.Sqrt(5)))
-                   .AddEdgeMagnitudeFilter()
-                   .AddThresholdFilter(80);
 
             await ProcessPipeline(pipeline);
         }
