@@ -23,7 +23,7 @@ public partial class Form1 : Form
         if (value.Size.Height <= 0 || value.Size.Width <= 0 ||
             value.Size.Height > 512 || value.Size.Width > 512)
         {
-            MessageBox.Show(@"Error in image dimensions (have to be > 0 and <= 512)");
+            MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
             return;
         }
 

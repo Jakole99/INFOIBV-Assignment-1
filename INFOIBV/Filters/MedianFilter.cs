@@ -1,5 +1,4 @@
-﻿using INFOIBV.Extensions;
-using INFOIBV.Framework;
+﻿using INFOIBV.Framework;
 
 namespace INFOIBV.Filters;
 
@@ -28,8 +27,8 @@ public class MedianFilter : Filter
             var i = n / _size - _size / 2;
             var j = n % _size - _size / 2;
 
-            var du = (u - i).Clamp(0, input.GetLength(0) - 1);
-            var dv = (v - j).Clamp(0, input.GetLength(1) - 1);
+            var du = Math.Clamp(u - i, 0, Width - 1);
+            var dv = Math.Clamp(v - j, 0, Height - 1);
 
             values[n] = input[du, dv];
         }

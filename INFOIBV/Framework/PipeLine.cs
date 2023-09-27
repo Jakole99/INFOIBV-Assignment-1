@@ -1,6 +1,4 @@
-﻿using INFOIBV.Extensions;
-
-namespace INFOIBV.Framework;
+﻿namespace INFOIBV.Framework;
 
 /// <summary>
 ///     Pipeline for bitmap conversion using filters
