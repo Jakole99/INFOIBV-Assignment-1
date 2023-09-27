@@ -13,7 +13,7 @@ namespace INFOIBV
         public INFOIBV()
         {
             InitializeComponent();
-
+            
             // Set combo boxes
             cbFilter.DataSource = Enum.GetValues(typeof(FilterType));
             cbMode.DataSource = Enum.GetValues(typeof(ModeType));

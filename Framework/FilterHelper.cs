@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization.Formatters;
 using System.Threading.Tasks;
 using INFOIBV.Extensions;
 
@@ -6,6 +7,51 @@ namespace INFOIBV.Framework
 {
     public static class FilterHelper
     {
+        //public static class StructureElement
+        //{
+        //    public static byte[,] Plus => new byte[,]
+        //   {
+        //
+        //    };
+        //}
+
+
+        public static byte[,] CreateStructuringElement(StructureElementType type, int size)
+        {
+            if (size % 2 == 0)
+                throw new ArgumentException($"{size} is not an odd size");
+
+            switch (type)
+            {
+                case StructureElementType.Square:
+                    var squareElement = new byte [size, size];
+                    for (int i = 0; i < size; i++)
+                    {
+                        for (int j = 0; j < size; j++)
+                        {
+                            squareElement[i, j] = 1;
+                        }
+                    }
+
+                    return squareElement;
+                case StructureElementType.Plus:
+                    var plusElement = new byte[size, size];
+                    for (int i = 0; i < size; i++)
+                    {
+                        for (int j = 0; j < size; j++)
+                        {
+                            if (i == size / 2 || j == size / 2)
+                                plusElement[i, j] = 1;
+                        }
+                    }
+
+                    return plusElement;
+                default:
+                    throw new ArgumentException("Type of Structure element doesn't exist")
+                        ;
+            }
+        }
+
         /// <summary>
         /// Helper function to perform basic convolution
         /// </summary>
@@ -13,6 +59,7 @@ namespace INFOIBV.Framework
         {
             byte value = 0;
             var kernelSize = kernel.GetLength(0);
+
 
             // For every filter index
             for (var i = 0; i < kernelSize; i++)
