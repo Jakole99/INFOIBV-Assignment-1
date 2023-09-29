@@ -14,13 +14,13 @@ public class DilationFilter : Filter
         (0, 0, 2), (0, 1, 1), (0, -1, 1), (1, 0, 1), (-1, 0, 1)
     };
 
-    public DilationFilter(StructureElementType type, int size, bool isBinary = false)
+    public DilationFilter(StructureElement.Type type, int size, bool isBinary = false)
     {
         _isBinary = isBinary;
         _structureElement = _plus;
 
         // TODO: Use this method
-        _ = FilterHelper.CreateStructuringElement(type, size);
+        _ = StructureElement.Create(type, size);
     }
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
@@ -56,7 +56,7 @@ public class DilationFilter : Filter
 
 public partial class PipelineExtensions
 {
-    public static PipeLine AddDilationFilter(this PipeLine pipeLine, StructureElementType type, int size, bool isBinary = false)
+    public static PipeLine AddDilationFilter(this PipeLine pipeLine, StructureElement.Type type, int size, bool isBinary = false)
     {
         return pipeLine.AddFilter(new DilationFilter(type, size, isBinary));
     }

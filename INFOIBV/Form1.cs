@@ -82,11 +82,11 @@ public partial class Form1 : Form
                 break;
 
             case FilterType.Dilation:
-                pipeline.AddDilationFilter(StructureElementType.Plus, 3);
+                pipeline.AddDilationFilter(StructureElement.Type.Plus, 3);
                 break;
 
             case FilterType.Erosion:
-                pipeline.AddErosionFilter(StructureElementType.Plus, 3);
+                pipeline.AddErosionFilter(StructureElement.Type.Plus, 3);
                 break;
 
             case FilterType.None:

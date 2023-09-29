@@ -16,13 +16,13 @@ public class ErosionFilter : Filter
 
     private byte[,]? _binaryImage;
 
-    public ErosionFilter(StructureElementType type, int size, bool isBinary = false)
+    public ErosionFilter(StructureElement.Type type, int size, bool isBinary = false)
     {
         _isBinary = isBinary;
         _structureElement = _plus;
 
         // TODO: Use this method
-        _ = FilterHelper.CreateStructuringElement(type, size);
+        _ = StructureElement.Create(type, size);
     }
 
     protected override async Task BeforeConvert(byte[,] input)
@@ -106,7 +106,7 @@ public class ErosionFilter : Filter
 
 public partial class PipelineExtensions
 {
-    public static PipeLine AddErosionFilter(this PipeLine pipeLine, StructureElementType type, int size, bool isBinary = false)
+    public static PipeLine AddErosionFilter(this PipeLine pipeLine, StructureElement.Type type, int size, bool isBinary = false)
     {
         return pipeLine.AddFilter(new ErosionFilter(type, size, isBinary));
     }

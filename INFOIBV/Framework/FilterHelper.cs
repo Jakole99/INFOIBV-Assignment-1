@@ -2,33 +2,6 @@
 
 public static class FilterHelper
 {
-    public static byte[,] CreateStructuringElement(StructureElementType type, int size)
-    {
-        if (size % 2 == 0)
-            throw new ArgumentException($"{size} is not an odd size");
-
-        switch (type)
-        {
-            case StructureElementType.Square:
-                var squareElement = new byte [size, size];
-                for (var i = 0; i < size; i++)
-                for (var j = 0; j < size; j++)
-                    squareElement[i, j] = 1;
-
-                return squareElement;
-            case StructureElementType.Plus:
-                var plusElement = new byte[size, size];
-                for (var i = 0; i < size; i++)
-                for (var j = 0; j < size; j++)
-                    if (i == size / 2 || j == size / 2)
-                        plusElement[i, j] = 1;
-
-                return plusElement;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(type), type, null);
-        }
-    }
-
     /// <summary>
     /// Helper function to perform basic convolution
     /// </summary>
