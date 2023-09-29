@@ -19,7 +19,7 @@ public class ThresholdFilter : Filter
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
-        return input[u, v] < _threshold ? byte.MinValue : byte.MaxValue;
+        return input[u, v] < _threshold ? Byte.MinValue : Byte.MaxValue;
     }
 }
 

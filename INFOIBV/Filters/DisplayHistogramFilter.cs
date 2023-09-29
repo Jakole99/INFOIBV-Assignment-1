@@ -25,7 +25,7 @@ public class DisplayHistogramFilter : Filter
             : await FilterHelper.CreateHistogram(input);
 
         _valueHeight = (float)Height / _histogram.Max();
-        _columnWidth = (float)Width / (byte.MaxValue + 1);
+        _columnWidth = (float)Width / (Byte.MaxValue + 1);
     }
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
@@ -36,7 +36,7 @@ public class DisplayHistogramFilter : Filter
         // check horizontal which histogram entry were at
         var value = _histogram[(int)(u / _columnWidth)];
 
-        return Height - value * _valueHeight >= v ? byte.MaxValue : byte.MinValue;
+        return Height - value * _valueHeight >= v ? Byte.MaxValue : Byte.MinValue;
     }
 }
 

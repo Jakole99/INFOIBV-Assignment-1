@@ -83,7 +83,7 @@ public static class FilterHelper
 
     public static async Task<int[]> CreateHistogram(byte[,] input)
     {
-        var histogramTable = new int[byte.MaxValue + 1];
+        var histogramTable = new int[Byte.MaxValue + 1];
         var width = input.GetLength(0);
         var height = input.GetLength(1);
 

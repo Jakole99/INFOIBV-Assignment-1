@@ -11,7 +11,7 @@ public class InversionFilter : Filter
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
-        return (byte)(byte.MaxValue - input[u, v]);
+        return (byte)(Byte.MaxValue - input[u, v]);
     }
 }
 
