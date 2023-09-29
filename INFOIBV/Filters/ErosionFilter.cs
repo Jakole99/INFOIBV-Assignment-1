@@ -14,8 +14,6 @@ public class ErosionFilter : Filter
         (0, 0, 2), (0, 1, 1), (0, -1, 1), (1, 0, 1), (-1, 0, 1)
     };
 
-    private byte[,]? _binaryImage;
-
     public ErosionFilter(StructureElement.Type type, int size, bool isBinary = false)
     {
         _isBinary = isBinary;
@@ -23,15 +21,6 @@ public class ErosionFilter : Filter
 
         // TODO: Use this method
         _ = StructureElement.Create(type, size);
-    }
-
-    protected override async Task BeforeConvert(byte[,] input)
-    {
-        if (_isBinary)
-        {
-            var threshold = new ThresholdFilter(128);
-            _binaryImage = await threshold.ConvertParallel(input);
-        }
     }
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)

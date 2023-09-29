@@ -89,6 +89,14 @@ public partial class Form1 : Form
                 pipeline.AddErosionFilter(StructureElement.Type.Plus, 3);
                 break;
 
+            case FilterType.Opening:
+                pipeline.AddOpeningFilter(StructureElement.Type.Plus, 3);
+                break;
+
+            case FilterType.Closing:
+                pipeline.AddClosingFilter(StructureElement.Type.Plus, 3);
+                break;
+
             case FilterType.None:
             default:
                 return;

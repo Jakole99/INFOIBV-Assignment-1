@@ -16,4 +16,6 @@ public enum FilterType
     HistogramEqualization,
     Dilation,
     Erosion,
+    Opening,
+    Closing,
 }
