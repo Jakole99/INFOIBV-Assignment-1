@@ -62,45 +62,6 @@ public class ErosionFilter : Filter
         }
 
         return returnValue;
-
-        if (_isBinary)
-        {
-            foreach (var (x, y, _) in _structureElement)
-            {
-                var du = u + x;
-                var dv = v + y;
-
-                if (du < 0 || du >= Width)
-                    continue;
-
-                if (dv < 0 || dv >= Height)
-                    continue;
-
-                var value = _binaryImage?[du, dv];
-                if (value == Byte.MinValue)
-                    return Byte.MinValue;
-            }
-
-            return Byte.MaxValue;
-        }
-
-        var min = Byte.MinValue;
-        foreach (var (x, y, value) in _structureElement)
-        {
-            var du = u + x;
-            var dv = v + y;
-
-            if (du < 0 || du >= Width)
-                continue;
-
-            if (dv < 0 || dv >= Height)
-                continue;
-
-            var sum = (byte)Math.Clamp(value + input[du, dv], 0, 255);
-            min = Math.Min(min, sum);
-        }
-
-        return min;
     }
 }
 
