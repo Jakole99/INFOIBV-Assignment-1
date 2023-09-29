@@ -9,7 +9,7 @@ public class ContrastAdjustmentFilter : Filter
 {
     private int _highest;
     private int _lowest;
-    public override string Name => "Contrast Adjustment";
+    protected override string Name => "Contrast Adjustment";
 
     protected override Task BeforeConvert(byte[,] input)
     {

@@ -15,7 +15,7 @@ public class ThresholdFilter : Filter
         _threshold = threshold;
     }
 
-    public override string Name => "Threshold";
+    protected override string Name => "Threshold";
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {

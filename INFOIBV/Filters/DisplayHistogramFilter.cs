@@ -14,7 +14,7 @@ public class DisplayHistogramFilter : Filter
         _isCumulative = isCumulative;
     }
 
-    public override string Name => "Display histogram";
+    protected override string Name => "Display histogram";
 
     protected override async Task BeforeConvert(byte[,] input)
     {

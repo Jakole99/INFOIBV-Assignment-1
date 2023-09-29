@@ -15,7 +15,7 @@ public class MedianFilter : Filter
         _size = size;
     }
 
-    public override string Name => "Median";
+    protected override string Name => "Median";
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {

@@ -21,7 +21,7 @@ public class EdgeMagnitudeFilter : Filter
         { -1, 0, 1 }
     };
 
-    public override string Name => "Edge Magnitude";
+    protected override string Name => "Edge Magnitude";
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {

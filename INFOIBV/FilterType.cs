@@ -13,5 +13,7 @@ public enum FilterType
     Median,
     EdgeMagnitude,
     Threshold,
-    HistogramEqualization
+    HistogramEqualization,
+    Dilation,
+    Erosion,
 }

@@ -20,7 +20,7 @@ public class GaussianFilter : Filter
         _gaussian = CreateGaussianKernel((byte)size, sigma);
     }
 
-    public override string Name => "Gaussian";
+    protected override string Name => "Gaussian";
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {

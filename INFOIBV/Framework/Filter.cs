@@ -8,7 +8,7 @@ public abstract class Filter
     /// <summary>
     /// User friendly name of the filter
     /// </summary>
-    public abstract string Name { get; }
+    protected abstract string Name { get; }
 
     /// <summary>
     /// Output Width
@@ -52,7 +52,7 @@ public abstract class Filter
     /// <param name="input">Single-channel image</param>
     /// <param name="progress">Progress tuple (Identifier, Percentage)</param>
     /// <returns>Filtered single-channel image</returns>
-    public async Task<byte[,]> ConvertParallel(byte[,] input, IProgress<(string, int)> progress)
+    public async Task<byte[,]> ConvertParallel(byte[,] input, IProgress<(string, int)>? progress = null)
     {
         // Run the convert on another thread
         return await Task.Run(async () =>
@@ -66,7 +66,7 @@ public abstract class Filter
             var output = new byte[Width, Height];
             var current = 0;
 
-            progress.Report((Name, Percentage(current)));
+            progress?.Report((Name, Percentage(current)));
 
             Parallel.For(0, output.Length, i =>
             {
@@ -77,7 +77,7 @@ public abstract class Filter
                 output[u, v] = ConvertPixel(u, v, input);
 
                 if (Percentage(current) > Percentage(current - 1))
-                    progress.Report((Name, Percentage(current)));
+                    progress?.Report((Name, Percentage(current)));
             });
 
             return output;

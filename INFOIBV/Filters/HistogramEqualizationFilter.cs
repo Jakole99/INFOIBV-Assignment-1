@@ -8,7 +8,7 @@ public class HistogramEqualizationFilter : Filter
     private int[]? _lookUpTable;
     private int _m, _n, _k;
 
-    public override string Name => "Equalization";
+    protected override string Name => "Equalization";
 
     protected override async Task BeforeConvert(byte[,] input)
     {

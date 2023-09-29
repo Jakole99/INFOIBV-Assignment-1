@@ -81,6 +81,14 @@ public partial class Form1 : Form
                 pipeline.AddHistogramEqualization();
                 break;
 
+            case FilterType.Dilation:
+                pipeline.AddDilationFilter(StructureElementType.Plus, 3);
+                break;
+
+            case FilterType.Erosion:
+                pipeline.AddErosionFilter(StructureElementType.Plus, 3);
+                break;
+
             case FilterType.None:
             default:
                 return;
