@@ -90,6 +90,7 @@ partial class Form1
         // 
         // applyButton
         // 
+        applyButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         applyButton.Location = new Point(1108, 21);
         applyButton.Margin = new Padding(4, 5, 4, 5);
         applyButton.Name = "applyButton";
@@ -106,6 +107,7 @@ partial class Form1
         // 
         // saveButton
         // 
+        saveButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         saveButton.Location = new Point(1253, 21);
         saveButton.Margin = new Padding(4, 5, 4, 5);
         saveButton.Name = "saveButton";
@@ -117,6 +119,7 @@ partial class Form1
         // 
         // outputImageBox
         // 
+        outputImageBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         outputImageBox.Location = new Point(707, 108);
         outputImageBox.Margin = new Padding(4, 5, 4, 5);
         outputImageBox.Name = "outputImageBox";
@@ -127,6 +130,7 @@ partial class Form1
         // 
         // progressBar
         // 
+        progressBar.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         progressBar.Location = new Point(16, 905);
         progressBar.Margin = new Padding(4, 5, 4, 5);
         progressBar.Name = "progressBar";
@@ -136,6 +140,7 @@ partial class Form1
         // 
         // cbFilter
         // 
+        cbFilter.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         cbFilter.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilter.FormattingEnabled = true;
         cbFilter.Location = new Point(964, 24);
@@ -146,6 +151,7 @@ partial class Form1
         // 
         // pipeline1Button
         // 
+        pipeline1Button.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         pipeline1Button.Location = new Point(1108, 66);
         pipeline1Button.Margin = new Padding(4, 5, 4, 5);
         pipeline1Button.Name = "pipeline1Button";
@@ -157,6 +163,7 @@ partial class Form1
         // 
         // pipeline2Button
         // 
+        pipeline2Button.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         pipeline2Button.Location = new Point(1253, 66);
         pipeline2Button.Margin = new Padding(4, 5, 4, 5);
         pipeline2Button.Name = "pipeline2Button";
@@ -210,6 +217,7 @@ partial class Form1
         // 
         // filterLabel
         // 
+        filterLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         filterLabel.BackColor = Color.Transparent;
         filterLabel.Location = new Point(574, 870);
         filterLabel.Name = "filterLabel";
@@ -221,6 +229,7 @@ partial class Form1
         // 
         // cbMode
         // 
+        cbMode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         cbMode.DropDownStyle = ComboBoxStyle.DropDownList;
         cbMode.FormattingEnabled = true;
         cbMode.Location = new Point(964, 66);
@@ -231,6 +240,7 @@ partial class Form1
         // 
         // label2
         // 
+        label2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         label2.Location = new Point(904, 70);
         label2.Name = "label2";
         label2.Size = new Size(54, 29);
@@ -240,6 +250,7 @@ partial class Form1
         // 
         // label3
         // 
+        label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         label3.Location = new Point(904, 28);
         label3.Name = "label3";
         label3.Size = new Size(54, 29);
@@ -275,6 +286,7 @@ partial class Form1
         Name = "Form1";
         ShowIcon = false;
         Text = "INFOIBV";
+        WindowState = FormWindowState.Maximized;
         ((System.ComponentModel.ISupportInitialize)inputImageBox).EndInit();
         ((System.ComponentModel.ISupportInitialize)outputImageBox).EndInit();
         ResumeLayout(false);
