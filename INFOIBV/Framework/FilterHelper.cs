@@ -54,33 +54,33 @@ public static class FilterHelper
         return value;
     }
 
-    public static async Task<int[]> CreateHistogram(byte[,] input)
+    public static int[] CreateHistogram(byte[,] input)
     {
         var histogramTable = new int[Byte.MaxValue + 1];
         var width = input.GetLength(0);
         var height = input.GetLength(1);
 
-        await Task.Run(() =>
+        for (var u = 0; u < width; u++)
         {
-            for (var u = 0; u < width; u++)
             for (var v = 0; v < height; v++)
             {
                 var intensity = input[u, v];
                 histogramTable[intensity] += 1;
             }
-        });
+        }
 
         return histogramTable;
     }
 
-    public static async Task<int[]> CreateCumulativeHistogram(byte[,] input)
+    public static int[] CreateCumulativeHistogram(byte[,] input)
     {
-        var histogram = await CreateHistogram(input);
+        var histogram = CreateHistogram(input);
 
-        await Task.Run(() =>
+        for (var i = 1; i < histogram.Length; i++)
         {
-            for (var i = 1; i < histogram.Length; i++) histogram[i] += histogram[i - 1];
-        });
+            histogram[i] += histogram[i - 1];
+        }
+
         return histogram;
     }
 }

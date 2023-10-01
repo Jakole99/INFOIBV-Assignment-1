@@ -10,7 +10,7 @@ public class HistogramEqualizationFilter : Filter
 
     protected override string Name => "Equalization";
 
-    protected override async Task BeforeConvert(byte[,] input)
+    protected override void BeforeConvert(byte[,] input)
     {
         _m = input.GetLength(0);
         _n = input.GetLength(1);
@@ -19,7 +19,7 @@ public class HistogramEqualizationFilter : Filter
         _lowest = input.Cast<byte>().Min();
         _k = _highest - _lowest;
 
-        _lookUpTable = await FilterHelper.CreateCumulativeHistogram(input);
+        _lookUpTable = FilterHelper.CreateCumulativeHistogram(input);
     }
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)

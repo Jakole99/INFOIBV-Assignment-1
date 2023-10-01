@@ -41,9 +41,8 @@ public abstract class Filter
     /// <summary>
     /// Useful for pre-computation of values needed for every pixel
     /// </summary>
-    protected virtual Task BeforeConvert(byte[,] input)
+    protected virtual void BeforeConvert(byte[,] input)
     {
-        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -55,18 +54,19 @@ public abstract class Filter
     public async Task<byte[,]> ConvertParallel(byte[,] input, IProgress<(string, int)>? progress = null)
     {
         // Run the convert on another thread
-        return await Task.Run(async () =>
+        return await Task.Run(() =>
         {
             Width = input.GetLength(0);
             Height = input.GetLength(1);
 
-            await BeforeConvert(input);
+            BeforeConvert(input);
 
             // Origin of small object heap size but is allowed
             var output = new byte[Width, Height];
             var current = 0;
 
             progress?.Report((Name, Percentage(current)));
+
 
             Parallel.For(0, output.Length, i =>
             {

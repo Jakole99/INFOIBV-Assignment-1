@@ -11,11 +11,10 @@ public class ContrastAdjustmentFilter : Filter
     private int _lowest;
     protected override string Name => "Contrast Adjustment";
 
-    protected override Task BeforeConvert(byte[,] input)
+    protected override void BeforeConvert(byte[,] input)
     {
         _highest = input.Cast<byte>().Max();
         _lowest = input.Cast<byte>().Min();
-        return Task.CompletedTask;
     }
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)

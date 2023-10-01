@@ -16,13 +16,13 @@ public class DisplayHistogramFilter : Filter
 
     protected override string Name => "Display histogram";
 
-    protected override async Task BeforeConvert(byte[,] input)
+    protected override void BeforeConvert(byte[,] input)
     {
         SetOutputDimensions(512, 300);
 
         _histogram = _isCumulative
-            ? await FilterHelper.CreateCumulativeHistogram(input)
-            : await FilterHelper.CreateHistogram(input);
+            ? FilterHelper.CreateCumulativeHistogram(input)
+            : FilterHelper.CreateHistogram(input);
 
         _valueHeight = (float)Height / _histogram.Max();
         _columnWidth = (float)Width / (Byte.MaxValue + 1);
