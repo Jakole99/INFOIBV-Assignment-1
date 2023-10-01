@@ -14,7 +14,7 @@ public class DisplayHistogramFilter : Filter
         _isCumulative = isCumulative;
     }
 
-    protected override string Name => "Display histogram";
+    public override string Name => "Display histogram";
 
     protected override void BeforeConvert(byte[,] input)
     {
@@ -45,21 +45,34 @@ public static partial class PipelineExtensions
     /// <summary>
     /// Convert an <see cref="Bitmap" /> to single-channel byte array and apply all the filters then display the histogram
     /// </summary>
-    /// <remarks>Run asynchronously because we are doing cpu bound computation</remarks>
-    public static async Task<Bitmap> DisplayHistogram(this PipeLine pipeLine, Bitmap image,
+    public static Bitmap DisplayHistogram(this PipeLine pipeLine, Bitmap image,
         IProgress<(string, int)> progress)
     {
-        return await pipeLine.AddFilter(new DisplayHistogramFilter()).Build(image, progress);
+        return pipeLine.AddFilter(new DisplayHistogramFilter()).Build(image, progress);
     }
 
     /// <summary>
     /// Convert an <see cref="Bitmap" /> to single-channel byte array and apply all the filters then display the cumulative
     /// histogram
     /// </summary>
-    /// <remarks>Run asynchronously because we are doing cpu bound computation</remarks>
-    public static async Task<Bitmap> DisplayCumulativeHistogram(this PipeLine pipeLine, Bitmap image,
+    public static Bitmap DisplayCumulativeHistogram(this PipeLine pipeLine, Bitmap image,
         IProgress<(string, int)> progress)
     {
-        return await pipeLine.AddFilter(new DisplayHistogramFilter(true)).Build(image, progress);
+        return pipeLine.AddFilter(new DisplayHistogramFilter(true)).Build(image, progress);
+    }
+
+    /// <summary>
+    /// Convert an <see cref="Bitmap" /> to single-channel byte array and apply all the filters then display based on the <see cref="ModeType"/>
+    /// </summary>
+    public static Bitmap DisplayMode(this PipeLine pipeLine, ModeType mode, Bitmap image,
+        IProgress<(string, int)> progress)
+    {
+        return mode switch
+        {
+            ModeType.Normal => pipeLine.Build(image, progress),
+            ModeType.Histogram => pipeLine.DisplayHistogram(image, progress),
+            ModeType.CumulativeHistogram => pipeLine.DisplayCumulativeHistogram(image, progress),
+            _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
+        };
     }
 }

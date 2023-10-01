@@ -4,7 +4,7 @@ namespace INFOIBV.Filters;
 
 public class DilationFilter : Filter
 {
-    protected override string Name => "Dilation";
+    public override string Name => "Dilation";
 
     private readonly bool _isBinary;
     private readonly (int x, int y, int value)[] _structureElement;

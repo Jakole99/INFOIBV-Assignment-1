@@ -7,7 +7,7 @@ namespace INFOIBV.Filters;
 /// </summary>
 public class InversionFilter : Filter
 {
-    protected override string Name => "Inversion";
+    public override string Name => "Inversion";
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {

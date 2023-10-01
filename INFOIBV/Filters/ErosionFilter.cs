@@ -4,7 +4,7 @@ namespace INFOIBV.Filters;
 
 public class ErosionFilter : Filter
 {
-    protected override string Name => "Erosion";
+    public override string Name => "Erosion";
 
     private readonly bool _isBinary;
     private readonly (int x, int y, int value)[] _structureElement;

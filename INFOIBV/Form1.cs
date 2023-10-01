@@ -150,6 +150,8 @@ public partial class Form1 : Form
             return;
 
         outputImageBox.Image?.Dispose();
+        filterLabel.Text = "Start";
+        progressBar.Value = 0;
 
         var progress = new Progress<(string, int)>(x =>
         {
@@ -159,14 +161,8 @@ public partial class Form1 : Form
 
         pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = false;
         progressBar.Visible = filterLabel.Visible = true;
-        outputImageBox.Image = mode switch
-        {
-            ModeType.Normal => await pipeLine.Build((Bitmap)inputImageBox.Image, progress),
-            ModeType.Histogram => await pipeLine.DisplayHistogram((Bitmap)inputImageBox.Image, progress),
-            ModeType.CumulativeHistogram => await pipeLine.DisplayCumulativeHistogram((Bitmap)inputImageBox.Image,
-                progress),
-            _ => throw new IndexOutOfRangeException()
-        };
+
+        outputImageBox.Image = await Task.Run(() => pipeLine.DisplayMode(mode, (Bitmap)inputImageBox.Image, progress));
 
         progressBar.Visible = filterLabel.Visible = false;
         pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = true;

@@ -19,16 +19,18 @@ public sealed class PipeLine
     /// <summary>
     /// Convert an <see cref="Bitmap" /> to single-channel byte array and apply all the filters
     /// </summary>
-    /// <remarks>Run asynchronously because we are doing cpu bound computation</remarks>
-    public async Task<Bitmap> Build(Bitmap image, IProgress<(string, int)> progress)
+    public Bitmap Build(Bitmap image, IProgress<(string, int)> progress)
     {
         var singleChannel = image.ToSingleChannel();
+
+        var totalFilters = _filters.Count;
 
         // Apply filters
         while (_filters.Count > 0)
         {
             var filter = _filters.Dequeue();
-            singleChannel = await filter.ConvertParallel(singleChannel, progress);
+            singleChannel = filter.ConvertParallel(singleChannel);
+            progress.Report((filter.Name, 100 - _filters.Count * 100 / totalFilters));
         }
 
         return singleChannel.ToBitmap();

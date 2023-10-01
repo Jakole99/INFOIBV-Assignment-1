@@ -8,7 +8,7 @@ public abstract class Filter
     /// <summary>
     /// User friendly name of the filter
     /// </summary>
-    protected abstract string Name { get; }
+    public abstract string Name { get; }
 
     /// <summary>
     /// Output Width
@@ -49,43 +49,25 @@ public abstract class Filter
     /// Convert an image to the filtered image
     /// </summary>
     /// <param name="input">Single-channel image</param>
-    /// <param name="progress">Progress tuple (Identifier, Percentage)</param>
     /// <returns>Filtered single-channel image</returns>
-    public async Task<byte[,]> ConvertParallel(byte[,] input, IProgress<(string, int)>? progress = null)
+    public byte[,] ConvertParallel(byte[,] input)
     {
-        // Run the convert on another thread
-        return await Task.Run(() =>
+        Width = input.GetLength(0);
+        Height = input.GetLength(1);
+
+        BeforeConvert(input);
+
+        // Origin of small object heap size but is allowed
+        var output = new byte[Width, Height];
+
+        Parallel.For(0, Height, v =>
         {
-            Width = input.GetLength(0);
-            Height = input.GetLength(1);
-
-            BeforeConvert(input);
-
-            // Origin of small object heap size but is allowed
-            var output = new byte[Width, Height];
-            var current = 0;
-
-            progress?.Report((Name, Percentage(current)));
-
-
-            Parallel.For(0, output.Length, i =>
+            for (var u = 0; u < Width; u++)
             {
-                var u = i % Width;
-                var v = i / Width;
-                current++;
-
                 output[u, v] = ConvertPixel(u, v, input);
-
-                if (Percentage(current) > Percentage(current - 1))
-                    progress?.Report((Name, Percentage(current)));
-            });
-
-            return output;
-
-            int Percentage(int value)
-            {
-                return value * 100 / output.Length;
             }
         });
+
+        return output;
     }
 }
