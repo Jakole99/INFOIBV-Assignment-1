@@ -1,4 +1,7 @@
-﻿namespace INFOIBV;
+﻿using INFOIBV.Filters;
+using System.Drawing;
+
+namespace INFOIBV;
 
 public static class StructureElement
 {
@@ -8,65 +11,70 @@ public static class StructureElement
         Plus
     }
 
-    public static byte[,] CreateOld(Type type, int size)
+    public static (int x, int y, int value)[] Create(Type type, int size, (int x, int y, int value)[] baseStructure)
     {
         if (size % 2 == 0)
             throw new ArgumentException($"{size} is not an odd size");
 
         switch (type)
         {
-            case Type.Square:
+            case Type.Square: 
                 var squareElement = new byte [size, size];
                 for (var i = 0; i < size; i++)
-                for (var j = 0; j < size; j++)
-                    squareElement[i, j] = 1;
+                    for (var j = 0; j < size; j++)
+                        squareElement[i, j] = 1;
 
-                return squareElement;
+
+                return convertByteToTuple(squareElement);
             case Type.Plus:
-                var plusElement = new byte[size, size];
-                for (var i = 0; i < size; i++)
-                for (var j = 0; j < size; j++)
-                    if (i == size / 2 || j == size / 2)
-                        plusElement[i, j] = 1;
+                var dilationFilter = new DilationFilter(Type.Plus, 3, false);
 
-                return plusElement;
+                var resultingPlusElement = dilationFilter.ConvertParallel(convertTupleToByte(baseStructure, size));
+
+                var rounds = ((size - 3) / 2) - 1; //since we already did one round above
+
+                while (rounds > 0)
+                {
+                    resultingPlusElement = dilationFilter.ConvertParallel(resultingPlusElement);
+                    rounds -= 1;
+                }
+
+                return convertByteToTuple(resultingPlusElement);
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
     }
 
-    public static (int x, int y, int value)[] Create(Type type, int size)
+    private static (int x, int y, int value)[] convertByteToTuple(byte[,] input)
     {
-        if (size % 2 == 0)
-            throw new ArgumentException($"{size} is not an odd size");
+        List<(int x, int y, int value)> elements = new List<(int x, int y, int value)>();
 
-        return type switch
+        for (int i = 0; i < input.GetLength(0); i++)
         {
-            Type.Square => CreateSquare(size),
-            Type.Plus => CreatePlus(size),
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        };
-    }
+            for (int j = 0; j < input.GetLength(1); j++)
+            {
+                if (input[i, j] == 0)
+                    continue;
 
-    private static (int x, int y, int value)[] CreateSquare(int size)
-    {
-        var element = new (int x, int y, int value)[size * size];
+                elements.Add((i, j, input[i, j]));
 
-        for (var i = 0; i < size*size; i++)
-        {
-            var x = i / size;
-            var y = i % size;
-
+            }
         }
 
-        return element;
+        return elements.ToArray();
     }
 
-    private static (int x, int y, int value)[] CreatePlus(int size)
+    private static byte[,] convertTupleToByte((int x, int y, int value)[] tuple, int size)
     {
-        var element = new byte[size, size];
+        var input = new byte[size, size];
 
+        foreach (var (i, j, value) in tuple)
+        {
+            var x = i + size / 2;
+            var y = j + size / 2;
+            input[x, y] = (byte)value;
+        }
 
-        return new (int x, int y, int value)[] {(0, 0, 0)};
+        return input;
     }
 }

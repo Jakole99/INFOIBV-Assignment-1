@@ -19,8 +19,8 @@ public class DilationFilter : Filter
         _isBinary = isBinary;
         _structureElement = _plus;
 
-        // TODO: Use this method
-        _ = StructureElement.Create(type, size);
+        if (size != 3)
+            _structureElement = StructureElement.Create(type, size, _plus);
     }
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
