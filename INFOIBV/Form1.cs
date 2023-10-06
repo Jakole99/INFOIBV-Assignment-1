@@ -16,9 +16,9 @@ public partial class Form1 : Form
 
     private static FilterCollection GetFilters()
     {
-        var imageProcessors = new FilterCollection();
+        var availableProcessors = new FilterCollection();
 
-        imageProcessors
+        availableProcessors
             .AddProcess(new FilterCollection("Grayscale"))
             .AddInversionFilter()
             .AddGaussian(5, 1)
@@ -34,29 +34,29 @@ public partial class Form1 : Form
 
         var imageA = new FilterCollection("Image A")
             .AddContrastAdjustment();
-        imageProcessors.AddProcess(imageA);
+        availableProcessors.AddProcess(imageA);
 
         var imageB = FilterCollection.From(imageA, "Image B")
             .AddGaussian(5, 1);
-        imageProcessors.AddProcess(imageB);
+        availableProcessors.AddProcess(imageB);
 
         var imageW = FilterCollection.From(imageB, "Image W")
             .AddThresholdFilter(80);
-        imageProcessors.AddProcess(imageW);
+        availableProcessors.AddProcess(imageW);
 
         var imageX = FilterCollection.From(imageW, "Image X")
             .AddDilationFilter(StructureElement.Type.Plus, 3);
-        imageProcessors.AddProcess(imageX);
+        availableProcessors.AddProcess(imageX);
 
         var imageY = FilterCollection.From(imageW, "Image Y")
             .AddErosionFilter(StructureElement.Type.Plus, 3);
-        imageProcessors.AddProcess(imageY);
+        availableProcessors.AddProcess(imageY);
 
         var imageZ = new FilterCollection("Image Z")
             .AddProcess(new OrFilter(imageX, imageY));
-        imageProcessors.AddProcess(imageZ);
+        availableProcessors.AddProcess(imageZ);
 
-        return imageProcessors;
+        return availableProcessors;
     }
 
     /// <summary>
@@ -104,12 +104,22 @@ public partial class Form1 : Form
         if (!Enum.TryParse<ModeType>(cbMode.SelectedValue?.ToString(), out var mode))
             return;
 
-        // TODO: implement some sort of extra histogram functionality
-
         outputImageBox.Image?.Dispose();
 
         applyButton.Enabled = false;
-        outputImageBox.Image = await Task.Run(() => processor.Build(inputImageBox.Image));
+
+        var singleChannel = await Task.Run(() => processor.Process(inputImageBox.Image));
+        var histogram = new Histogram(singleChannel);
+        outputImageBox.Image = mode switch
+        {
+            ModeType.Normal => singleChannel.ToBitmap(),
+            ModeType.Histogram => histogram.GetBitmap(512, 300),
+            ModeType.CumulativeHistogram => histogram.GetBitmap(512, 300, true),
+            _ => singleChannel.ToBitmap()
+        };
+
+        filterLabel.Text = $"{histogram.UniqueCount} Unique values";
+
         applyButton.Enabled = true;
     }
 

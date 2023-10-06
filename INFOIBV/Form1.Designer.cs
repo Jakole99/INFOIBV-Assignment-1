@@ -199,8 +199,7 @@ partial class Form1
         filterLabel.TabIndex = 14;
         filterLabel.Text = "Pipeline";
         filterLabel.TextAlign = ContentAlignment.MiddleCenter;
-        filterLabel.Visible = false;
-        // 
+        //
         // cbMode
         // 
         cbMode.Anchor = AnchorStyles.Top | AnchorStyles.Right;

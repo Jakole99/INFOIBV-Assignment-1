@@ -40,8 +40,23 @@ public readonly struct Histogram
         return histogramTable;
     }
 
-    private Bitmap GetBitmap(int width, int height)
+    public Bitmap GetBitmap(int width, int height, bool isCumulative = false)
     {
-        throw new NotImplementedException();
+        var valueHeight = (float)height / Values.Max();
+        var columnWidth = (float)width / (Byte.MaxValue + 1);
+
+        var output = new byte[width, height];
+        var values = isCumulative ? GetCumulativeValues() : Values;
+
+        Parallel.For(0, height, v =>
+        {
+            for (var u = 0; u < width; u++)
+            {
+                var value = values[(int)(u / columnWidth)];
+                output[u, v] = height - value * valueHeight >= v ? Byte.MaxValue : Byte.MinValue;
+            }
+        });
+
+        return output.ToBitmap();
     }
 }
