@@ -6,7 +6,7 @@ public class DisplayHistogramFilter : Filter
 {
     private readonly bool _isCumulative;
     private float _columnWidth;
-    private int[]? _histogram;
+    private int[]? _values;
     private float _valueHeight;
 
     public DisplayHistogramFilter(bool isCumulative = false)
@@ -20,21 +20,21 @@ public class DisplayHistogramFilter : Filter
     {
         SetOutputDimensions(512, 300);
 
-        _histogram = _isCumulative
-            ? FilterHelper.CreateCumulativeHistogram(input)
-            : FilterHelper.CreateHistogram(input);
+        _values = _isCumulative
+            ? new Histogram(input).GetCumulativeValues()
+            : new Histogram(input).Values;
 
-        _valueHeight = (float)Height / _histogram.Max();
+        _valueHeight = (float)Height / _values.Max();
         _columnWidth = (float)Width / (Byte.MaxValue + 1);
     }
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
-        if (_histogram is null)
+        if (_values is null)
             throw new NullReferenceException("Histogram is not set");
 
         // check horizontal which histogram entry were at
-        var value = _histogram[(int)(u / _columnWidth)];
+        var value = _values[(int)(u / _columnWidth)];
 
         return Height - value * _valueHeight >= v ? Byte.MaxValue : Byte.MinValue;
     }

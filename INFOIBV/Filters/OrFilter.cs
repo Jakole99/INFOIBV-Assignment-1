@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using INFOIBV.Framework;
+﻿using INFOIBV.Framework;
 
 namespace INFOIBV.Filters;
 
@@ -29,7 +24,7 @@ public class OrFilter : Filter
 
 public partial class PipelineExtensions
 {
-    public static PipeLine AddOrFilter(this PipeLine pipeLine, byte[,] input)
+    public static PipeLine AddAOrFilter(this PipeLine pipeLine, byte[,] input)
     {
         return pipeLine.AddFilter(new OrFilter(input));
     }

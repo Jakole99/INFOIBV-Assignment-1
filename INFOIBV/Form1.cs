@@ -94,7 +94,7 @@ public partial class Form1 : Form
                 break;
 
             case FilterType.Closing:
-                pipeline.AddClosingFilter(StructureElement.Type.Plus, 3);
+                pipeline.AddClosingFilter(StructureElement.Type.Plus, 5);
                 break;
 
             case FilterType.None:

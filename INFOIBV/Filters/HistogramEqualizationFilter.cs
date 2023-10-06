@@ -5,7 +5,7 @@ namespace INFOIBV.Filters;
 public class HistogramEqualizationFilter : Filter
 {
     private int _highest, _lowest;
-    private int[]? _lookUpTable;
+    private Histogram _histogram;
     private int _m, _n, _k;
 
     public override string Name => "Equalization";
@@ -19,16 +19,13 @@ public class HistogramEqualizationFilter : Filter
         _lowest = input.Cast<byte>().Min();
         _k = _highest - _lowest;
 
-        _lookUpTable = FilterHelper.CreateCumulativeHistogram(input);
+        _histogram = new Histogram(input);
     }
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
-        if (_lookUpTable is null)
-            throw new NullReferenceException("Lookup-table is not set");
-
         var a = input[u, v];
-        var equalizedIntensity = (byte)(_lookUpTable[a] * (_k - 1) / (_m * _n));
+        var equalizedIntensity = (byte)(_histogram.Values[a] * (_k - 1) / (_m * _n));
         return equalizedIntensity;
     }
 }

@@ -1,5 +1,4 @@
 ﻿using INFOIBV.Filters;
-using System.Drawing;
 
 namespace INFOIBV;
 
@@ -25,11 +24,11 @@ public static class StructureElement
                         squareElement[i, j] = 1;
 
 
-                return convertByteToTuple(squareElement);
+                return ConvertByteToTuple(squareElement);
             case Type.Plus:
-                var dilationFilter = new DilationFilter(Type.Plus, 3, false);
+                var dilationFilter = new DilationFilter(Type.Plus, 3);
 
-                var resultingPlusElement = dilationFilter.ConvertParallel(convertTupleToByte(baseStructure, size));
+                var resultingPlusElement = dilationFilter.ConvertParallel(ConvertTupleToByte(baseStructure, size));
 
                 var rounds = ((size - 3) / 2) - 1; //since we already did one round above
 
@@ -39,19 +38,19 @@ public static class StructureElement
                     rounds -= 1;
                 }
 
-                return convertByteToTuple(resultingPlusElement);
+                return ConvertByteToTuple(resultingPlusElement);
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
     }
 
-    private static (int x, int y, int value)[] convertByteToTuple(byte[,] input)
+    private static (int x, int y, int value)[] ConvertByteToTuple(byte[,] input)
     {
-        List<(int x, int y, int value)> elements = new List<(int x, int y, int value)>();
+        var elements = new List<(int x, int y, int value)>();
 
-        for (int i = 0; i < input.GetLength(0); i++)
+        for (var i = 0; i < input.GetLength(0); i++)
         {
-            for (int j = 0; j < input.GetLength(1); j++)
+            for (var j = 0; j < input.GetLength(1); j++)
             {
                 if (input[i, j] == 0)
                     continue;
@@ -64,7 +63,7 @@ public static class StructureElement
         return elements.ToArray();
     }
 
-    private static byte[,] convertTupleToByte((int x, int y, int value)[] tuple, int size)
+    private static byte[,] ConvertTupleToByte((int x, int y, int value)[] tuple, int size)
     {
         var input = new byte[size, size];
 
