@@ -4,28 +4,31 @@ namespace INFOIBV.Filters;
 
 public class OrFilter : Filter
 {
-    public override string Name => "orImage";
+    public override string DisplayName => "OR";
 
-    private readonly byte[,] _input2;
+    private readonly IImageProcessor _a;
+    private readonly IImageProcessor _b;
 
-    public OrFilter(byte[,] input)
+    private byte[,] _inputA = default!;
+    private byte[,] _inputB = default!;
+
+    public OrFilter(IImageProcessor a, IImageProcessor b)
     {
-        _input2 = input;
+        _a = a;
+        _b = b;
     }
-    protected override byte ConvertPixel(int u, int v, byte[,] input)
+
+    protected override void BeforeConvert(byte[,] input)
+    {
+        _inputA = _a.Process(input);
+        _inputB = _b.Process(input);
+    }
+
+    protected override byte ConvertPixel(int u, int v, byte[,] _)
     {
         //With a Threshold "check", so if an user doesn't give a binary image then we will just make it binary.
-        if (input[u, v] < Byte.MaxValue / 2 || _input2[u, v] > Byte.MaxValue / 2)
+        if (_inputA[u, v] < Byte.MaxValue / 2 || _inputB[u, v] > Byte.MaxValue / 2)
             return Byte.MinValue;
         return Byte.MaxValue;
-    }
-}
-
-
-public partial class PipelineExtensions
-{
-    public static PipeLine AddAOrFilter(this PipeLine pipeLine, byte[,] input)
-    {
-        return pipeLine.AddFilter(new OrFilter(input));
     }
 }

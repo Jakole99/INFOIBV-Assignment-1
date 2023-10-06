@@ -39,8 +39,6 @@ partial class Form1
         outputImageBox = new PictureBox();
         progressBar = new ProgressBar();
         cbFilter = new ComboBox();
-        pipeline1Button = new Button();
-        pipeline2Button = new Button();
         lenaButton = new Button();
         gridButton = new Button();
         cubeHousesButton = new Button();
@@ -149,30 +147,6 @@ partial class Form1
         cbFilter.Size = new Size(137, 28);
         cbFilter.TabIndex = 7;
         // 
-        // pipeline1Button
-        // 
-        pipeline1Button.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        pipeline1Button.Location = new Point(1108, 66);
-        pipeline1Button.Margin = new Padding(4, 5, 4, 5);
-        pipeline1Button.Name = "pipeline1Button";
-        pipeline1Button.Size = new Size(137, 35);
-        pipeline1Button.TabIndex = 8;
-        pipeline1Button.Text = "Pipeline 1";
-        pipeline1Button.UseVisualStyleBackColor = true;
-        pipeline1Button.Click += PipeLineButton1_Click;
-        // 
-        // pipeline2Button
-        // 
-        pipeline2Button.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        pipeline2Button.Location = new Point(1253, 66);
-        pipeline2Button.Margin = new Padding(4, 5, 4, 5);
-        pipeline2Button.Name = "pipeline2Button";
-        pipeline2Button.Size = new Size(137, 35);
-        pipeline2Button.TabIndex = 9;
-        pipeline2Button.Text = "Pipeline 2";
-        pipeline2Button.UseVisualStyleBackColor = true;
-        pipeline2Button.Click += Pipeline2Button_Click;
-        // 
         // lenaButton
         // 
         lenaButton.Location = new Point(155, 62);
@@ -271,8 +245,6 @@ partial class Form1
         Controls.Add(cubeHousesButton);
         Controls.Add(gridButton);
         Controls.Add(lenaButton);
-        Controls.Add(pipeline2Button);
-        Controls.Add(pipeline1Button);
         Controls.Add(cbFilter);
         Controls.Add(progressBar);
         Controls.Add(outputImageBox);
@@ -312,8 +284,6 @@ partial class Form1
     private PictureBox outputImageBox;
     private ProgressBar progressBar;
     private ComboBox cbFilter;
-    private Button pipeline1Button;
-    private Button pipeline2Button;
     private Button lenaButton;
     private Button gridButton;
     private Button cubeHousesButton;

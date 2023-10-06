@@ -39,4 +39,9 @@ public readonly struct Histogram
 
         return histogramTable;
     }
+
+    private Bitmap GetBitmap(int width, int height)
+    {
+        throw new NotImplementedException();
+    }
 }

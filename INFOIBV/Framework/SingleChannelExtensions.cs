@@ -9,8 +9,11 @@ public static class SingleChannelExtensions
     ///     <see cref="Bitmap" />
     /// </param>
     /// <returns>Single-channel image</returns>
-    public static byte[,] ToSingleChannel(this Bitmap source)
+    public static byte[,] ToSingleChannel(this Image source)
     {
+        if (source is not Bitmap bitmap)
+            throw new Exception("WTF");
+
         var height = source.Size.Height;
         var width = source.Size.Width;
         var singleChannel = new byte[width, height];
@@ -18,7 +21,7 @@ public static class SingleChannelExtensions
         for (var x = 0; x < width; x++)
         for (var y = 0; y < height; y++)
         {
-            var color = source.GetPixel(x, y);
+            var color = bitmap.GetPixel(x, y);
             singleChannel[x, y] = (byte)((color.R + color.B + color.G) / 3);
         }
 

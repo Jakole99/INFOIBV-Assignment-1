@@ -7,7 +7,7 @@ namespace INFOIBV.Filters;
 /// </summary>
 public class InversionFilter : Filter
 {
-    public override string Name => "Inversion";
+    public override string DisplayName => "Inversion";
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
@@ -15,10 +15,10 @@ public class InversionFilter : Filter
     }
 }
 
-public static partial class PipelineExtensions
+public static partial class FilterCollectionExtensions
 {
-    public static PipeLine AddInversionFilter(this PipeLine pipeLine)
+    public static FilterCollection AddInversionFilter(this FilterCollection filterCollection)
     {
-        return pipeLine.AddFilter(new InversionFilter());
+        return filterCollection.AddProcess(new InversionFilter());
     }
 }

@@ -20,7 +20,7 @@ public class GaussianFilter : Filter
         _gaussian = CreateGaussianKernel((byte)size, sigma);
     }
 
-    public override string Name => "Gaussian";
+    public override string DisplayName => "Gaussian";
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
@@ -61,11 +61,11 @@ public class GaussianFilter : Filter
     }
 }
 
-public static partial class PipelineExtensions
+public static partial class FilterCollectionExtensions
 {
-    /// <inheritdoc cref="GaussianFilter(int, float)" />
-    public static PipeLine AddGaussian(this PipeLine pipeLine, int size, int sigma)
+    /// <inheritdoc cref="GaussianFilter(int,float)" />
+    public static FilterCollection AddGaussian(this FilterCollection filterCollection, int size, int sigma)
     {
-        return pipeLine.AddFilter(new GaussianFilter(size, sigma));
+        return filterCollection.AddProcess(new GaussianFilter(size, sigma));
     }
 }

@@ -9,7 +9,7 @@ public class ContrastAdjustmentFilter : Filter
 {
     private int _highest;
     private int _lowest;
-    public override string Name => "Contrast Adjustment";
+    public override string DisplayName => "Contrast Adjustment";
 
     protected override void BeforeConvert(byte[,] input)
     {
@@ -23,13 +23,13 @@ public class ContrastAdjustmentFilter : Filter
     }
 }
 
-public static partial class PipelineExtensions
+public static partial class FilterCollectionExtensions
 {
     /// <summary>
     /// Adds contrast adjustment filter to the pipeline
     /// </summary>
-    public static PipeLine AddContrastAdjustment(this PipeLine pipeLine)
+    public static FilterCollection AddContrastAdjustment(this FilterCollection filterCollection)
     {
-        return pipeLine.AddFilter(new ContrastAdjustmentFilter());
+        return filterCollection.AddProcess(new ContrastAdjustmentFilter());
     }
 }

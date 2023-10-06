@@ -15,7 +15,7 @@ public class ThresholdFilter : Filter
         _threshold = threshold;
     }
 
-    public override string Name => "Threshold";
+    public override string DisplayName => "Threshold";
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
@@ -23,10 +23,10 @@ public class ThresholdFilter : Filter
     }
 }
 
-public static partial class PipelineExtensions
+public static partial class FilterCollectionExtensions
 {
-    public static PipeLine AddThresholdFilter(this PipeLine pipeLine, int threshold)
+    public static FilterCollection AddThresholdFilter(this FilterCollection filterCollection, int threshold)
     {
-        return pipeLine.AddFilter(new ThresholdFilter(threshold));
+        return filterCollection.AddProcess(new ThresholdFilter(threshold));
     }
 }

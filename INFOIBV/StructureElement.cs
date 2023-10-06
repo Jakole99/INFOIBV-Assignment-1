@@ -28,13 +28,13 @@ public static class StructureElement
             case Type.Plus:
                 var dilationFilter = new DilationFilter(Type.Plus, 3);
 
-                var resultingPlusElement = dilationFilter.ConvertParallel(ConvertTupleToByte(baseStructure, size));
+                var resultingPlusElement = dilationFilter.Process(ConvertTupleToByte(baseStructure, size));
 
                 var rounds = ((size - 3) / 2) - 1; //since we already did one round above
 
                 while (rounds > 0)
                 {
-                    resultingPlusElement = dilationFilter.ConvertParallel(resultingPlusElement);
+                    resultingPlusElement = dilationFilter.Process(resultingPlusElement);
                     rounds -= 1;
                 }
 

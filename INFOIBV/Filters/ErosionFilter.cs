@@ -4,7 +4,7 @@ namespace INFOIBV.Filters;
 
 public class ErosionFilter : Filter
 {
-    public override string Name => "Erosion";
+    public override string DisplayName => "Erosion";
 
     private readonly bool _isBinary;
     private readonly (int x, int y, int value)[] _structureElement;
@@ -54,10 +54,10 @@ public class ErosionFilter : Filter
     }
 }
 
-public partial class PipelineExtensions
+public partial class FilterCollectionExtensions
 {
-    public static PipeLine AddErosionFilter(this PipeLine pipeLine, StructureElement.Type type, int size, bool isBinary = false)
+    public static FilterCollection AddErosionFilter(this FilterCollection filterCollection, StructureElement.Type type, int size, bool isBinary = false)
     {
-        return pipeLine.AddFilter(new ErosionFilter(type, size, isBinary));
+        return filterCollection.AddProcess(new ErosionFilter(type, size, isBinary));
     }
 }

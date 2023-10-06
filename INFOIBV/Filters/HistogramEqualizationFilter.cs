@@ -5,10 +5,10 @@ namespace INFOIBV.Filters;
 public class HistogramEqualizationFilter : Filter
 {
     private int _highest, _lowest;
-    private Histogram _histogram;
+    private int[] _histogram = default!;
     private int _m, _n, _k;
 
-    public override string Name => "Equalization";
+    public override string DisplayName => "Equalization";
 
     protected override void BeforeConvert(byte[,] input)
     {
@@ -19,21 +19,21 @@ public class HistogramEqualizationFilter : Filter
         _lowest = input.Cast<byte>().Min();
         _k = _highest - _lowest;
 
-        _histogram = new Histogram(input);
+        _histogram = new Histogram(input).GetCumulativeValues();
     }
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
         var a = input[u, v];
-        var equalizedIntensity = (byte)(_histogram.Values[a] * (_k - 1) / (_m * _n));
+        var equalizedIntensity = (byte)(_histogram[a] * (_k - 1) / (_m * _n));
         return equalizedIntensity;
     }
 }
 
-public static partial class PipelineExtensions
+public static partial class FilterCollectionExtensions
 {
-    public static PipeLine AddHistogramEqualization(this PipeLine pipeLine)
+    public static FilterCollection AddHistogramEqualization(this FilterCollection filterCollection)
     {
-        return pipeLine.AddFilter(new HistogramEqualizationFilter());
+        return filterCollection.AddProcess(new HistogramEqualizationFilter());
     }
 }

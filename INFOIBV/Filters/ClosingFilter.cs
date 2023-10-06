@@ -2,12 +2,15 @@
 
 namespace INFOIBV.Filters;
 
-public partial class PipelineExtensions
+public partial class FilterCollectionExtensions
 {
-    public static PipeLine AddClosingFilter(this PipeLine pipeLine, StructureElement.Type type, int size, bool isBinary = false)
+    public static FilterCollection AddClosingFilter(this FilterCollection filterCollection, StructureElement.Type type,
+        int size, bool isBinary = false)
     {
-        return pipeLine
-            .AddDilationFilter(type, size, isBinary)
-            .AddErosionFilter(type, size, isBinary);
+        return filterCollection.AddProcess(
+            new FilterCollection("Closing")
+                .AddDilationFilter(type, size, isBinary)
+                .AddErosionFilter(type, size, isBinary)
+        );
     }
 }

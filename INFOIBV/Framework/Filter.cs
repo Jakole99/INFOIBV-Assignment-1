@@ -3,12 +3,9 @@
 /// <summary>
 /// Abstract definition of a filter
 /// </summary>
-public abstract class Filter
+public abstract class Filter : IImageProcessor
 {
-    /// <summary>
-    /// User friendly name of the filter
-    /// </summary>
-    public abstract string Name { get; }
+    public abstract string DisplayName { get; }
 
     /// <summary>
     /// Output Width
@@ -25,6 +22,7 @@ public abstract class Filter
     /// </summary>
     protected void SetOutputDimensions(int width, int height)
     {
+        // TODO: Make this different
         Width = width;
         Height = height;
     }
@@ -45,12 +43,7 @@ public abstract class Filter
     {
     }
 
-    /// <summary>
-    /// Convert an image to the filtered image
-    /// </summary>
-    /// <param name="input">Single-channel image</param>
-    /// <returns>Filtered single-channel image</returns>
-    public byte[,] ConvertParallel(byte[,] input)
+    public byte[,] Process(byte[,] input)
     {
         Width = input.GetLength(0);
         Height = input.GetLength(1);
@@ -69,5 +62,10 @@ public abstract class Filter
         });
 
         return output;
+    }
+
+    public override string ToString()
+    {
+        return DisplayName;
     }
 }

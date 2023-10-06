@@ -21,7 +21,7 @@ public class EdgeMagnitudeFilter : Filter
         { -1, 0, 1 }
     };
 
-    public override string Name => "Edge Magnitude";
+    public override string DisplayName => "Edge Magnitude";
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
@@ -35,11 +35,11 @@ public class EdgeMagnitudeFilter : Filter
     }
 }
 
-public static partial class PipelineExtensions
+public static partial class FilterCollectionExtensions
 {
     /// <inheritdoc cref="EdgeMagnitudeFilter" />
-    public static PipeLine AddEdgeMagnitudeFilter(this PipeLine pipeLine)
+    public static FilterCollection AddEdgeMagnitudeFilter(this FilterCollection filterCollection)
     {
-        return pipeLine.AddFilter(new EdgeMagnitudeFilter());
+        return filterCollection.AddProcess(new EdgeMagnitudeFilter());
     }
 }

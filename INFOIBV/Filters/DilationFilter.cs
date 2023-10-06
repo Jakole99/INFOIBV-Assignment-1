@@ -4,7 +4,7 @@ namespace INFOIBV.Filters;
 
 public class DilationFilter : Filter
 {
-    public override string Name => "Dilation";
+    public override string DisplayName => "Dilation";
 
     private readonly bool _isBinary;
     private readonly (int x, int y, int value)[] _structureElement;
@@ -54,10 +54,10 @@ public class DilationFilter : Filter
     }
 }
 
-public partial class PipelineExtensions
+public partial class FilterCollectionExtensions
 {
-    public static PipeLine AddDilationFilter(this PipeLine pipeLine, StructureElement.Type type, int size, bool isBinary = false)
+    public static FilterCollection AddDilationFilter(this FilterCollection filterCollection, StructureElement.Type type, int size, bool isBinary = false)
     {
-        return pipeLine.AddFilter(new DilationFilter(type, size, isBinary));
+        return filterCollection.AddProcess(new DilationFilter(type, size, isBinary));
     }
 }

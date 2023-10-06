@@ -15,7 +15,7 @@ public class MedianFilter : Filter
         _size = size;
     }
 
-    public override string Name => "Median";
+    public override string DisplayName => "Median";
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
@@ -37,11 +37,11 @@ public class MedianFilter : Filter
     }
 }
 
-public static partial class PipelineExtensions
+public static partial class FilterCollectionExtensions
 {
     /// <inheritdoc cref="MedianFilter(int)" />
-    public static PipeLine AddMedianFilter(this PipeLine pipeLine, int size)
+    public static FilterCollection AddMedianFilter(this FilterCollection filterCollection, int size)
     {
-        return pipeLine.AddFilter(new MedianFilter(size));
+        return filterCollection.AddProcess(new MedianFilter(size));
     }
 }

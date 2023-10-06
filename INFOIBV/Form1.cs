@@ -10,8 +10,53 @@ public partial class Form1 : Form
         InitializeComponent();
 
         // Set combo boxes
-        cbFilter.DataSource = Enum.GetValues(typeof(FilterType));
+        cbFilter.DataSource = GetFilters().ImageProcessors;
         cbMode.DataSource = Enum.GetValues(typeof(ModeType));
+    }
+
+    private static FilterCollection GetFilters()
+    {
+        var imageProcessors = new FilterCollection();
+
+        imageProcessors
+            .AddProcess(new FilterCollection("Grayscale"))
+            .AddInversionFilter()
+            .AddGaussian(5, 1)
+            .AddContrastAdjustment()
+            .AddEdgeMagnitudeFilter()
+            .AddDilationFilter(StructureElement.Type.Plus, 3)
+            .AddErosionFilter(StructureElement.Type.Plus, 3)
+            .AddClosingFilter(StructureElement.Type.Plus, 3)
+            .AddOpeningFilter(StructureElement.Type.Plus, 3)
+            .AddThresholdFilter(80)
+            .AddHistogramEqualization()
+            .AddMedianFilter(5);
+
+        var imageA = new FilterCollection("Image A")
+            .AddContrastAdjustment();
+        imageProcessors.AddProcess(imageA);
+
+        var imageB = FilterCollection.From(imageA, "Image B")
+            .AddGaussian(5, 1);
+        imageProcessors.AddProcess(imageB);
+
+        var imageW = FilterCollection.From(imageB, "Image W")
+            .AddThresholdFilter(80);
+        imageProcessors.AddProcess(imageW);
+
+        var imageX = FilterCollection.From(imageW, "Image X")
+            .AddDilationFilter(StructureElement.Type.Plus, 3);
+        imageProcessors.AddProcess(imageX);
+
+        var imageY = FilterCollection.From(imageW, "Image Y")
+            .AddErosionFilter(StructureElement.Type.Plus, 3);
+        imageProcessors.AddProcess(imageY);
+
+        var imageZ = new FilterCollection("Image Z")
+            .AddProcess(new OrFilter(imageX, imageY));
+        imageProcessors.AddProcess(imageZ);
+
+        return imageProcessors;
     }
 
     /// <summary>
@@ -50,59 +95,22 @@ public partial class Form1 : Form
     /// </summary>
     private async void ApplyButton_Click(object sender, EventArgs e)
     {
-        if (!Enum.TryParse<FilterType>(cbFilter.SelectedValue?.ToString(), out var filter))
+        if (cbFilter.SelectedValue is not IImageProcessor processor)
             return;
 
-        var pipeline = new PipeLine();
+        if (inputImageBox.Image == null)
+            return;
 
-        switch (filter)
-        {
-            case FilterType.GrayScale: // Pipeline already converts to grayscale
-                break;
-            case FilterType.Invert:
-                pipeline.AddInversionFilter();
-                break;
-            case FilterType.AdjustContrast:
-                pipeline.AddContrastAdjustment();
-                break;
-            case FilterType.Gaussian:
-                pipeline.AddGaussian(5, 1);
-                break;
-            case FilterType.Median:
-                pipeline.AddMedianFilter(5);
-                break;
-            case FilterType.EdgeMagnitude:
-                pipeline.AddEdgeMagnitudeFilter();
-                break;
-            case FilterType.Threshold:
-                pipeline.AddThresholdFilter(128);
-                break;
-            case FilterType.HistogramEqualization:
-                pipeline.AddHistogramEqualization();
-                break;
+        if (!Enum.TryParse<ModeType>(cbMode.SelectedValue?.ToString(), out var mode))
+            return;
 
-            case FilterType.Dilation:
-                pipeline.AddDilationFilter(StructureElement.Type.Plus, 3);
-                break;
+        // TODO: implement some sort of extra histogram functionality
 
-            case FilterType.Erosion:
-                pipeline.AddErosionFilter(StructureElement.Type.Plus, 3);
-                break;
+        outputImageBox.Image?.Dispose();
 
-            case FilterType.Opening:
-                pipeline.AddOpeningFilter(StructureElement.Type.Plus, 3);
-                break;
-
-            case FilterType.Closing:
-                pipeline.AddClosingFilter(StructureElement.Type.Plus, 5);
-                break;
-
-            case FilterType.None:
-            default:
-                return;
-        }
-
-        await ProcessPipeline(pipeline);
+        applyButton.Enabled = false;
+        outputImageBox.Image = await Task.Run(() => processor.Build(inputImageBox.Image));
+        applyButton.Enabled = true;
     }
 
     /// <summary>
@@ -115,57 +123,6 @@ public partial class Form1 : Form
 
         if (saveImageDialog.ShowDialog() == DialogResult.OK)
             outputImageBox.Image.Save(saveImageDialog.FileName);
-    }
-
-    private async void PipeLineButton1_Click(object sender, EventArgs e)
-    {
-        var pipeline = new PipeLine()
-            .AddContrastAdjustment()
-            .AddGaussian(5, 1)
-            .AddEdgeMagnitudeFilter()
-            .AddThresholdFilter(80);
-
-        // Execute pipeline
-        await ProcessPipeline(pipeline);
-    }
-
-    private async void Pipeline2Button_Click(object sender, EventArgs e)
-    {
-        var pipeline = new PipeLine()
-            .AddContrastAdjustment()
-            .AddMedianFilter(5)
-            .AddEdgeMagnitudeFilter()
-            .AddThresholdFilter(60);
-
-
-        await ProcessPipeline(pipeline);
-    }
-
-    private async Task ProcessPipeline(PipeLine pipeLine)
-    {
-        if (inputImageBox.Image == null)
-            return;
-
-        if (!Enum.TryParse<ModeType>(cbMode.SelectedValue?.ToString(), out var mode))
-            return;
-
-        outputImageBox.Image?.Dispose();
-        filterLabel.Text = "Start";
-        progressBar.Value = 0;
-
-        var progress = new Progress<(string, int)>(x =>
-        {
-            filterLabel.Text = x.Item1;
-            progressBar.Value = x.Item2;
-        });
-
-        pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = false;
-        progressBar.Visible = filterLabel.Visible = true;
-
-        outputImageBox.Image = await Task.Run(() => pipeLine.DisplayMode(mode, (Bitmap)inputImageBox.Image, progress));
-
-        progressBar.Visible = filterLabel.Visible = false;
-        pipeline1Button.Enabled = pipeline2Button.Enabled = applyButton.Enabled = true;
     }
 
     private void LenaButton_Click(object sender, EventArgs e)
