@@ -14,17 +14,17 @@ public sealed class FilterCollection : IImageProcessor
         DisplayName = displayName;
     }
 
-    public static FilterCollection From(IImageProcessor process, string displayName = "Collection")
+    public static FilterCollection From(IImageProcessor processor, string displayName = "Collection")
     {
-        return new FilterCollection(displayName).AddProcess(process);
+        return new FilterCollection(displayName).AddProcess(processor);
     }
 
     /// <summary>
     /// Queue a filter to the pipeline
     /// </summary>
-    public FilterCollection AddProcess(IImageProcessor process)
+    public FilterCollection AddProcess(IImageProcessor processor)
     {
-        ImageProcessors.Add(process);
+        ImageProcessors.Add(processor);
         return this;
     }
 
@@ -33,6 +33,7 @@ public sealed class FilterCollection : IImageProcessor
         if (!ImageProcessors.Any())
             return input;
 
+        // Set the first output to take in the input
         var output = ImageProcessors.First().Process(input);
         return ImageProcessors.Skip(1).Aggregate(output, (current, processor) => processor.Process(current));
     }

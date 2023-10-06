@@ -50,7 +50,6 @@ public abstract class Filter : IImageProcessor
 
         BeforeConvert(input);
 
-        // Origin of small object heap size but is allowed
         var output = new byte[Width, Height];
 
         Parallel.For(0, Height, v =>
