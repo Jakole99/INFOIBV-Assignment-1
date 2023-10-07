@@ -47,6 +47,7 @@ partial class Form1
         cbMode = new ComboBox();
         label2 = new Label();
         label3 = new Label();
+        gearButton = new Button();
         ((System.ComponentModel.ISupportInitialize)inputImageBox).BeginInit();
         ((System.ComponentModel.ISupportInitialize)outputImageBox).BeginInit();
         SuspendLayout();
@@ -199,7 +200,7 @@ partial class Form1
         filterLabel.TabIndex = 14;
         filterLabel.Text = "Pipeline";
         filterLabel.TextAlign = ContentAlignment.MiddleCenter;
-        //
+        // 
         // cbMode
         // 
         cbMode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -231,11 +232,23 @@ partial class Form1
         label3.Text = "Filter:";
         label3.TextAlign = ContentAlignment.TopRight;
         // 
+        // gearButton
+        // 
+        gearButton.Location = new Point(596, 62);
+        gearButton.Margin = new Padding(4, 5, 4, 5);
+        gearButton.Name = "gearButton";
+        gearButton.Size = new Size(137, 35);
+        gearButton.TabIndex = 18;
+        gearButton.Text = "Gears";
+        gearButton.UseVisualStyleBackColor = true;
+        gearButton.Click += GearButton_Click;
+        // 
         // Form1
         // 
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1403, 942);
+        Controls.Add(gearButton);
         Controls.Add(label3);
         Controls.Add(label2);
         Controls.Add(cbMode);
@@ -287,4 +300,5 @@ partial class Form1
     private Button gridButton;
     private Button cubeHousesButton;
     private Label label1;
+    private Button gearButton;
 }

@@ -27,8 +27,8 @@ public class AndFilter : Filter
     protected override byte ConvertPixel(int u, int v, byte[,] _)
     {
         //With a Threshold "check", so if an user doesn't give a binary image then we will just make it binary.
-        if (_inputA[u, v] < Byte.MaxValue / 2 && _inputB[u, v] > Byte.MaxValue / 2)
-            return Byte.MinValue;
-        return Byte.MaxValue;
+        if (_inputA[u, v] > Byte.MaxValue / 2 && _inputB[u, v] > Byte.MaxValue / 2)
+            return Byte.MaxValue;
+        return Byte.MinValue;
     }
 }

@@ -16,7 +16,7 @@ public partial class Form1 : Form
 
     private static FilterCollection GetFilters()
     {
-        var test = new BoundaryTrace(new Bitmap("Images/wheels2.jpg").ToSingleChannel());
+        //var test = new BoundaryTrace(new Bitmap("Images/wheels2.jpg").ToSingleChannel());
 
         var availableProcessors = new FilterCollection();
 
@@ -43,7 +43,7 @@ public partial class Form1 : Form
         availableProcessors.AddProcess(imageB);
 
         var imageW = FilterCollection.From(imageB, "Image W")
-            .AddThresholdFilter(80);
+            .AddThresholdFilter(128);
         availableProcessors.AddProcess(imageW);
 
         var imageX = FilterCollection.From(imageW, "Image X")
@@ -55,8 +55,56 @@ public partial class Form1 : Form
         availableProcessors.AddProcess(imageY);
 
         var imageZ = new FilterCollection("Image Z")
-            .AddProcess(new OrFilter(imageX, imageY));
+            .AddProcess(new AndFilter(imageX, imageY));
         availableProcessors.AddProcess(imageZ);
+
+        var imageE1 = FilterCollection.From(imageA, "Image E1")
+            .AddDilationFilter(StructureElement.Type.Plus, 3);
+        availableProcessors.AddProcess(imageE1);
+
+        var imageE2 = FilterCollection.From(imageA, "Image E2")
+            .AddDilationFilter(StructureElement.Type.Plus, 7);
+        availableProcessors.AddProcess(imageE2);
+
+        var imageE3 = FilterCollection.From(imageA, "Image E3")
+            .AddDilationFilter(StructureElement.Type.Plus, 13);
+        availableProcessors.AddProcess(imageE3);
+
+        var imageE4 = FilterCollection.From(imageA, "Image E4")
+            .AddDilationFilter(StructureElement.Type.Square, 25, true);
+        availableProcessors.AddProcess(imageE4);
+
+        var imageE5 = FilterCollection.From(imageA, "Image E5")
+            .AddDilationFilter(StructureElement.Type.Square, 49, true);
+        availableProcessors.AddProcess(imageE5);
+
+        var imageGear = new FilterCollection("image G")
+            .AddThresholdFilter(150);
+        availableProcessors.AddProcess(imageGear);
+
+        var imageG1 = FilterCollection.From(imageGear, "image G1")
+            .AddOpeningFilter(StructureElement.Type.Square, 3, true);
+        availableProcessors.AddProcess(imageG1);
+
+        var imageG2 = FilterCollection.From(imageGear, "image G2")
+            .AddOpeningFilter(StructureElement.Type.Square, 23, true);
+        availableProcessors.AddProcess(imageG2);
+
+        var imageG3 = FilterCollection.From(imageGear, "image G3")
+            .AddOpeningFilter(StructureElement.Type.Square, 43, true);
+        availableProcessors.AddProcess(imageG3);
+
+        var imageG4 = FilterCollection.From(imageGear, "image G4")
+            .AddOpeningFilter(StructureElement.Type.Square, 63, true);
+        availableProcessors.AddProcess(imageG4);
+
+        var imageG5 = FilterCollection.From(imageGear, "image G5")
+            .AddOpeningFilter(StructureElement.Type.Square, 83, true);
+        availableProcessors.AddProcess(imageG5);
+
+
+
+
 
         return availableProcessors;
     }
@@ -150,5 +198,10 @@ public partial class Form1 : Form
     private void CubeHousesButton_Click(object sender, EventArgs e)
     {
         SetInputImage(new Bitmap("Images/cube_houses.jpg"));
+    }
+
+    private void GearButton_Click(object sender, EventArgs e)
+    {
+        SetInputImage(new Bitmap("Images/wheels.png"));
     }
 }
