@@ -16,6 +16,8 @@ public partial class Form1 : Form
 
     private static FilterCollection GetFilters()
     {
+        var test = new BoundaryTrace(new Bitmap("Images/wheels2.jpg").ToSingleChannel());
+
         var availableProcessors = new FilterCollection();
 
         availableProcessors

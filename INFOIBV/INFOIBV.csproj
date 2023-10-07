@@ -14,4 +14,10 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Images\wheels.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

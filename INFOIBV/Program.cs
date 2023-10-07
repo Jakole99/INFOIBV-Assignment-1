@@ -1,3 +1,5 @@
+using INFOIBV.Framework;
+
 namespace INFOIBV;
 
 public static class Program
