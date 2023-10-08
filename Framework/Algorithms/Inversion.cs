@@ -1,10 +1,13 @@
 ﻿using System.Collections.Concurrent;
 
-namespace Framework;
+namespace Framework.Algorithms;
 
-public class InversionFilter
+/// <summary>
+/// The idea of <see cref="Algorithms.Algorithm"/> is that we optimize purely for performance
+/// </summary>
+public static partial class Algorithm
 {
-    public byte[] ProcessAsArray(byte[] input)
+    public static byte[] Inversion(byte[] input)
     {
         var output = new byte[input.Length];
 
