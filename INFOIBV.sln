@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "INFOIBV", "INFOIBV\INFOIBV.csproj", "{DC952638-3301-4356-9081-EAC5FA3CAB30}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benchmark.csproj", "{DAA619C2-424B-4FB2-B873-F7E296D8C265}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework", "Framework\Framework.csproj", "{6E5E6697-4F40-4851-9857-AF164D0B7612}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{DC952638-3301-4356-9081-EAC5FA3CAB30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC952638-3301-4356-9081-EAC5FA3CAB30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC952638-3301-4356-9081-EAC5FA3CAB30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAA619C2-424B-4FB2-B873-F7E296D8C265}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAA619C2-424B-4FB2-B873-F7E296D8C265}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAA619C2-424B-4FB2-B873-F7E296D8C265}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{DAA619C2-424B-4FB2-B873-F7E296D8C265}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{6E5E6697-4F40-4851-9857-AF164D0B7612}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E5E6697-4F40-4851-9857-AF164D0B7612}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E5E6697-4F40-4851-9857-AF164D0B7612}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E5E6697-4F40-4851-9857-AF164D0B7612}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
