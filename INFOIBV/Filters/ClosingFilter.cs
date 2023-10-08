@@ -4,7 +4,7 @@ namespace INFOIBV.Filters;
 
 public partial class FilterCollectionExtensions
 {
-    public static FilterCollection AddClosingFilter(this FilterCollection filterCollection, StructureElement.Type type,
+    public static FilterCollection AddClosingFilter(this FilterCollection filterCollection, StructureType type,
         int size, bool isBinary = false)
     {
         return filterCollection.AddProcess(

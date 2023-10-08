@@ -7,47 +7,45 @@ public class ErosionFilter : Filter
     public override string DisplayName => "Erosion";
 
     private readonly bool _isBinary;
-    private readonly (int x, int y, int value)[] _structureElement;
+    private readonly byte[,] _structureElement;
+    private readonly int _size;
 
-    private readonly (int x, int y, int value)[] _plus =
-    {
-        (0, 0, 2), (0, 1, 1), (0, -1, 1), (1, 0, 1), (-1, 0, 1)
-    };
-
-    public ErosionFilter(StructureElement.Type type, int size, bool isBinary = false)
+    public ErosionFilter(StructureType type, int size, bool isBinary = false)
     {
         _isBinary = isBinary;
-        _structureElement = _plus;
-
-        if (size != 3)
-            _structureElement = StructureElement.Create(type, size, _plus);
+        _structureElement = StructureElement.Create(type, size);
+        _size = size;
     }
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
         var returnValue = Byte.MaxValue;
 
-        foreach (var (x, y, value) in _structureElement)
+        // For every filter index
+        for (var i = 0; i < _size; i++)
         {
-            var du = u + x;
-            var dv = v + y;
-
-            if (du < 0 || du >= Width)
-                continue;
-
-            if (dv < 0 || dv >= Height)
-                continue;
-
-            if (!_isBinary)
+            for (var j = 0; j < _size; j++)
             {
-                // Grayscale
-                var sum = (byte)Math.Clamp(value + input[du, dv], 0, 255);
-                returnValue = Math.Min(returnValue, sum);
-                continue;
-            }
+                var du = u + i - _size / 2;
+                var dv = v + j - _size / 2;
 
-            if (input[du, dv] < Byte.MaxValue / 2)
-                return Byte.MinValue;
+                if (du < 0 || du >= Width)
+                    continue;
+
+                if (dv < 0 || dv >= Height)
+                    continue;
+
+                if (!_isBinary)
+                {
+                    // Grayscale
+                    var sum = (byte)Math.Clamp(_structureElement[i, j] + input[du, dv], 0, 255);
+                    returnValue = Math.Min(returnValue, sum);
+                    continue;
+                }
+
+                if (input[du, dv] < Byte.MaxValue / 2)
+                    return Byte.MinValue;
+            }
         }
 
         return returnValue;
@@ -56,7 +54,7 @@ public class ErosionFilter : Filter
 
 public partial class FilterCollectionExtensions
 {
-    public static FilterCollection AddErosionFilter(this FilterCollection filterCollection, StructureElement.Type type, int size, bool isBinary = false)
+    public static FilterCollection AddErosionFilter(this FilterCollection filterCollection, StructureType type, int size, bool isBinary = false)
     {
         return filterCollection.AddProcess(new ErosionFilter(type, size, isBinary));
     }

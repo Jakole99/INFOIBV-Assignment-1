@@ -2,78 +2,77 @@
 
 namespace INFOIBV;
 
+public enum StructureType
+{
+    Square,
+    Plus
+}
+
 public static class StructureElement
 {
-    public enum Type
+    private static readonly byte[,] BasePlus =
     {
-        Square,
-        Plus
-    }
+        {0, 1, 0},
+        {2, 2, 1},
+        {0, 1, 0}
+    };
 
-    public static (int x, int y, int value)[] Create(Type type, int size, (int x, int y, int value)[] baseStructure)
+    public static byte[,] Create(StructureType type, int size)
     {
         if (size % 2 == 0)
             throw new ArgumentException($"{size} is not an odd size");
 
-        switch (type)
+        return type switch
         {
-            case Type.Square: 
-                var squareElement = new byte [size, size];
-                for (var i = 0; i < size; i++)
-                    for (var j = 0; j < size; j++)
-                        squareElement[i, j] = 1;
-
-
-                return ConvertByteToTuple(squareElement);
-            case Type.Plus:
-                var dilationFilter = new DilationFilter(Type.Plus, 3);
-
-                var resultingPlusElement = dilationFilter.Process(ConvertTupleToByte(baseStructure, size));
-
-                var rounds = ((size - 3) / 2) - 1; //since we already did one round above
-
-                while (rounds > 0)
-                {
-                    resultingPlusElement = dilationFilter.Process(resultingPlusElement);
-                    rounds -= 1;
-                }
-
-                return ConvertByteToTuple(resultingPlusElement);
-            default:
-                throw new ArgumentOutOfRangeException(nameof(type), type, null);
-        }
+            StructureType.Square => CreateSquare(size),
+            StructureType.Plus => CreatePlus(size),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
     }
 
-    private static (int x, int y, int value)[] ConvertByteToTuple(byte[,] input)
+    private static byte[,] CreatePlus(int size)
     {
-        var elements = new List<(int x, int y, int value)>();
+        const int baseSize = 3;
 
-        for (var i = 0; i < input.GetLength(0); i++)
+        if (size <= baseSize)
+            return BasePlus;
+
+        var plus = new byte[size, size];
+
+        var padding = (size - baseSize) / 2;
+
+        for (var i = 0; i < baseSize; i++)
         {
-            for (var j = 0; j < input.GetLength(1); j++)
+            for (var j = 0; j < baseSize; j++)
             {
-                if (input[i, j] == 0)
-                    continue;
-
-                elements.Add((i, j, input[i, j]));
-
+                var x = i + padding;
+                var y = j + padding;
+                plus[x, y] = BasePlus[i, j];
             }
         }
 
-        return elements.ToArray();
-    }
+        var dilationFilter = new DilationFilter(StructureType.Plus, 3);
 
-    private static byte[,] ConvertTupleToByte((int x, int y, int value)[] tuple, int size)
-    {
-        var input = new byte[size, size];
-
-        foreach (var (i, j, value) in tuple)
+        for (var i = 0; i < padding; i++)
         {
-            var x = i + size / 2;
-            var y = j + size / 2;
-            input[x, y] = (byte)value;
+            plus = dilationFilter.Process(plus);
         }
 
-        return input;
+        return plus;
+    }
+
+    private static byte[,] CreateSquare(int size)
+    {
+        var square = new byte [size, size];
+
+        for (var i = 0; i < size; i++)
+        {
+            for (var j = 0; j < size; j++)
+            {
+                square[i, j] = 1;
+            }
+        }
+
+        return square;
     }
 }
