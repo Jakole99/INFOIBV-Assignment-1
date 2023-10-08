@@ -1,23 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using INFOIBV.Framework;
+﻿namespace INFOIBV.Framework;
 
-namespace INFOIBV.Framework;
-
-//
-// Adapted from "Principles of Digital Image Processing Core Algorithms" by Authors Wilhelm Burger & Mark J. Burge, 2009, Pages 23-24
-//
-
-public class BoundaryTrace
+/// <summary>
+/// Adapted from "Principles of Digital Image Processing Core Algorithms" by Authors Wilhelm Burger &amp; Mark J. Burge, 2009, Pages 23-24
+/// </summary>
+public static class BoundaryTrace
 {
-    private readonly sbyte[,] _delta =
+
+    private static readonly sbyte[,] Delta =
     {
         {1, 0},
         {1, 1},
@@ -29,199 +18,114 @@ public class BoundaryTrace
         {1, -1},
     };
 
-    private List<Contour> _outerContours, _innerContours;
+    public record CombinedContourLabelingResult(HashSet<Contour> Inner, HashSet<Contour> Outer, int[,] LabelMap);
 
-    private readonly byte _foreground = 1;
-    private readonly byte _background = 0;
-
-    private readonly byte[,] _input;
-    private readonly int _height;
-    private readonly int _width;
-
-    public BoundaryTrace(byte[,] input)
+    public static CombinedContourLabelingResult CombinedContourLabeling(byte[,] input)
     {
-        _input = input;
-        _width = input.GetLength(0);
-        _height = input.GetLength(1);
-
-        (_outerContours, _innerContours) = CombinedContourLabeling();
-    }
-
-    /// <summary>
-    /// Returns the sets of outer and inner contours and a label map.
-    /// </summary>
-    public (List<Contour>, List<Contour>) CombinedContourLabeling()
-    {
-        var innerContours = new List<Contour>(50);
-        var outerContours = new List<Contour>(50);
-
-        var labelMap = new int[_width,_height];
-
-        for (var u = 0; u < _width-1; u++)
+        var paddedInput = new byte[input.GetLength(0) + 2, input.GetLength(1) + 2];
+        for (var v = 0; v < input.GetLength(0); v++)
         {
-            for (var v = 0; v < _height-1; v++)
+            for (var u = 0; u < input.GetLength(1); u++)
             {
-                labelMap[u, v] = 0;
+                paddedInput[u+1, v+1] = input[u, v];
             }
         }
 
+        var width = paddedInput.GetLength(0);
+        var height = paddedInput.GetLength(1);
+
+        var outerContours = new HashSet<Contour>();
+        var innerContours = new HashSet<Contour>();
+
+        var labelMap = new int[width, height];
         var regionCounter = 0;
 
-        for (var v = 0; v < _height-1 ; v++)
+        for (var v = 0; v < height; v++)
         {
             var label = 0;
-            for (var u = 0; u < _width-1; u++)
+            for (var u = 0; u < width; u++)
             {
-                if (_input[u, v] == _foreground)
+                if (paddedInput[u, v] > Byte.MinValue) // is a foreground pixel
                 {
                     if (label != 0)
+                    {
                         labelMap[u, v] = label;
+                    }
                     else
                     {
                         label = labelMap[u, v];
-                        if (label == 0)
-                        {
-                            regionCounter += 1;
-                            label = regionCounter;
-                            outerContours.Add(TraceContour(u, v, 0, label, labelMap));
-                            labelMap[u, v] = label;
-                        }
+                        if (label != 0)
+                            continue;
+
+                        regionCounter++; // Increment the region
+                        label = regionCounter; // Set the label to the new region
+                        var outerContour = TraceContour((u, v), 0, label, paddedInput, labelMap);
+                        outerContours.Add(outerContour);
+                        labelMap[u, v] = label;
                     }
                 }
                 else
                 {
-                    if (label != 0)
-                    {
-                        if (labelMap[u, v] == 0)
-                        {
-                            innerContours.Add(TraceContour(u-1, v, 1, label, labelMap));
-                        }
+                    if (label == 0)
+                        continue;
 
-                        label = 0;
+                    if (labelMap[u, v] == 0)
+                    {
+                        var innerContour = TraceContour((u - 1, v), 1, label, paddedInput, labelMap);
+                        innerContours.Add(innerContour);
                     }
+                    label = 0;
                 }
             }
         }
 
-        return (outerContours, innerContours);
-
+        return new CombinedContourLabelingResult(innerContours, outerContours, labelMap);
     }
 
-    /// <summary>
-    /// Returns the Contour from a single point.
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <param name="direction"></param>
-    /// <param name="label"></param>
-    /// <param name="labelMap"></param>
-    /// <returns></returns>
-    private Contour TraceContour(int x, int y, int direction, int label, int[,] labelMap)
+    private static Contour TraceContour((int u, int v) start, int startDirection, int label, byte[,] input, int[,] labelMap)
     {
-        int xT,yT, xP,yP, xC,yC;
-        int dirNext;
+        var (first, nextDirection) = FindNextPoint(start, startDirection, input, labelMap);
+        var c = new List<(int u, int v)> { first };
+        var current = first;
 
-        (xT, yT, dirNext) = FindNextPoint(x, y, direction, labelMap);
-        var contour = new Contour(xT, yT, label);
-        xP = x;
-        yP = y;
-        xC = xT;
-        yC = yT;
-        var done = (x == xT && y == yT);
-
+        var done = start == first;
         while (!done)
         {
-            labelMap[xC, yC] = label;
-            var dirSearch = (dirNext + 6) % 8;
-            int xN, yN;
-            (xN, yN, dirNext) = FindNextPoint(xC, yC, dirSearch, labelMap);
-            xP = xC;
-            yP = yC;
-            xC = xN;
-            yC = yN;
+            labelMap[current.u, current.v] = label;
+            var searchDirection = (nextDirection + 6) % 8;
+            (var next, nextDirection) = FindNextPoint(current, searchDirection, input, labelMap);
 
-            done = ((xP == x && yP == y) && (xC == xT && yC == yT));
+            var previous = current;
+            current = next;
+            done = (previous == start && current == first);
             if (!done)
-                contour.AddPoint(xN,yN);
+                c.Add(next);
         }
 
-        return contour;
+        return new Contour(c, label);
     }
 
-    /// <summary>
-    /// Finds the next point for the TraceContour method.
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <param name="direction"></param>
-    /// <param name="labelMap"></param>
-    /// <returns></returns>
-    private (int, int, int) FindNextPoint(int x, int y, int direction, int[,] labelMap)
+    private static ((int u, int v) xc, int d) FindNextPoint((int u, int v) startPoint, int direction, byte[,] input, int[,] labelMap)
     {
-        int xD, yD;
-        for (var i = 0; i < 7; i++)
+        const int directions = 7;
+
+        for (var i = 0; i < directions; i++)
         {
-           xD = x + _delta[direction,0];
-           yD = y + _delta[direction,1];
+            var (du, dv) = (startPoint.u + Delta[direction, 0], startPoint.v + Delta[direction, 1]);
 
-           if (xD < 0 || yD < 0 || xD > _width || yD > _height)
-               break;
-
-           if (_input[xD, yD] == _background)
-           {
-               labelMap[xD, yD] = -1;
-               direction = (direction + 1) % 8;
-           }
-           else
-               return (xD, yD, direction);
+            if (input[du, dv] == Byte.MinValue)
+            {
+                labelMap[du, dv] = -1;
+                direction = (direction + 1) % 8;
+            }
+            else
+            {
+                return ((du, dv), direction);
+            }
         }
 
-        return (x, y, direction);
+        return (startPoint, direction);
     }
-
-    public List<(int,int)> TraceBoundary()
-    {
-        throw new NotImplementedException();
-    }
-
-
-    public byte InLargestShape()
-    {
-        throw new NotImplementedException();
-    }
-
 }
 
-
-public class Contour
-{
-    private int _x;
-    private int _y;
-    private int _label;
-
-    private List<(int, int)> _points;
-    public Contour(int x, int y, int label)
-    {
-        _x = x;
-        _y = y;
-        _label = label;
-        _points = new List<(int, int)>();
-    }
-
-    public void AddPoint(int x, int y)
-    {
-        _points.Add((x,y));
-    }
-
-    public (int, int) GetPoint()
-    {
-        return (_x, _y);
-    }
-
-    public List<(int,int)> GetList()
-    {
-        return _points;
-    }
-
-}
-
+public record Contour(List<(int u, int v)> Points, int Label);
