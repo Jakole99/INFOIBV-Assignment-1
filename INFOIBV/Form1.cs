@@ -168,7 +168,7 @@ public partial class Form1 : Form
             _ => singleChannel.ToBitmap()
         };
 
-        filterLabel.Text = $"{histogram.UniqueCount} Unique values";
+        filterLabel.Text = $"{histogram.UniqueCount} Unique values | {histogram.NonBackgroundCount} Number of non background values";
 
         applyButton.Enabled = true;
     }

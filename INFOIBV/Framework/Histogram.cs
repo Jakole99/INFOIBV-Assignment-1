@@ -6,6 +6,8 @@ public readonly struct Histogram
 
     public int UniqueCount { get; }
 
+    public int NonBackgroundCount { get; }
+
     public int[] GetCumulativeValues()
     {
         for (var i = 1; i < Values.Length; i++)
@@ -20,6 +22,7 @@ public readonly struct Histogram
     {
         Values = CreateHistogram(input);
         UniqueCount = Values.Count(x => x != 0);
+        NonBackgroundCount = input.Cast<byte>().Count(x => x != 0);
     }
 
     private static int[] CreateHistogram(byte[,] input)
