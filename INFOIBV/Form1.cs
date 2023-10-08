@@ -16,7 +16,9 @@ public partial class Form1 : Form
 
     private static FilterCollection GetFilters()
     {
-        //var test = new BoundaryTrace(new Bitmap("Images/wheels2.jpg").ToSingleChannel());
+        using var img = new Bitmap("Images/wheels2.jpg");
+
+        var test = BoundaryTrace.CombinedContourLabeling(img.ToSingleChannel());
 
         var availableProcessors = new FilterCollection();
 
