@@ -32,21 +32,33 @@ public static class StructureElement
 
     private static byte[,] CreatePlus(int size)
     {
-        if (size <= 3)
+        const int baseSize = 3;
+
+        if (size <= baseSize)
             return BasePlus;
+
+        var plus = new byte[size, size];
+
+        var padding = (size - baseSize) / 2;
+
+        for (var i = 0; i < baseSize; i++)
+        {
+            for (var j = 0; j < baseSize; j++)
+            {
+                var x = i + padding;
+                var y = j + padding;
+                plus[x, y] = BasePlus[i, j];
+            }
+        }
 
         var dilationFilter = new DilationFilter(StructureType.Plus, 3);
 
-        var currentPlus = BasePlus;
-
-        var rounds = (size - 3) / 2;
-
-        for (var i = 0; i < rounds; i++)
+        for (var i = 0; i < padding; i++)
         {
-            currentPlus = dilationFilter.Process(currentPlus);
+            plus = dilationFilter.Process(plus);
         }
 
-        return currentPlus;
+        return plus;
     }
 
     private static byte[,] CreateSquare(int size)

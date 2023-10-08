@@ -12,29 +12,29 @@ public partial class Form1 : Form
         // Set combo boxes
         cbFilter.DataSource = GetFilters().ImageProcessors;
         cbMode.DataSource = Enum.GetValues(typeof(ModeType));
+        cbStructureElement.DataSource = Enum.GetValues(typeof(StructureType));
     }
 
-    private static FilterCollection GetFilters()
+    private FilterCollection GetFilters()
     {
-        using var img = new Bitmap("Images/wheels2.jpg");
+        var structureElement = cbStructureElement.SelectedItem as StructureType? ?? StructureType.Plus;
 
-        var test = BoundaryTrace.CombinedContourLabeling(img.ToSingleChannel());
+        var isBinary = checkBinary.Checked;
+        var size = (int)numericSize.Value;
 
-        var availableProcessors = new FilterCollection();
-
-        availableProcessors
+        var availableProcessors = new FilterCollection()
             .AddProcess(new FilterCollection("Grayscale"))
             .AddInversionFilter()
-            .AddGaussian(5, 1)
+            .AddGaussian(size, 1)
             .AddContrastAdjustment()
             .AddEdgeMagnitudeFilter()
-            .AddDilationFilter(StructureType.Plus, 3)
-            .AddErosionFilter(StructureType.Plus, 3)
-            .AddClosingFilter(StructureType.Plus, 3)
-            .AddOpeningFilter(StructureType.Plus, 3)
+            .AddDilationFilter(structureElement, size, isBinary)
+            .AddErosionFilter(structureElement, size, isBinary)
+            .AddClosingFilter(structureElement, size, isBinary)
+            .AddOpeningFilter(structureElement, size, isBinary)
             .AddThresholdFilter(80)
             .AddHistogramEqualization()
-            .AddMedianFilter(5);
+            .AddMedianFilter(size);
 
         var imageA = new FilterCollection("Image A")
             .AddContrastAdjustment();
@@ -73,11 +73,11 @@ public partial class Form1 : Form
         availableProcessors.AddProcess(imageE3);
 
         var imageE4 = FilterCollection.From(imageA, "Image E4")
-            .AddDilationFilter(StructureType.Square, 25, true);
+            .AddDilationFilter(StructureType.Plus, 25, true);
         availableProcessors.AddProcess(imageE4);
 
         var imageE5 = FilterCollection.From(imageA, "Image E5")
-            .AddDilationFilter(StructureType.Square, 49, true);
+            .AddDilationFilter(StructureType.Plus, 49, true);
         availableProcessors.AddProcess(imageE5);
 
         var imageGear = new FilterCollection("image G")
@@ -205,5 +205,25 @@ public partial class Form1 : Form
     private void GearButton_Click(object sender, EventArgs e)
     {
         SetInputImage(new Bitmap("Images/wheels.png"));
+    }
+
+    private void checkBinary_CheckedChanged(object sender, EventArgs e)
+    {
+        cbFilter.DataSource = GetFilters().ImageProcessors;
+    }
+
+    private void cbStructureElement_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        cbFilter.DataSource = GetFilters().ImageProcessors;
+    }
+
+    private void numericSize_ValueChanged(object sender, EventArgs e)
+    {
+        if (numericSize.Value % 2 == 0)
+        {
+            numericSize.Value += 1;
+        }
+
+        cbFilter.DataSource = GetFilters().ImageProcessors;
     }
 }

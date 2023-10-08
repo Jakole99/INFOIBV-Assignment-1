@@ -48,8 +48,12 @@ partial class Form1
         label2 = new Label();
         label3 = new Label();
         gearButton = new Button();
+        cbStructureElement = new ComboBox();
+        checkBinary = new CheckBox();
+        numericSize = new NumericUpDown();
         ((System.ComponentModel.ISupportInitialize)inputImageBox).BeginInit();
         ((System.ComponentModel.ISupportInitialize)outputImageBox).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)numericSize).BeginInit();
         SuspendLayout();
         // 
         // LoadImageButton
@@ -243,11 +247,50 @@ partial class Form1
         gearButton.UseVisualStyleBackColor = true;
         gearButton.Click += GearButton_Click;
         // 
+        // cbStructureElement
+        // 
+        cbStructureElement.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        cbStructureElement.DropDownStyle = ComboBoxStyle.DropDownList;
+        cbStructureElement.FormattingEnabled = true;
+        cbStructureElement.Location = new Point(1253, 72);
+        cbStructureElement.Name = "cbStructureElement";
+        cbStructureElement.Size = new Size(137, 28);
+        cbStructureElement.TabIndex = 19;
+        cbStructureElement.SelectedIndexChanged += cbStructureElement_SelectedIndexChanged;
+        // 
+        // checkBinary
+        // 
+        checkBinary.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        checkBinary.AutoSize = true;
+        checkBinary.Location = new Point(1118, 70);
+        checkBinary.Name = "checkBinary";
+        checkBinary.Size = new Size(72, 24);
+        checkBinary.TabIndex = 20;
+        checkBinary.Text = "Binary";
+        checkBinary.UseVisualStyleBackColor = true;
+        checkBinary.CheckedChanged += checkBinary_CheckedChanged;
+        // 
+        // numericSize
+        // 
+        numericSize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        numericSize.Increment = new decimal(new int[] { 2, 0, 0, 0 });
+        numericSize.Location = new Point(748, 24);
+        numericSize.Maximum = new decimal(new int[] { 99, 0, 0, 0 });
+        numericSize.Minimum = new decimal(new int[] { 3, 0, 0, 0 });
+        numericSize.Name = "numericSize";
+        numericSize.Size = new Size(150, 27);
+        numericSize.TabIndex = 21;
+        numericSize.Value = new decimal(new int[] { 3, 0, 0, 0 });
+        numericSize.ValueChanged += numericSize_ValueChanged;
+        // 
         // Form1
         // 
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1403, 942);
+        Controls.Add(numericSize);
+        Controls.Add(checkBinary);
+        Controls.Add(cbStructureElement);
         Controls.Add(gearButton);
         Controls.Add(label3);
         Controls.Add(label2);
@@ -273,6 +316,7 @@ partial class Form1
         WindowState = FormWindowState.Maximized;
         ((System.ComponentModel.ISupportInitialize)inputImageBox).EndInit();
         ((System.ComponentModel.ISupportInitialize)outputImageBox).EndInit();
+        ((System.ComponentModel.ISupportInitialize)numericSize).EndInit();
         ResumeLayout(false);
         PerformLayout();
     }
@@ -301,4 +345,7 @@ partial class Form1
     private Button cubeHousesButton;
     private Label label1;
     private Button gearButton;
+    private ComboBox cbStructureElement;
+    private CheckBox checkBinary;
+    private NumericUpDown numericSize;
 }
