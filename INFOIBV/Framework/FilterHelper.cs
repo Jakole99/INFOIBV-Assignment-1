@@ -14,17 +14,20 @@ public static class FilterHelper
 
         // For every filter index
         for (var i = 0; i < kernelSize; i++)
-        for (var j = 0; j < kernelSize; j++)
         {
-            var i2 = u - i + kernelSize / 2;
-            var j2 = v - j + kernelSize / 2;
+            for (var j = 0; j < kernelSize; j++)
+            {
+                var i2 = u - i + kernelSize / 2;
+                var j2 = v - j + kernelSize / 2;
 
-            // Clamping is the same as extending the border values
-            var du = Math.Clamp(i2, 0, width - 1);
-            var dv = Math.Clamp(j2, 0, height - 1);
+                // Clamping is the same as extending the border values
+                var du = Math.Clamp(i2, 0, width - 1);
+                var dv = Math.Clamp(j2, 0, height - 1);
 
-            value += (byte)Math.Round(input[du, dv] * kernel[i, j]);
+                value += (byte)Math.Round(input[du, dv] * kernel[i, j]);
+            }
         }
+
 
         return value;
     }
@@ -39,16 +42,18 @@ public static class FilterHelper
 
         // For every filter index
         for (var i = 0; i < kernelSize; i++)
-        for (var j = 0; j < kernelSize; j++)
         {
-            var i2 = u - i + kernelSize / 2;
-            var j2 = v - j + kernelSize / 2;
+            for (var j = 0; j < kernelSize; j++)
+            {
+                var i2 = u - i + kernelSize / 2;
+                var j2 = v - j + kernelSize / 2;
 
-            // Clamping is the same as extending the border values
-            var du = Math.Clamp(i2, 0, width - 1);
-            var dv = Math.Clamp(j2, 0, height - 1);
+                // Clamping is the same as extending the border values
+                var du = Math.Clamp(i2, 0, width - 1);
+                var dv = Math.Clamp(j2, 0, height - 1);
 
-            value += (sbyte)(input[du, dv] * kernel[i, j]);
+                value += (sbyte)(input[du, dv] * kernel[i, j]);
+            }
         }
 
         return value;

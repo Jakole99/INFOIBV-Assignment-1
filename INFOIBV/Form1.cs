@@ -28,10 +28,10 @@ public partial class Form1 : Form
             .AddGaussian(5, 1)
             .AddContrastAdjustment()
             .AddEdgeMagnitudeFilter()
-            .AddDilationFilter(StructureElement.Type.Plus, 3)
-            .AddErosionFilter(StructureElement.Type.Plus, 3)
-            .AddClosingFilter(StructureElement.Type.Plus, 3)
-            .AddOpeningFilter(StructureElement.Type.Plus, 3)
+            .AddDilationFilter(StructureType.Plus, 3)
+            .AddErosionFilter(StructureType.Plus, 3)
+            .AddClosingFilter(StructureType.Plus, 3)
+            .AddOpeningFilter(StructureType.Plus, 3)
             .AddThresholdFilter(80)
             .AddHistogramEqualization()
             .AddMedianFilter(5);
@@ -49,11 +49,11 @@ public partial class Form1 : Form
         availableProcessors.AddProcess(imageW);
 
         var imageX = FilterCollection.From(imageW, "Image X")
-            .AddDilationFilter(StructureElement.Type.Plus, 3);
+            .AddDilationFilter(StructureType.Plus, 3);
         availableProcessors.AddProcess(imageX);
 
         var imageY = FilterCollection.From(imageW, "Image Y")
-            .AddErosionFilter(StructureElement.Type.Plus, 3);
+            .AddErosionFilter(StructureType.Plus, 3);
         availableProcessors.AddProcess(imageY);
 
         var imageZ = new FilterCollection("Image Z")
@@ -61,23 +61,23 @@ public partial class Form1 : Form
         availableProcessors.AddProcess(imageZ);
 
         var imageE1 = FilterCollection.From(imageA, "Image E1")
-            .AddDilationFilter(StructureElement.Type.Plus, 3);
+            .AddDilationFilter(StructureType.Plus, 3);
         availableProcessors.AddProcess(imageE1);
 
         var imageE2 = FilterCollection.From(imageA, "Image E2")
-            .AddDilationFilter(StructureElement.Type.Plus, 7);
+            .AddDilationFilter(StructureType.Plus, 7);
         availableProcessors.AddProcess(imageE2);
 
         var imageE3 = FilterCollection.From(imageA, "Image E3")
-            .AddDilationFilter(StructureElement.Type.Plus, 13);
+            .AddDilationFilter(StructureType.Plus, 13);
         availableProcessors.AddProcess(imageE3);
 
         var imageE4 = FilterCollection.From(imageA, "Image E4")
-            .AddDilationFilter(StructureElement.Type.Square, 25, true);
+            .AddDilationFilter(StructureType.Square, 25, true);
         availableProcessors.AddProcess(imageE4);
 
         var imageE5 = FilterCollection.From(imageA, "Image E5")
-            .AddDilationFilter(StructureElement.Type.Square, 49, true);
+            .AddDilationFilter(StructureType.Square, 49, true);
         availableProcessors.AddProcess(imageE5);
 
         var imageGear = new FilterCollection("image G")
@@ -85,23 +85,23 @@ public partial class Form1 : Form
         availableProcessors.AddProcess(imageGear);
 
         var imageG1 = FilterCollection.From(imageGear, "image G1")
-            .AddOpeningFilter(StructureElement.Type.Square, 3, true);
+            .AddOpeningFilter(StructureType.Square, 3, true);
         availableProcessors.AddProcess(imageG1);
 
         var imageG2 = FilterCollection.From(imageGear, "image G2")
-            .AddOpeningFilter(StructureElement.Type.Square, 23, true);
+            .AddOpeningFilter(StructureType.Square, 23, true);
         availableProcessors.AddProcess(imageG2);
 
         var imageG3 = FilterCollection.From(imageGear, "image G3")
-            .AddOpeningFilter(StructureElement.Type.Square, 43, true);
+            .AddOpeningFilter(StructureType.Square, 43, true);
         availableProcessors.AddProcess(imageG3);
 
         var imageG4 = FilterCollection.From(imageGear, "image G4")
-            .AddOpeningFilter(StructureElement.Type.Square, 63, true);
+            .AddOpeningFilter(StructureType.Square, 63, true);
         availableProcessors.AddProcess(imageG4);
 
         var imageG5 = FilterCollection.From(imageGear, "image G5")
-            .AddOpeningFilter(StructureElement.Type.Square, 83, true);
+            .AddOpeningFilter(StructureType.Square, 83, true);
         availableProcessors.AddProcess(imageG5);
 
 
