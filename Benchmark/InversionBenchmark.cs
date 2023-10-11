@@ -1,13 +1,13 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Framework;
+using Framework.Algorithms;
 using INFOIBV.Filters;
-using Algorithm = Framework.Algorithms.Algorithm;
 
 namespace Benchmark;
 
+[MemoryDiagnoser]
 public class InversionBenchmark
 {
-    [Params(5000)]
+    [Params(64, 128, 256, 512)]
     public int N;
 
     private byte[,] _2dArray = default!;

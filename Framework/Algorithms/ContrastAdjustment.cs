@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Buffers;
+using System.Collections.Concurrent;
 
 namespace Framework.Algorithms;
 
@@ -6,7 +7,10 @@ public static partial class Algorithm
 {
     public static byte[] ContrastAdjustment(byte[] input)
     {
-        var output = new byte[input.Length];
+        const int maxLength = 20000;
+        var n = input.Length;
+
+        var output = ArrayPool<byte>.Shared.Rent(n);
 
         var span = input.AsSpan();
         var max = Byte.MinValue;
@@ -18,15 +22,27 @@ public static partial class Algorithm
         }
         var coefficient = Byte.MaxValue / (max - min);
 
-        var partitioner = Partitioner.Create(0, output.Length);
+        // Due to thread spin-up, below the maxLength is faster single threaded
+        if (n < maxLength)
+        {
+            var inputSpan = new ReadOnlySpan<byte>(input);
+            var outputSpan = output.AsSpan();
+            for (var i = 0; i < n; i++)
+            {
+                outputSpan[i] = (byte)((inputSpan[i] - max) * coefficient);
+            }
 
-        // Loop over the partitions in parallel.
+            return output;
+        }
+
+        var partitioner = Partitioner.Create(0, n);
         Parallel.ForEach(partitioner, range =>
         {
-            // Loop over each range element without a delegate invocation.
+            var inputSpan = new ReadOnlySpan<byte>(input);
+            var outputSpan = output.AsSpan();
             for (var i = range.Item1; i < range.Item2; i++)
             {
-                output[i] = (byte)((input[i] - max) * coefficient);
+                outputSpan[i] = (byte)((inputSpan[i] - max) * coefficient);
             }
         });
 

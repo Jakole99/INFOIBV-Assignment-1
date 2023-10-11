@@ -1,7 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Framework;
+using Framework.Algorithms;
 using INFOIBV.Filters;
-using Algorithm = Framework.Algorithms.Algorithm;
 
 namespace Benchmark;
 

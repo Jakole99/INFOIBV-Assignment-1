@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Buffers;
+using System.Collections.Concurrent;
 
 namespace Framework.Algorithms;
 
@@ -9,17 +10,32 @@ public static partial class Algorithm
 {
     public static byte[] Inversion(byte[] input)
     {
-        var output = new byte[input.Length];
+        const int maxLength = 20000;
+        var n = input.Length;
 
-        var partitioner = Partitioner.Create(0, output.Length);
+        var output = ArrayPool<byte>.Shared.Rent(n);
 
-        // Loop over the partitions in parallel.
+        // Due to thread spin-up, below the maxLength is faster single threaded
+        if (n < maxLength)
+        {
+            var inputSpan = new ReadOnlySpan<byte>(input);
+            var outputSpan = output.AsSpan();
+            for (var i = 0; i < n; i++)
+            {
+                outputSpan[i] = (byte)(Byte.MaxValue ^ inputSpan[i]);
+            }
+
+            return output;
+        }
+
+        var partitioner = Partitioner.Create(0, n);
         Parallel.ForEach(partitioner, range =>
         {
-            // Loop over each range element without a delegate invocation.
+            var inputSpan = new ReadOnlySpan<byte>(input);
+            var outputSpan = output.AsSpan();
             for (var i = range.Item1; i < range.Item2; i++)
             {
-                output[i] = (byte)(Byte.MaxValue - input[i]);
+                outputSpan[i] = (byte)(Byte.MaxValue ^ inputSpan[i]);
             }
         });
 
