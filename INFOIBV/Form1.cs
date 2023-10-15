@@ -73,11 +73,11 @@ public partial class Form1 : Form
         availableProcessors.AddProcess(imageE3);
 
         var imageE4 = FilterCollection.From(imageA, "Image E4")
-            .AddDilationFilter(StructureType.Plus, 25, true);
+            .AddDilationFilter(StructureType.Plus, 25);
         availableProcessors.AddProcess(imageE4);
 
         var imageE5 = FilterCollection.From(imageA, "Image E5")
-            .AddDilationFilter(StructureType.Plus, 49, true);
+            .AddDilationFilter(StructureType.Plus, 49);
         availableProcessors.AddProcess(imageE5);
 
         var imageGear = new FilterCollection("image G")
@@ -162,11 +162,13 @@ public partial class Form1 : Form
 
         var singleChannel = await Task.Run(() => processor.Process(inputImageBox.Image));
         var histogram = new Histogram(singleChannel);
+        var hough = new Hough(singleChannel,500);
         outputImageBox.Image = mode switch
         {
             ModeType.Normal => singleChannel.ToBitmap(),
             ModeType.Histogram => histogram.GetBitmap(512, 300),
             ModeType.CumulativeHistogram => histogram.GetBitmap(512, 300, true),
+            ModeType.Hough => hough.GetBitmap(),
             _ => singleChannel.ToBitmap()
         };
 
