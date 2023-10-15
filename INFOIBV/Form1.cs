@@ -13,6 +13,12 @@ public partial class Form1 : Form
         cbFilter.DataSource = GetFilters().ImageProcessors;
         cbMode.DataSource = Enum.GetValues(typeof(ModeType));
         cbStructureElement.DataSource = Enum.GetValues(typeof(StructureType));
+
+#if DEBUG
+        cbFilter.SelectedItem = ((List<IImageProcessor>)cbFilter.DataSource).Find(x => x.DisplayName == "Edge Magnitude");
+        cbMode.SelectedItem = ModeType.Hough;
+        LenaButton_Click(null!, null!);
+#endif
     }
 
     private FilterCollection GetFilters()
@@ -161,14 +167,15 @@ public partial class Form1 : Form
         applyButton.Enabled = false;
 
         var singleChannel = await Task.Run(() => processor.Process(inputImageBox.Image));
+
         var histogram = new Histogram(singleChannel);
-        var hough = new Hough(singleChannel,500);
+
         outputImageBox.Image = mode switch
         {
             ModeType.Normal => singleChannel.ToBitmap(),
-            ModeType.Histogram => histogram.GetBitmap(512, 300),
-            ModeType.CumulativeHistogram => histogram.GetBitmap(512, 300, true),
-            ModeType.Hough => hough.GetBitmap(),
+            ModeType.Histogram => histogram.ToBitmap(512, 300),
+            ModeType.CumulativeHistogram => histogram.ToBitmap(512, 300, true),
+            ModeType.Hough => Hough.ToBitmap(singleChannel, 20),
             _ => singleChannel.ToBitmap()
         };
 

@@ -43,7 +43,7 @@ public readonly struct Histogram
         return histogramTable;
     }
 
-    public Bitmap GetBitmap(int width, int height, bool isCumulative = false)
+    public Bitmap ToBitmap(int width, int height, bool isCumulative = false)
     {
         var valueHeight = (float)height / Values.Max();
         var columnWidth = (float)width / (Byte.MaxValue + 1);

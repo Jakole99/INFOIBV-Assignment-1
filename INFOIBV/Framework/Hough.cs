@@ -1,93 +1,74 @@
 ﻿namespace INFOIBV.Framework;
 
-public readonly struct Hough
+public static class Hough
 {
-    private readonly int _thetaSteps;
+    private const int PixelWidth = 640;
+    private const int PixelHeight = 640;
 
-    public List<Tuple<double, double>> TupleSetRandTheta { get; }
-    public Hough(byte[,] input, int steps)
+    public static Bitmap ToBitmap(byte[,] input, int angleSteps)
     {
-        _thetaSteps = steps;
-        TupleSetRandTheta = CreateHough(input, steps);
-    }
+        var output = new byte[PixelWidth, PixelHeight];
 
+        var inputWidth = input.GetLength(0);
+        var inputHeight = input.GetLength(1);
 
-    private static List<Tuple<double,double>> CreateHough(byte[,] input, int thetaSteps)
-    {
-        var tupleList = new List<Tuple<double, double>>();
+        var thetaSet = CreateThetaSet(angleSteps);
 
-        var thetaSet = CreateThetaSet(thetaSteps);
+        var maxR = Double.NegativeInfinity;
+        var minR = Double.PositiveInfinity;
+        var maxFrequency = 0;
 
-        var width = input.GetLength(0);
-        var height = input.GetLength(1);
+        var frequencyTable = new Dictionary<(double distance, double angle), int>();
 
-
-        for (var u = 0; u < width; u++)
+        foreach (var theta in thetaSet)
         {
-            for (var v = 0; v < height; v++)
+            for (var v = 0; v < inputHeight; v++)
             {
-                if (input[u, v] == 0)
-                    continue;
-
-
-                foreach (var theta in thetaSet)
+                for (var u = 0; u < inputWidth; u++)
                 {
-                    var r = (u * Math.Cos(theta) + v * Math.Sin(theta));
-                    var tuple = new Tuple<double, double>(r, theta);
+                    if (input[u, v] == 0)
+                        continue;
 
-                    tupleList.Add(tuple);
+                    var r = u * Math.Cos(theta) + v * Math.Sin(theta);
+                    maxR = Math.Max(maxR, r);
+                    minR = Math.Min(minR, r);
+
+                    if (!frequencyTable.ContainsKey((r, theta)))
+                        frequencyTable[(r, theta)] = 1;
+                    else
+                        frequencyTable[(r, theta)] += 1;
+
+                    maxFrequency = Math.Max(maxFrequency, frequencyTable[(r, theta)]);
                 }
-
             }
         }
 
-        return tupleList;
-    }
+        var absMin = Math.Abs(minR);
+        var pixelPerR = (PixelHeight - 1) / (maxR + absMin);
+        const double pixelPerTheta = (PixelWidth - 1) / Math.PI;
 
-    public Bitmap GetBitmap()
-    {
-        //TA's recommend around 300 steps for theta and 400 for r.
-        var maxR = TupleSetRandTheta.MaxBy(x => x.Item1).Item1;
-        var minR = TupleSetRandTheta.MinBy(x => x.Item1).Item1;
-        var rHeight = maxR + Math.Abs(minR);
-        var thetaWidth = _thetaSteps;
-
-        var width = _thetaSteps;
-        var height = 800;
-
-        var widthPerPixel = width / Math.PI;
-        var heightPerPixel = height / rHeight;
-
-
-        byte[,] output = new byte[width+1, height+1];
-
-        foreach (var (u, v) in TupleSetRandTheta)
+        foreach (var ((r, theta), frequency) in frequencyTable)
         {
-            //r can be minus
-            if (output[(int)(v*widthPerPixel), (int)((u + Math.Abs(minR))*heightPerPixel)] < 255)
-                output[(int)(v*widthPerPixel), (int)((u + Math.Abs(minR))*heightPerPixel)] += 1;
+            var u = (int)(theta * pixelPerTheta);
+            var v = (int)((absMin + r) * pixelPerR);
+
+            output[u, v] = (byte)Math.Clamp(frequency, 0, 255); // (byte)(frequency * ((double)Byte.MaxValue / maxFrequency));
         }
 
         return output.ToBitmap();
-
     }
 
 
-
-    public static double[] CreateThetaSet(int steps)
+    private static double[] CreateThetaSet(int totalSteps)
     {
-        double[] thetaSteps = new double[steps+1];
-        var thetaMax = Math.PI;
+        var thetaSet = new double[totalSteps];
+        var stepSize = Math.PI / (totalSteps - 1);
 
-        double step = thetaMax / steps;
-
-        for (int i = 0; i <= steps; i++)
+        for (var i = 0; i < totalSteps; i++)
         {
-            thetaSteps[i] = step * i;
+            thetaSet[i] = stepSize * i;
         }
 
-        return thetaSteps;
+        return thetaSet;
     }
-
 }
-
