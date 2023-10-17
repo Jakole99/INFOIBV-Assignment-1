@@ -19,6 +19,7 @@ public static class Hough
         var maxFrequency = 0;
 
         var frequencyTable = new Dictionary<(double distance, double angle), int>();
+        var tupleList = new List<Tuple<double, double>>();
 
         foreach (var theta in thetaSet)
         {
@@ -33,27 +34,36 @@ public static class Hough
                     maxR = Math.Max(maxR, r);
                     minR = Math.Min(minR, r);
 
-                    if (!frequencyTable.ContainsKey((r, theta)))
-                        frequencyTable[(r, theta)] = 1;
-                    else
-                        frequencyTable[(r, theta)] += 1;
+                    tupleList.Add((r,theta).ToTuple());
+                    //if (!frequencyTable.ContainsKey((r, theta)))
+                    //    frequencyTable[(r, theta)] = 1;
+                    //else
+                    //    frequencyTable[(r, theta)] += 1;
 
-                    maxFrequency = Math.Max(maxFrequency, frequencyTable[(r, theta)]);
+                    //maxFrequency = Math.Max(maxFrequency, frequencyTable[(r, theta)]);
                 }
             }
         }
 
         var absMin = Math.Abs(minR);
-        var pixelPerR = (PixelHeight - 1) / (maxR + absMin);
-        const double pixelPerTheta = (PixelWidth - 1) / Math.PI;
+        var pixelPerR = (PixelHeight-1) / (maxR + absMin);
+        double pixelPerTheta = (PixelWidth-1) / Math.PI;
 
-        foreach (var ((r, theta), frequency) in frequencyTable)
+        foreach (var (r, theta) in tupleList)
         {
             var u = (int)(theta * pixelPerTheta);
             var v = (int)((absMin + r) * pixelPerR);
 
-            output[u, v] = (byte)Math.Clamp(frequency, 0, 255); // (byte)(frequency * ((double)Byte.MaxValue / maxFrequency));
+            if (output[u, v] < 255)
+                output[u, v] += 1;
         }
+        //foreach (var ((r, theta), frequency) in frequencyTable)
+        //{
+        //    var u = (int)(theta * pixelPerTheta);
+        //    var v = (int)((absMin + r) * pixelPerR);
+
+        //    output[u, v] = (byte)frequency; // (byte)(frequency * ((double)Byte.MaxValue / maxFrequency));
+        //}
 
         return output.ToBitmap();
     }
