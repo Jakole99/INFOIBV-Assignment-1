@@ -5,6 +5,32 @@ public static class Hough
     private const int PixelWidth = 640;
     private const int PixelHeight = 640;
 
+    public static byte[,] PeakFinding(byte[,] input, int angleSteps)
+    {
+        var transForm = HoughTransform(input, angleSteps);
+        throw new NotImplementedException();
+    }
+
+    public static byte[,] HoughTransform(byte[,] input, int angleSteps)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static byte[,] HoughTransformAngleLimits(byte[,] input, int angleSteps, int minAngle, int maxAngle)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static List<(int a, int b)> HoughLineDetection(byte[,] input, (int r, int theta) pair, int minIntensity, int minLength, int maxGap)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static byte[,] VisualizeHoughLineSegments(byte[,] input, List<(int a, int b)> lineSegments)
+    {
+        throw new NotImplementedException();
+    }
+
     public static Bitmap ToBitmap(byte[,] input, int angleSteps)
     {
         var output = new byte[PixelWidth, PixelHeight];
