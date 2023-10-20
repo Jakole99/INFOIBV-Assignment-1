@@ -154,10 +154,8 @@ public static class Hough
                 segment.Clear();
             }
             else
-            {
                 count = 0;
-                segment.Push((x, y));
-            }
+
 
         }
 
@@ -174,14 +172,14 @@ public static class Hough
         var houghPairs = PeakFinding(input, minThreshold);
 
         foreach (var houghPair in houghPairs)
-        { 
+        {
             var list = HoughLineDetection(input, houghPair, minThreshold, minLength, maxGap);
 
-            foreach (var ((xS,yS), (xE,yE)) in list)
+            foreach (var ((xS, yS), (xE, yE)) in list)
             {
                 var line = LineIndices(xS, yS, xE, yE);
 
-                foreach (var (x,y) in line)
+                foreach (var (x, y) in line)
                 {
                     output.SetPixel(x, y, redColor);
                 }
@@ -196,30 +194,30 @@ public static class Hough
     {
         var line = new List<(int, int)>();
 
-        var dY = yE - yS;
-        var dX = xE - xS;
+        double dY = yE - yS;
+        double dX = xE - xS;
         var m = dY / dX;
         var b = yS - m * xS;
 
         var steps = Math.Abs(dX);
         var x = xS;
 
-        if (m < 0)
+        if (dX < 0)
         {
-            for (var i = 0; i <= steps; i++)
+            for (var i = 0; i < steps; i++)
             {
-                --x;
                 var y = m * x + b;
-                line.Add((x, y));
+                line.Add((x, (int)y));
+                --x;
             }
         }
         else
         {
-            for (var i = 0; i <= steps; i++)
+            for (var i = 0; i < steps; i++)
             {
-                ++x;
                 var y = m * x + b;
-                line.Add((x, y));
+                line.Add((x, (int)y));
+                ++x;
             }
         }
 

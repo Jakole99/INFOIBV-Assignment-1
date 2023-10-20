@@ -175,7 +175,7 @@ public partial class Form1 : Form
             ModeType.Normal => singleChannel.ToBitmap(),
             ModeType.Histogram => histogram.ToBitmap(512, 300),
             ModeType.CumulativeHistogram => histogram.ToBitmap(512, 300, true),
-            ModeType.Hough => Hough.VisualizeHoughLineSegments(singleChannel, 128, 15, 5),
+            ModeType.Hough => Hough.VisualizeHoughLineSegments(singleChannel, 128, 15, 9),
             _ => singleChannel.ToBitmap()
         };
 
