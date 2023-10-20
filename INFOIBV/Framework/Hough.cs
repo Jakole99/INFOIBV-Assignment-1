@@ -1,8 +1,4 @@
 ﻿using INFOIBV.Filters;
-using System.Drawing;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Xml;
 
 namespace INFOIBV.Framework;
 
@@ -11,16 +7,15 @@ public static class Hough
     private const int PixelWidth = 640;
     private const int PixelHeight = 640;
 
-    private static double AbsMin;
-    private static double PixelPerR;
-    private static double PixelPerTheta;
+    private static double _absMin;
+    private static double _pixelPerR;
+    private static double _pixelPerTheta;
 
     //The amount of steps between each pixel
     private const int AngleSteps = 639;
 
-    public static Bitmap ToBitmap(byte[,] input)
+    private static Bitmap ToBitmap(byte[,] input)
     {
-
         var output = new byte[PixelWidth, PixelHeight];
 
         var inputWidth = input.GetLength(0);
@@ -51,14 +46,14 @@ public static class Hough
             }
         }
 
-        AbsMin = Math.Abs(minR);
-        PixelPerR = (PixelHeight - 1) / (maxR + AbsMin);
-        PixelPerTheta = (PixelWidth - 1) / Math.PI;
+        _absMin = Math.Abs(minR);
+        _pixelPerR = (PixelHeight - 1) / (maxR + _absMin);
+        _pixelPerTheta = (PixelWidth - 1) / Math.PI;
 
         foreach (var (r, theta) in tupleList)
         {
-            var u = (int)(theta * PixelPerTheta);
-            var v = (int)((AbsMin + r) * PixelPerR);
+            var u = (int)(theta * _pixelPerTheta);
+            var v = (int)((_absMin + r) * _pixelPerR);
 
             if (output[u, v] < 255)
                 output[u, v] += 1;
@@ -87,7 +82,7 @@ public static class Hough
 
         //Apply closing to merge regions of high scores
         var b = new FilterCollection();
-        b.AddClosingFilter(StructureType.Plus, 5, false);
+        b.AddClosingFilter(StructureType.Plus, 5);
         var closedHough = b.Process(houghTransform);
 
         //Get the peaks from the closed image.
@@ -104,9 +99,10 @@ public static class Hough
     }
 
 
-    private static List<((int, int), (int, int))> HoughLineDetection(byte[,] input, (int, int) houghPair, int minThreshold, int minLength, int maxGap)
+    private static List<((int, int), (int, int))> HoughLineDetection(byte[,] input, (int, int) houghPair,
+        int minThreshold, int minLength, int maxGap)
     {
-        var segmentList = new System.Collections.Generic.List<((int, int), (int, int))>();
+        var segmentList = new List<((int, int), (int, int))>();
 
         var inputWidth = input.GetLength(0);
         var inputHeight = input.GetLength(1);
@@ -120,8 +116,8 @@ public static class Hough
         foreach (var x in xSet)
         {
             //revert r and theta back
-            var theta = indexTheta / PixelPerTheta;
-            var r = indexR / PixelPerR - AbsMin;
+            var theta = indexTheta / _pixelPerTheta;
+            var r = indexR / _pixelPerR - _absMin;
 
             var y = (int)((r - x * Math.Cos(theta)) / Math.Sin(theta));
 
@@ -158,30 +154,27 @@ public static class Hough
                 count = 0;
                 segment.Push((x, y));
             }
-
         }
 
         return segmentList;
-
     }
 
 
     public static Bitmap VisualizeHoughLineSegments(byte[,] input, int minThreshold, int minLength, int maxGap)
     {
-
         var output = input.ToBitmap();
         var redColor = Color.FromArgb(255, 0, 0);
         var houghPairs = PeakFinding(input, minThreshold);
 
         foreach (var houghPair in houghPairs)
-        { 
+        {
             var list = HoughLineDetection(input, houghPair, minThreshold, minLength, maxGap);
 
-            foreach (var ((xS,yS), (xE,yE)) in list)
+            foreach (var ((xS, yS), (xE, yE)) in list)
             {
                 var line = LineIndices(xS, yS, xE, yE);
 
-                foreach (var (x,y) in line)
+                foreach (var (x, y) in line)
                 {
                     output.SetPixel(x, y, redColor);
                 }
@@ -243,7 +236,7 @@ public static class Hough
 
     private static int[] CreateStepSet(int totalSteps)
     {
-        var stepSet = new int[totalSteps+1];
+        var stepSet = new int[totalSteps + 1];
 
         for (var i = 0; i < totalSteps; i++)
         {
@@ -252,5 +245,4 @@ public static class Hough
 
         return stepSet;
     }
-
 }
