@@ -5,5 +5,7 @@ public enum ModeType
     Normal,
     Histogram,
     CumulativeHistogram,
-    Hough
+    HougTransform,
+    HoughPeaks,
+    HoughVisualization
 }

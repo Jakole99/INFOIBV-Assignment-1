@@ -16,7 +16,7 @@ public partial class Form1 : Form
 
 #if DEBUG
         cbFilter.SelectedItem = ((List<IImageProcessor>)cbFilter.DataSource).Find(x => x.DisplayName == "Edge Magnitude");
-        cbMode.SelectedItem = ModeType.Hough;
+        cbMode.SelectedItem = ModeType.HoughVisualization;
         LenaButton_Click(null!, null!);
 #endif
     }
@@ -175,7 +175,9 @@ public partial class Form1 : Form
             ModeType.Normal => singleChannel.ToBitmap(),
             ModeType.Histogram => histogram.ToBitmap(512, 300),
             ModeType.CumulativeHistogram => histogram.ToBitmap(512, 300, true),
-            ModeType.Hough => Hough.VisualizeHoughLineSegments(singleChannel, 128, 15, 9),
+            ModeType.HougTransform => Hough.ToBitmap(singleChannel),
+            ModeType.HoughPeaks => Hough.PeakFinding(singleChannel, 128).Item2,
+            ModeType.HoughVisualization => Hough.VisualizeHoughLineSegments(singleChannel, 128, 15, 9),
             _ => singleChannel.ToBitmap()
         };
 
@@ -216,6 +218,11 @@ public partial class Form1 : Form
         SetInputImage(new Bitmap("Images/wheels.png"));
     }
 
+    private void HoughTestButton_Click(object sender, EventArgs e)
+    {
+        SetInputImage(new Bitmap("Images/HoughTest.png"));
+    }
+
     private void checkBinary_CheckedChanged(object sender, EventArgs e)
     {
         cbFilter.DataSource = GetFilters().ImageProcessors;
@@ -235,4 +242,6 @@ public partial class Form1 : Form
 
         cbFilter.DataSource = GetFilters().ImageProcessors;
     }
+
+
 }

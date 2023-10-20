@@ -14,9 +14,9 @@ public static class Hough
     //The amount of steps between each pixel
     private const int AngleSteps = 639;
 
-    private static Bitmap ToBitmap(byte[,] input)
+    public static Bitmap ToBitmap(byte[,] input)
     {
-        var output = new byte[PixelWidth, PixelHeight];
+        var outputInt = new int[PixelWidth, PixelHeight];
 
         var inputWidth = input.GetLength(0);
         var inputHeight = input.GetLength(1);
@@ -54,16 +54,25 @@ public static class Hough
         {
             var u = (int)(theta * _pixelPerTheta);
             var v = (int)((_absMin + r) * _pixelPerR);
+            outputInt[u, v] += 1;
+        }
 
-            if (output[u, v] < 255)
-                output[u, v] += 1;
+        float maxIntesity = outputInt.Cast<int>().Max();
+        var output = new byte[PixelWidth, PixelHeight];
+
+        for (var v = 0; v < PixelHeight; v++)
+        {
+            for (var u = 0; u < PixelWidth; u++)
+            {
+                output[u,v] = (byte)((outputInt[u,v] / maxIntesity) * Byte.MaxValue);
+            }
         }
 
         return output.ToBitmap();
     }
 
 
-    private static List<(int, int)> PeakFinding(byte[,] input, int threshold)
+    public static (List<(int, int)>, Bitmap) PeakFinding(byte[,] input, int threshold)
     {
         var houghTransform = ToBitmap(input).ToSingleChannel();
         var houghPairs = new List<(int, int)>();
@@ -90,12 +99,12 @@ public static class Hough
         {
             for (var u = 0; u < PixelWidth; u++)
             {
-                if (closedHough[u, v] > threshold)
+                if (closedHough[u, v] > 0)
                     houghPairs.Add((u, v));
             }
         }
 
-        return houghPairs;
+        return (houghPairs, closedHough.ToBitmap());
     }
 
 
@@ -165,7 +174,7 @@ public static class Hough
     {
         var output = input.ToBitmap();
         var redColor = Color.FromArgb(255, 0, 0);
-        var houghPairs = PeakFinding(input, minThreshold);
+        var houghPairs = PeakFinding(input, minThreshold).Item1;
 
         foreach (var houghPair in houghPairs)
         {

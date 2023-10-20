@@ -51,6 +51,7 @@ partial class Form1
         cbStructureElement = new ComboBox();
         checkBinary = new CheckBox();
         numericSize = new NumericUpDown();
+        button1 = new Button();
         ((System.ComponentModel.ISupportInitialize)inputImageBox).BeginInit();
         ((System.ComponentModel.ISupportInitialize)outputImageBox).BeginInit();
         ((System.ComponentModel.ISupportInitialize)numericSize).BeginInit();
@@ -283,11 +284,23 @@ partial class Form1
         numericSize.Value = new decimal(new int[] { 3, 0, 0, 0 });
         numericSize.ValueChanged += numericSize_ValueChanged;
         // 
+        // button1
+        // 
+        button1.Location = new Point(741, 62);
+        button1.Margin = new Padding(4, 5, 4, 5);
+        button1.Name = "HoughTest";
+        button1.Size = new Size(137, 35);
+        button1.TabIndex = 22;
+        button1.Text = "Hough Test";
+        button1.UseVisualStyleBackColor = true;
+        button1.Click += HoughTestButton_Click;
+        // 
         // Form1
         // 
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1403, 942);
+        Controls.Add(button1);
         Controls.Add(numericSize);
         Controls.Add(checkBinary);
         Controls.Add(cbStructureElement);
@@ -348,4 +361,5 @@ partial class Form1
     private ComboBox cbStructureElement;
     private CheckBox checkBinary;
     private NumericUpDown numericSize;
+    private Button button1;
 }
