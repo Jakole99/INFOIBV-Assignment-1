@@ -109,6 +109,7 @@ public static class Hough
         var segmentList = new System.Collections.Generic.List<((int, int), (int, int))>();
 
         var inputWidth = input.GetLength(0);
+        var inputHeight = input.GetLength(1);
 
         var (indexR, indexTheta) = houghPair;
 
@@ -118,32 +119,37 @@ public static class Hough
 
         foreach (var x in xSet)
         {
-            //revert r and theta
+            //revert r and theta back
             var theta = indexTheta / PixelPerTheta;
             var r = indexR / PixelPerR - AbsMin;
 
             var y = (int)((r - x * Math.Cos(theta)) / Math.Sin(theta));
 
+            if (y >= inputHeight || y < 0)
+                continue;
+
             segment.Push((x, y));
 
-            if (input[x, y] < minThreshold)
+            if (input[x, y] > minThreshold)
             {
                 count++;
-                if (count <= maxGap) 
+                if (count < maxGap)
                     continue;
 
-                for (var i = 0; i < maxGap; i++)
+                for (var i = 1; i < maxGap; i++)
                 {
                     segment.Pop();
                 }
 
+                count = 0;
+
                 var (sX, sY) = segment.First();
-                var (eX, eY) = segment.Pop();
+                var (eX, eY) = segment.Last();
                 var dX = sX - eX;
                 var dY = sY - eY;
                 var distance = Math.Sqrt(dX * dX + dY * dY);
                 if (distance >= minLength)
-                    segmentList.Add(((sX,sY),(eX,eY)));
+                    segmentList.Add(((sX, sY), (eX, eY)));
 
                 segment.Clear();
             }
@@ -164,22 +170,62 @@ public static class Hough
     {
 
         var output = input.ToBitmap();
-
+        var redColor = Color.FromArgb(255, 0, 0);
         var houghPairs = PeakFinding(input, minThreshold);
+
         foreach (var houghPair in houghPairs)
-        {
+        { 
             var list = HoughLineDetection(input, houghPair, minThreshold, minLength, maxGap);
 
             foreach (var ((xS,yS), (xE,yE)) in list)
             {
-                var newColor = Color.FromArgb(255, 0, 0);
-                    output.SetPixel(xS, yS, newColor);
+                var line = LineIndices(xS, yS, xE, yE);
+
+                foreach (var (x,y) in line)
+                {
+                    output.SetPixel(x, y, redColor);
+                }
             }
         }
 
         return output;
     }
 
+
+    private static List<(int, int)> LineIndices(int xS, int yS, int xE, int yE)
+    {
+        var line = new List<(int, int)>();
+
+        var dY = yE - yS;
+        var dX = xE - xS;
+        var m = dY / dX;
+        var b = yS - m * xS;
+
+        var steps = Math.Abs(dX);
+        var x = xS;
+
+        if (m < 0)
+        {
+            for (var i = 0; i <= steps; i++)
+            {
+                --x;
+                var y = m * x + b;
+                line.Add((x, y));
+            }
+        }
+        else
+        {
+            for (var i = 0; i <= steps; i++)
+            {
+                ++x;
+                var y = m * x + b;
+                line.Add((x, y));
+            }
+        }
+
+
+        return line;
+    }
 
 
     private static double[] CreateThetaSet(int totalSteps)
@@ -199,7 +245,7 @@ public static class Hough
     {
         var stepSet = new int[totalSteps+1];
 
-        for (var i = 0; i <= totalSteps; i++)
+        for (var i = 0; i < totalSteps; i++)
         {
             stepSet[i] = i;
         }
