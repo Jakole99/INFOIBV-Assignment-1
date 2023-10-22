@@ -15,9 +15,9 @@ public partial class Form1 : Form
         cbStructureElement.DataSource = Enum.GetValues(typeof(StructureType));
 
 #if DEBUG
-        cbFilter.SelectedItem = ((List<IImageProcessor>)cbFilter.DataSource).Find(x => x.DisplayName == "Edge Magnitude");
-        cbMode.SelectedItem = ModeType.HoughVisualization;
-        LenaButton_Click(null!, null!);
+        //cbFilter.SelectedItem = ((List<IImageProcessor>)cbFilter.DataSource).Find(x => x.DisplayName == "Edge Magnitude");
+        //cbMode.SelectedItem = ModeType.HoughVisualization;
+        //LenaButton_Click(null!, null!);
 #endif
     }
 
@@ -110,6 +110,16 @@ public partial class Form1 : Form
             .AddOpeningFilter(StructureType.Square, 83, true);
         availableProcessors.AddProcess(imageG5);
 
+        var imageEdgeThresh = FilterCollection.From(imageA, "Edge With threshold")
+            .AddGaussian(5,3)
+            .AddEdgeMagnitudeFilter()
+            .AddThresholdFilter(100);
+        availableProcessors.AddProcess(imageEdgeThresh);
+
+        var imageEdge = FilterCollection.From(imageA, "Edge Without Threshold")
+            .AddGaussian(5, 3)
+            .AddEdgeMagnitudeFilter();
+        availableProcessors.AddProcess(imageEdge);
 
 
 
@@ -175,9 +185,9 @@ public partial class Form1 : Form
             ModeType.Normal => singleChannel.ToBitmap(),
             ModeType.Histogram => histogram.ToBitmap(512, 300),
             ModeType.CumulativeHistogram => histogram.ToBitmap(512, 300, true),
-            ModeType.HougTransform => Hough.HoughTransform(singleChannel),
+            ModeType.HoughTransform => Hough.HoughTransform(singleChannel),
             ModeType.HoughPeaks => Hough.PeakFinding(singleChannel, 128).Item2,
-            ModeType.HoughVisualization => Hough.VisualizeHoughLineSegments(singleChannel, 128, 15, 3),
+            ModeType.HoughVisualization => Hough.VisualizeHoughLineSegments(singleChannel, 150, 35, 2),
             ModeType.HoughTransformAngleLimits => Hough.HoughTransformAngleLimits(singleChannel,0,Math.PI/2),
             _ => singleChannel.ToBitmap()
         };

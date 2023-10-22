@@ -118,7 +118,6 @@ public static class Hough
         return (houghPairs, closedHough.ToBitmap());
     }
 
-
     private static List<((int, int), (int, int))> HoughLineDetection(byte[,] input, (int, int) houghPair,
         int minThreshold, int minLength, int maxGap)
     {
@@ -144,13 +143,14 @@ public static class Hough
             if (y >= inputHeight || y < 0)
                 continue;
 
-            segment.Push((x, y));
-
             if (input[x, y] < minThreshold)
             {
                 count++;
                 if (count < maxGap)
+                {
+                    segment.Push((x, y));
                     continue;
+                }
 
                 for (var i = 1; i < maxGap; i++)
                 {
@@ -158,6 +158,9 @@ public static class Hough
                 }
 
                 count = 0;
+
+                if (segment.Count == 0)
+                    continue;
 
                 var (sX, sY) = segment.First();
                 var (eX, eY) = segment.Last();
@@ -170,12 +173,14 @@ public static class Hough
                 segment.Clear();
             }
             else
+            {
                 count = 0;
+                segment.Push((x, y));
+            }
         }
 
         return segmentList;
     }
-
 
     public static Bitmap VisualizeHoughLineSegments(byte[,] input, int minThreshold, int minLength, int maxGap)
     {
