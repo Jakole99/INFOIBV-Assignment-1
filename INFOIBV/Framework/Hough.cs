@@ -1,181 +1,227 @@
-﻿using INFOIBV.Filters;
-
-namespace INFOIBV.Framework;
+﻿namespace INFOIBV.Framework;
 
 public static class Hough
 {
-    private const int PixelWidth = 640;
-    private const int PixelHeight = 640;
-
-    private static double _absMin;
-    private static double _pixelPerR;
-    private static double _pixelPerTheta;
-
-    private static double _upper = Math.PI;
-    private static double _lower = 0;
-
-    //The amount of steps between each pixel
-    private const int AngleSteps = 639;
-
-    public static Bitmap HoughTransform(byte[,] input)
+    public readonly struct HessianLine
     {
-        var outputInt = new int[PixelWidth, PixelHeight];
+        public required double Rho { get; init; }
+        public required double Theta { get; init; }
 
-        var inputWidth = input.GetLength(0);
-        var inputHeight = input.GetLength(1);
+        public static HessianLine FromPoint(double x, double y, double theta) =>
+            new()
+            {
+                Rho = x * Math.Cos(theta) + y * Math.Sin(theta),
+                Theta = theta
+            };
 
-        var thetaSet = CreateThetaSet(AngleSteps, _lower, _upper);
+        public double CalculateY(double x) => (Rho - x * Math.Cos(Theta)) / Math.Sin(Theta);
+    }
+
+    public readonly struct ParameterSpace
+    {
+        public const int Width = 640;
+        public const int Height = 640;
+
+        public int[,] Frequency { get; }
+
+        private readonly double _pixelPerTheta;
+        private readonly double _pixelPerRho;
+        private readonly double _minRho;
+
+        public ParameterSpace(int[,] frequency, double pixelPerTheta, double pixelPerRho, double minRho)
+        {
+            Frequency = frequency;
+            _pixelPerTheta = pixelPerTheta;
+            _pixelPerRho = pixelPerRho;
+            _minRho = minRho;
+        }
+
+        public HessianLine ToHessian(int rho, int theta) =>
+            new()
+            {
+                Rho = rho / _pixelPerRho + _minRho,
+                Theta = theta / _pixelPerTheta
+            };
+
+        public Bitmap ToBitmap()
+        {
+            var output = new byte[Width, Height];
+            double maxFrequency = Frequency.Cast<int>().Max();
+
+            for (var v = 0; v < Height; v++)
+            {
+                for (var u = 0; u < Width; u++)
+                {
+                    output[u, v] = (byte)Math.Round(Frequency[u, v] / maxFrequency * Byte.MaxValue);
+                }
+            }
+
+            return output.ToBitmap();
+        }
+    }
+
+    public static (List<HessianLine>, ParameterSpace) PeakFinding(byte[,] input, int threshold)
+    {
+        // Search size for local maxima
+        const int neighbourHood = 16;
+
+        var parameterSpace = HoughTransform(input);
+        var frequency = parameterSpace.Frequency;
+
+        var hessianLines = new List<HessianLine>();
+
+        for (var v = 0; v < ParameterSpace.Height; v++)
+        {
+            for (var u = 0; u < ParameterSpace.Width; u++)
+            {
+                for (var i = 0; i < neighbourHood; i++)
+                {
+                    for (var j = 0; j < neighbourHood; j++)
+                    {
+                        var du = u + i - neighbourHood / 2;
+                        var dv = v + j - neighbourHood / 2;
+
+                        if (du is < 0 or >= ParameterSpace.Width)
+                            continue;
+
+                        if (dv is < 0 or >= ParameterSpace.Height)
+                            continue;
+
+
+                        if (frequency[du, dv] <= frequency[u, v])
+                            continue;
+
+                        frequency[u, v] = 0;
+                        break;
+                    }
+                }
+
+                if (frequency[u, v] < threshold)
+                    frequency[u, v] = 0;
+                else
+                    hessianLines.Add(parameterSpace.ToHessian(u, v));
+            }
+        }
+
+        return (hessianLines, parameterSpace);
+    }
+
+    public static ParameterSpace HoughTransform(byte[,] input) => HoughTransformAngleLimits(input, 0, Math.PI);
+
+    public static ParameterSpace HoughTransformAngleLimits(byte[,] input, double lower, double upper)
+    {
+        // The amount of steps between each pixel
+        const int angleSteps = 639;
 
         var maxR = Double.NegativeInfinity;
         var minR = Double.PositiveInfinity;
 
-        var tupleList = new List<(double, double)>();
+        var hessianLines = new List<HessianLine>();
 
-        foreach (var theta in thetaSet)
+        var stepSize = (upper - lower) / (angleSteps - 1);
+
+        for (var i = 0; i < angleSteps; i++)
         {
-            for (var v = 0; v < inputHeight; v++)
+            var theta = stepSize * i;
+
+            for (var v = 0; v < input.GetLength(1); v++)
             {
-                for (var u = 0; u < inputWidth; u++)
+                for (var u = 0; u < input.GetLength(0); u++)
                 {
                     if (input[u, v] == 0)
                         continue;
 
-                    var r = u * Math.Cos(theta) + v * Math.Sin(theta);
-                    maxR = Math.Max(maxR, r);
-                    minR = Math.Min(minR, r);
+                    var hessianLine = HessianLine.FromPoint(u, v, theta);
 
-                    tupleList.Add((r, theta));
+                    maxR = Math.Max(maxR, hessianLine.Rho);
+                    minR = Math.Min(minR, hessianLine.Rho);
+                    hessianLines.Add(hessianLine);
                 }
             }
         }
 
-        _absMin = Math.Abs(minR);
-        _pixelPerR = (PixelHeight - 1) / (maxR + _absMin);
-        _pixelPerTheta = (PixelWidth - 1) / _upper;
+        var pixelPerR = (ParameterSpace.Height - 1) / (maxR - minR);
+        var pixelPerTheta = (ParameterSpace.Width - 1) / (upper - lower);
 
-        foreach (var (r, theta) in tupleList)
+        // Build frequency table
+        var frequency = new int[ParameterSpace.Width, ParameterSpace.Height];
+
+        foreach (var hessianLine in hessianLines)
         {
-            var u = (int)(theta * _pixelPerTheta);
-            var v = (int)((_absMin + r) * _pixelPerR);
-            outputInt[u, v] += 1;
+            var u = (int)(hessianLine.Theta * pixelPerTheta);
+            var v = (int)((hessianLine.Rho - minR) * pixelPerR);
+            frequency[u, v] += 1;
         }
 
-        float maxIntesity = outputInt.Cast<int>().Max();
-        var output = new byte[PixelWidth, PixelHeight];
-
-        for (var v = 0; v < PixelHeight; v++)
-        {
-            for (var u = 0; u < PixelWidth; u++)
-            {
-                output[u,v] = (byte)((outputInt[u,v] / maxIntesity) * Byte.MaxValue);
-            }
-        }
-
-        return output.ToBitmap();
+        return new ParameterSpace(frequency, pixelPerTheta, pixelPerR, minR);
     }
 
-    public static Bitmap HoughTransformAngleLimits(byte[,] input, double lower, double upper)
-    {
-        _upper = upper;
-        _lower = lower;
-        return HoughTransform(input);
-    }
-
-    public static (List<(int, int)>, Bitmap) PeakFinding(byte[,] input, int threshold)
-    {
-        _upper = Math.PI;
-        _lower = 0;
-        var houghTransform = HoughTransform(input).ToSingleChannel();
-        var houghPairs = new List<(int, int)>();
-
-        //Option A: Thresh holding
-
-        //Turn pixels under threshold to background
-        Parallel.For(0, PixelHeight, v =>
-        {
-            for (var u = 0; u < PixelWidth; u++)
-            {
-                if (houghTransform[u, v] < threshold)
-                    houghTransform[u, v] = 0;
-            }
-        });
-
-        //Apply closing to merge regions of high scores
-        var b = new FilterCollection();
-        b.AddClosingFilter(StructureType.Plus, 5);
-        var closedHough = b.Process(houghTransform);
-
-        //Get the peaks from the closed image.
-        for (var v = 0; v < PixelHeight; v++)
-        {
-            for (var u = 0; u < PixelWidth; u++)
-            {
-                if (closedHough[u, v] > 0)
-                    houghPairs.Add((u, v));
-            }
-        }
-
-        return (houghPairs, closedHough.ToBitmap());
-    }
-
-    private static List<((int, int), (int, int))> HoughLineDetection(byte[,] input, (int, int) houghPair,
+    private static List<((int, int), (int, int))> HoughLineDetection(byte[,] input, HessianLine hessianLine,
         int minThreshold, int minLength, int maxGap)
     {
         var segmentList = new List<((int, int), (int, int))>();
 
-        var inputWidth = input.GetLength(0);
-        var inputHeight = input.GetLength(1);
+        var width = input.GetLength(0);
+        var height = input.GetLength(1);
 
-        var (indexR, indexTheta) = houghPair;
+        var x1 = 0;
+        var y1 = 0;
 
-        var xSet = CreateStepSet(inputWidth);
-        var segment = new Stack<(int, int)>();
-        var count = 0;
+        var xG = 0;
+        var yG = 0;
 
-        //revert r and theta back
-        var theta = indexTheta / _pixelPerTheta;
-        var r = indexR / _pixelPerR - _absMin;
+        var gapLength = 0;
 
-        foreach (var x in xSet)
+        var trackingLine = false;
+        var previousWasGap = false;
+
+        // Loop over every x
+        for (var x = 0; x < width; x++)
         {
-            var y = (int)((r - x * Math.Cos(theta)) / Math.Sin(theta));
+            // Calculate y
+            var y = (int)Math.Round(hessianLine.CalculateY(x));
 
-            if (y >= inputHeight || y < 0)
+            // y is out of bounds
+            if (y >= height || y < 0)
                 continue;
 
-            if (input[x, y] < minThreshold)
+            if (input[x, y] < minThreshold) // Is gap
             {
-                count++;
-                if (count < maxGap)
+                if (!previousWasGap)
                 {
-                    segment.Push((x, y));
-                    continue;
+                    // Start a new gap
+                    gapLength = 0;
+                    xG = x;
+                    yG = y;
+                }
+                else
+                {
+                    gapLength++;
                 }
 
-                for (var i = 1; i < maxGap; i++)
+                if (gapLength > maxGap && trackingLine)
                 {
-                    segment.Pop();
+                    // End the line at gap start
+                    if (Math.Sqrt(Math.Pow(x1 - xG, 2) + Math.Pow(y1 - yG, 2)) >= minLength)
+                        segmentList.Add(((x1, y1), (xG, yG)));
+
+                    trackingLine = false;
                 }
 
-                count = 0;
-
-                if (segment.Count == 0)
-                    continue;
-
-                var (sX, sY) = segment.First();
-                var (eX, eY) = segment.Last();
-                var dX = sX - eX;
-                var dY = sY - eY;
-                var distance = Math.Sqrt(dX * dX + dY * dY);
-                if (distance >= minLength)
-                    segmentList.Add(((sX, sY), (eX, eY)));
-
-                segment.Clear();
+                previousWasGap = true;
             }
-            else
+            else // Is line
             {
-                count = 0;
-                segment.Push((x, y));
+                if (previousWasGap && !trackingLine)
+                {
+                    // Start a new line
+                    x1 = x;
+                    y1 = y;
+
+                    trackingLine = true;
+                }
+
+                previousWasGap = false;
             }
         }
 
@@ -184,87 +230,30 @@ public static class Hough
 
     public static Bitmap VisualizeHoughLineSegments(byte[,] input, int minThreshold, int minLength, int maxGap)
     {
-        var output = input.ToBitmap();
-        var redColor = Color.FromArgb(255, 0, 0);
-        var houghPairs = PeakFinding(input, minThreshold).Item1;
+        var bitmap = input.ToBitmap();
+        var (hessianLines, _) = PeakFinding(input, minThreshold);
 
-        foreach (var houghPair in houghPairs)
+        var redPen = new Pen(Color.Red, 1);
+        var bluePen = new Pen(Color.Blue, 1);
+
+        // Draw line to screen.
+        using var graphics = Graphics.FromImage(bitmap);
+
+        foreach (var hessianLine in hessianLines)
         {
-            var list = HoughLineDetection(input, houghPair, minThreshold, minLength, maxGap);
+            // Calculate y
+            var y1 = (int)hessianLine.CalculateY(0);
+            var y2 = (int)hessianLine.CalculateY(bitmap.Width);
 
-            foreach (var ((xS, yS), (xE, yE)) in list)
+            graphics.DrawLine(bluePen, 0, y1, bitmap.Width, y2);
+
+            foreach (var ((xS, yS), (xE, yE)) in
+                     HoughLineDetection(input, hessianLine, minThreshold, minLength, maxGap))
             {
-                var line = LineIndices(xS, yS, xE, yE);
-
-                foreach (var (x, y) in line)
-                {
-                    output.SetPixel(x, y, redColor);
-                }
+                graphics.DrawLine(redPen, xS, yS, xE, yE);
             }
         }
 
-        return output;
-    }
-
-
-    private static List<(int, int)> LineIndices(int xS, int yS, int xE, int yE)
-    {
-        var line = new List<(int, int)>();
-
-        double dY = yE - yS;
-        double dX = xE - xS;
-        var m = dY / dX;
-        var b = yS - m * xS;
-
-        var steps = Math.Abs(dX);
-        var x = xS;
-
-        if (dX < 0)
-        {
-            for (var i = 0; i < steps; i++)
-            {
-                var y = m * x + b;
-                line.Add((x, (int)y));
-                --x;
-            }
-        }
-        else
-        {
-            for (var i = 0; i < steps; i++)
-            {
-                var y = m * x + b;
-                line.Add((x, (int)y));
-                ++x;
-            }
-        }
-
-
-        return line;
-    }
-
-
-    private static double[] CreateThetaSet(int totalSteps, double lower, double upper)
-    {
-        var thetaSet = new double[totalSteps];
-        var stepSize = (upper - lower) / (totalSteps - 1);
-
-        for (var i = 0; i < totalSteps; i++)
-        {
-            thetaSet[i] = stepSize * i;
-        }
-
-        return thetaSet;
-    }
-
-    private static int[] CreateStepSet(int totalSteps)
-    {
-        var stepSet = new int[totalSteps + 1];
-
-        for (var i = 0; i < totalSteps; i++)
-        {
-            stepSet[i] = i;
-        }
-
-        return stepSet;
+        return bitmap;
     }
 }
