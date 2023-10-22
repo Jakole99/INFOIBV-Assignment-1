@@ -1,5 +1,8 @@
 using INFOIBV.Filters;
 using INFOIBV.Framework;
+using System.Diagnostics.Metrics;
+using System.Windows.Forms;
+using INFOIBV.InputForms;
 
 namespace INFOIBV;
 
@@ -111,7 +114,7 @@ public partial class Form1 : Form
         availableProcessors.AddProcess(imageG5);
 
         var imageEdgeThresh = FilterCollection.From(imageA, "Edge With threshold")
-            .AddGaussian(5,3)
+            .AddGaussian(5, 3)
             .AddEdgeMagnitudeFilter()
             .AddThresholdFilter(100);
         availableProcessors.AddProcess(imageEdgeThresh);
@@ -163,6 +166,7 @@ public partial class Form1 : Form
     /// </summary>
     private async void ApplyButton_Click(object sender, EventArgs e)
     {
+
         if (cbFilter.SelectedValue is not IImageProcessor processor)
             return;
 
@@ -180,21 +184,42 @@ public partial class Form1 : Form
 
         var histogram = new Histogram(singleChannel);
 
-        outputImageBox.Image = mode switch
-        {
-            ModeType.Normal => singleChannel.ToBitmap(),
-            ModeType.Histogram => histogram.ToBitmap(512, 300),
-            ModeType.CumulativeHistogram => histogram.ToBitmap(512, 300, true),
-            ModeType.HoughTransform => Hough.HoughTransform(singleChannel),
-            ModeType.HoughPeaks => Hough.PeakFinding(singleChannel, 128).Item2,
-            ModeType.HoughVisualization => Hough.VisualizeHoughLineSegments(singleChannel, 150, 35, 2),
-            ModeType.HoughTransformAngleLimits => Hough.HoughTransformAngleLimits(singleChannel,0,Math.PI/2),
-            _ => singleChannel.ToBitmap()
-        };
+        outputImageBox.Image = GetShowOptions(singleChannel, histogram, mode);
 
         filterLabel.Text = $"{histogram.UniqueCount} Unique values | {histogram.NonBackgroundCount} Number of non background values";
 
         applyButton.Enabled = true;
+    }
+
+    private Bitmap GetShowOptions(byte[,] input, Histogram histogram, ModeType mode)
+    {
+
+        switch (mode)
+        {
+            case ModeType.Normal:
+                return input.ToBitmap();
+            case ModeType.Histogram:
+                return histogram.ToBitmap(512, 300);
+            case ModeType.CumulativeHistogram:
+                return histogram.ToBitmap(512, 300, true);
+            case ModeType.HoughTransform:
+                return Hough.HoughTransform(input);
+            case ModeType.HoughPeaks:
+                var pForm = new PeakForm();
+                pForm.ShowDialog();
+                return Hough.PeakFinding(input, pForm.Threshold).Item2;
+            case ModeType.HoughVisualization:
+                var vForm = new VisualizeForm();
+                vForm.ShowDialog();
+                return Hough.VisualizeHoughLineSegments(input, vForm.MinThreshold, vForm.MinLength, vForm.MaxGap);
+            case ModeType.HoughTransformAngleLimits:
+                var aForm = new AngleForm();
+                aForm.ShowDialog();
+                return Hough.HoughTransformAngleLimits(input, aForm.LowerAngle, aForm.UpperAngle);
+            default:
+                return input.ToBitmap();
+        }
+
     }
 
     /// <summary>

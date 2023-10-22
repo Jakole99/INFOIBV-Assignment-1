@@ -95,7 +95,7 @@ partial class Form1
         // applyButton
         // 
         applyButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        applyButton.Location = new Point(1108, 21);
+        applyButton.Location = new Point(1248, 21);
         applyButton.Margin = new Padding(4, 5, 4, 5);
         applyButton.Name = "applyButton";
         applyButton.Size = new Size(137, 35);
@@ -112,7 +112,7 @@ partial class Form1
         // saveButton
         // 
         saveButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        saveButton.Location = new Point(1253, 21);
+        saveButton.Location = new Point(1393, 21);
         saveButton.Margin = new Padding(4, 5, 4, 5);
         saveButton.Name = "saveButton";
         saveButton.Size = new Size(137, 35);
@@ -124,7 +124,7 @@ partial class Form1
         // outputImageBox
         // 
         outputImageBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        outputImageBox.Location = new Point(707, 108);
+        outputImageBox.Location = new Point(847, 108);
         outputImageBox.Margin = new Padding(4, 5, 4, 5);
         outputImageBox.Name = "outputImageBox";
         outputImageBox.Size = new Size(683, 788);
@@ -138,7 +138,7 @@ partial class Form1
         progressBar.Location = new Point(16, 905);
         progressBar.Margin = new Padding(4, 5, 4, 5);
         progressBar.Name = "progressBar";
-        progressBar.Size = new Size(1374, 31);
+        progressBar.Size = new Size(1514, 31);
         progressBar.TabIndex = 6;
         progressBar.Visible = false;
         // 
@@ -147,7 +147,7 @@ partial class Form1
         cbFilter.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         cbFilter.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilter.FormattingEnabled = true;
-        cbFilter.Location = new Point(964, 24);
+        cbFilter.Location = new Point(1104, 24);
         cbFilter.Margin = new Padding(3, 4, 3, 4);
         cbFilter.Name = "cbFilter";
         cbFilter.Size = new Size(137, 28);
@@ -201,7 +201,7 @@ partial class Form1
         filterLabel.BackColor = Color.Transparent;
         filterLabel.Location = new Point(574, 870);
         filterLabel.Name = "filterLabel";
-        filterLabel.Size = new Size(258, 25);
+        filterLabel.Size = new Size(398, 25);
         filterLabel.TabIndex = 14;
         filterLabel.Text = "Pipeline";
         filterLabel.TextAlign = ContentAlignment.MiddleCenter;
@@ -211,7 +211,7 @@ partial class Form1
         cbMode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         cbMode.DropDownStyle = ComboBoxStyle.DropDownList;
         cbMode.FormattingEnabled = true;
-        cbMode.Location = new Point(964, 66);
+        cbMode.Location = new Point(1104, 66);
         cbMode.Margin = new Padding(3, 4, 3, 4);
         cbMode.Name = "cbMode";
         cbMode.Size = new Size(137, 28);
@@ -220,7 +220,7 @@ partial class Form1
         // label2
         // 
         label2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        label2.Location = new Point(904, 70);
+        label2.Location = new Point(1044, 70);
         label2.Name = "label2";
         label2.Size = new Size(54, 29);
         label2.TabIndex = 16;
@@ -230,7 +230,7 @@ partial class Form1
         // label3
         // 
         label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        label3.Location = new Point(904, 28);
+        label3.Location = new Point(1044, 28);
         label3.Name = "label3";
         label3.Size = new Size(54, 29);
         label3.TabIndex = 17;
@@ -253,7 +253,7 @@ partial class Form1
         cbStructureElement.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         cbStructureElement.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStructureElement.FormattingEnabled = true;
-        cbStructureElement.Location = new Point(1253, 72);
+        cbStructureElement.Location = new Point(1393, 72);
         cbStructureElement.Name = "cbStructureElement";
         cbStructureElement.Size = new Size(137, 28);
         cbStructureElement.TabIndex = 19;
@@ -263,7 +263,7 @@ partial class Form1
         // 
         checkBinary.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         checkBinary.AutoSize = true;
-        checkBinary.Location = new Point(1118, 70);
+        checkBinary.Location = new Point(888, 66);
         checkBinary.Name = "checkBinary";
         checkBinary.Size = new Size(72, 24);
         checkBinary.TabIndex = 20;
@@ -275,7 +275,7 @@ partial class Form1
         // 
         numericSize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         numericSize.Increment = new decimal(new int[] { 2, 0, 0, 0 });
-        numericSize.Location = new Point(748, 24);
+        numericSize.Location = new Point(888, 24);
         numericSize.Maximum = new decimal(new int[] { 99, 0, 0, 0 });
         numericSize.Minimum = new decimal(new int[] { 3, 0, 0, 0 });
         numericSize.Name = "numericSize";
@@ -288,7 +288,7 @@ partial class Form1
         // 
         button1.Location = new Point(741, 62);
         button1.Margin = new Padding(4, 5, 4, 5);
-        button1.Name = "HoughTest";
+        button1.Name = "button1";
         button1.Size = new Size(137, 35);
         button1.TabIndex = 22;
         button1.Text = "Hough Test";
@@ -299,7 +299,7 @@ partial class Form1
         // 
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(1403, 942);
+        ClientSize = new Size(1543, 942);
         Controls.Add(button1);
         Controls.Add(numericSize);
         Controls.Add(checkBinary);
