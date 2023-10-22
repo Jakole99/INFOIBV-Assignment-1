@@ -1,7 +1,5 @@
 using INFOIBV.Filters;
 using INFOIBV.Framework;
-using System.Diagnostics.Metrics;
-using System.Windows.Forms;
 using INFOIBV.InputForms;
 
 namespace INFOIBV;
@@ -125,8 +123,6 @@ public partial class Form1 : Form
         availableProcessors.AddProcess(imageEdge);
 
 
-
-
         return availableProcessors;
     }
 
@@ -166,7 +162,6 @@ public partial class Form1 : Form
     /// </summary>
     private async void ApplyButton_Click(object sender, EventArgs e)
     {
-
         if (cbFilter.SelectedValue is not IImageProcessor processor)
             return;
 
@@ -186,14 +181,14 @@ public partial class Form1 : Form
 
         outputImageBox.Image = GetShowOptions(singleChannel, histogram, mode);
 
-        filterLabel.Text = $"{histogram.UniqueCount} Unique values | {histogram.NonBackgroundCount} Number of non background values";
+        filterLabel.Text =
+            $"{histogram.UniqueCount} Unique values | {histogram.NonBackgroundCount} Number of non background values";
 
         applyButton.Enabled = true;
     }
 
     private Bitmap GetShowOptions(byte[,] input, Histogram histogram, ModeType mode)
     {
-
         switch (mode)
         {
             case ModeType.Normal:
@@ -219,7 +214,6 @@ public partial class Form1 : Form
             default:
                 return input.ToBitmap();
         }
-
     }
 
     /// <summary>
@@ -271,13 +265,8 @@ public partial class Form1 : Form
 
     private void numericSize_ValueChanged(object sender, EventArgs e)
     {
-        if (numericSize.Value % 2 == 0)
-        {
-            numericSize.Value += 1;
-        }
+        if (numericSize.Value % 2 == 0) numericSize.Value += 1;
 
         cbFilter.DataSource = GetFilters().ImageProcessors;
     }
-
-
 }

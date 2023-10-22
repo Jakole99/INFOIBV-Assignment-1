@@ -54,7 +54,8 @@ public class ErosionFilter : Filter
 
 public partial class FilterCollectionExtensions
 {
-    public static FilterCollection AddErosionFilter(this FilterCollection filterCollection, StructureType type, int size, bool isBinary = false)
+    public static FilterCollection AddErosionFilter(this FilterCollection filterCollection, StructureType type,
+        int size, bool isBinary = false)
     {
         return filterCollection.AddProcess(new ErosionFilter(type, size, isBinary));
     }

@@ -7,16 +7,24 @@ public static class Hough
         public required double Rho { get; init; }
         public required double Theta { get; init; }
 
-        public static HessianLine FromPoint(double x, double y, double theta) =>
-            new()
+        public static HessianLine FromPoint(double x, double y, double theta)
+        {
+            return new HessianLine
             {
                 Rho = x * Math.Cos(theta) + y * Math.Sin(theta),
                 Theta = theta
             };
+        }
 
-        public double CalculateY(double x) => (Rho - x * Math.Cos(Theta)) / Math.Sin(Theta);
+        public double CalculateY(double x)
+        {
+            return (Rho - x * Math.Cos(Theta)) / Math.Sin(Theta);
+        }
 
-        public double CalculateX(double y) => (Rho - y * Math.Sin(Theta)) / Math.Cos(Theta);
+        public double CalculateX(double y)
+        {
+            return (Rho - y * Math.Sin(Theta)) / Math.Cos(Theta);
+        }
     }
 
     public readonly struct ParameterSpace
@@ -38,16 +46,20 @@ public static class Hough
             _minRho = minRho;
         }
 
-        public HessianLine ToHessian(int rho, int theta) =>
-            new()
+        public HessianLine ToHessian(int rho, int theta)
+        {
+            return new HessianLine
             {
                 Rho = rho / _pixelPerRho + _minRho,
                 Theta = theta / _pixelPerTheta
             };
+        }
 
-        public (int rho, int theta) FromHessian(HessianLine hessianLine) =>
-            ((int)Math.Round((hessianLine.Rho - _minRho) * _pixelPerRho),
+        public (int rho, int theta) FromHessian(HessianLine hessianLine)
+        {
+            return ((int)Math.Round((hessianLine.Rho - _minRho) * _pixelPerRho),
                 (int)Math.Round(hessianLine.Theta * _pixelPerTheta));
+        }
 
         public Bitmap ToBitmap()
         {
@@ -112,7 +124,10 @@ public static class Hough
         return (hessianLines, parameterSpace);
     }
 
-    public static ParameterSpace HoughTransform(byte[,] input) => HoughTransformAngleLimits(input, 0, Math.PI);
+    public static ParameterSpace HoughTransform(byte[,] input)
+    {
+        return HoughTransformAngleLimits(input, 0, Math.PI);
+    }
 
     public static ParameterSpace HoughTransformAngleLimits(byte[,] input, double lower, double upper)
     {
@@ -257,7 +272,6 @@ public static class Hough
         using var graphics = Graphics.FromImage(bitmap);
 
         if (true)
-        {
             foreach (var hessianLine in hessianLines)
             {
                 // Calculate y
@@ -272,16 +286,12 @@ public static class Hough
 
                 graphics.DrawLine(bluePen, 0, y1, bitmap.Width, y2);
             }
-        }
 
         foreach (var hessianLine in hessianLines)
         {
             var lines = HoughLineDetection(input, hessianLine, minThreshold, minLength, maxGap);
 
-            foreach (var ((xS, yS), (xE, yE)) in lines)
-            {
-                graphics.DrawLine(redPen, xS, yS, xE, yE);
-            }
+            foreach (var ((xS, yS), (xE, yE)) in lines) graphics.DrawLine(redPen, xS, yS, xE, yE);
         }
 
         return bitmap;
