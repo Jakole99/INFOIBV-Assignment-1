@@ -11,17 +11,20 @@ public static class Hough
     private static double _pixelPerR;
     private static double _pixelPerTheta;
 
+    private static double _upper = Math.PI;
+    private static double _lower = 0;
+
     //The amount of steps between each pixel
     private const int AngleSteps = 639;
 
-    public static Bitmap ToBitmap(byte[,] input)
+    public static Bitmap HoughTransform(byte[,] input)
     {
         var outputInt = new int[PixelWidth, PixelHeight];
 
         var inputWidth = input.GetLength(0);
         var inputHeight = input.GetLength(1);
 
-        var thetaSet = CreateThetaSet(AngleSteps);
+        var thetaSet = CreateThetaSet(AngleSteps, _lower, _upper);
 
         var maxR = Double.NegativeInfinity;
         var minR = Double.PositiveInfinity;
@@ -48,7 +51,7 @@ public static class Hough
 
         _absMin = Math.Abs(minR);
         _pixelPerR = (PixelHeight - 1) / (maxR + _absMin);
-        _pixelPerTheta = (PixelWidth - 1) / Math.PI;
+        _pixelPerTheta = (PixelWidth - 1) / _upper;
 
         foreach (var (r, theta) in tupleList)
         {
@@ -71,10 +74,18 @@ public static class Hough
         return output.ToBitmap();
     }
 
+    public static Bitmap HoughTransformAngleLimits(byte[,] input, double lower, double upper)
+    {
+        _upper = upper;
+        _lower = lower;
+        return HoughTransform(input);
+    }
 
     public static (List<(int, int)>, Bitmap) PeakFinding(byte[,] input, int threshold)
     {
-        var houghTransform = ToBitmap(input).ToSingleChannel();
+        _upper = Math.PI;
+        _lower = 0;
+        var houghTransform = HoughTransform(input).ToSingleChannel();
         var houghPairs = new List<(int, int)>();
 
         //Option A: Thresh holding
@@ -122,12 +133,12 @@ public static class Hough
         var segment = new Stack<(int, int)>();
         var count = 0;
 
+        //revert r and theta back
+        var theta = indexTheta / _pixelPerTheta;
+        var r = indexR / _pixelPerR - _absMin;
+
         foreach (var x in xSet)
         {
-            //revert r and theta back
-            var theta = indexTheta / _pixelPerTheta;
-            var r = indexR / _pixelPerR - _absMin;
-
             var y = (int)((r - x * Math.Cos(theta)) / Math.Sin(theta));
 
             if (y >= inputHeight || y < 0)
@@ -135,7 +146,7 @@ public static class Hough
 
             segment.Push((x, y));
 
-            if (input[x, y] > minThreshold)
+            if (input[x, y] < minThreshold)
             {
                 count++;
                 if (count < maxGap)
@@ -160,10 +171,6 @@ public static class Hough
             }
             else
                 count = 0;
-
-
-
-
         }
 
         return segmentList;
@@ -231,10 +238,10 @@ public static class Hough
     }
 
 
-    private static double[] CreateThetaSet(int totalSteps)
+    private static double[] CreateThetaSet(int totalSteps, double lower, double upper)
     {
         var thetaSet = new double[totalSteps];
-        var stepSize = Math.PI / (totalSteps - 1);
+        var stepSize = (upper - lower) / (totalSteps - 1);
 
         for (var i = 0; i < totalSteps; i++)
         {

@@ -175,9 +175,10 @@ public partial class Form1 : Form
             ModeType.Normal => singleChannel.ToBitmap(),
             ModeType.Histogram => histogram.ToBitmap(512, 300),
             ModeType.CumulativeHistogram => histogram.ToBitmap(512, 300, true),
-            ModeType.HougTransform => Hough.ToBitmap(singleChannel),
+            ModeType.HougTransform => Hough.HoughTransform(singleChannel),
             ModeType.HoughPeaks => Hough.PeakFinding(singleChannel, 128).Item2,
-            ModeType.HoughVisualization => Hough.VisualizeHoughLineSegments(singleChannel, 128, 15, 9),
+            ModeType.HoughVisualization => Hough.VisualizeHoughLineSegments(singleChannel, 128, 15, 3),
+            ModeType.HoughTransformAngleLimits => Hough.HoughTransformAngleLimits(singleChannel,0,Math.PI/2),
             _ => singleChannel.ToBitmap()
         };
 

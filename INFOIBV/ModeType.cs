@@ -7,5 +7,6 @@ public enum ModeType
     CumulativeHistogram,
     HougTransform,
     HoughPeaks,
-    HoughVisualization
+    HoughVisualization,
+    HoughTransformAngleLimits
 }
