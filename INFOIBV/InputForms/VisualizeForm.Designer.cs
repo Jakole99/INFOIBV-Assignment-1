@@ -100,7 +100,7 @@
             // numericUpDown3
             // 
             numericUpDown3.Location = new Point(162, 104);
-            numericUpDown3.Minimum = new decimal(new int[] { 5, 0, 0, 0 });
+            numericUpDown3.Minimum = 2;
             numericUpDown3.Maximum = 100;
             numericUpDown3.Name = "numericUpDown3";
             numericUpDown3.Size = new Size(150, 27);
