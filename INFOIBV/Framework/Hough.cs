@@ -15,6 +15,8 @@ public static class Hough
             };
 
         public double CalculateY(double x) => (Rho - x * Math.Cos(Theta)) / Math.Sin(Theta);
+
+        public double CalculateX(double y) => (Rho - y * Math.Sin(Theta)) / Math.Cos(Theta);
     }
 
     public readonly struct ParameterSpace
@@ -42,6 +44,10 @@ public static class Hough
                 Rho = rho / _pixelPerRho + _minRho,
                 Theta = theta / _pixelPerTheta
             };
+
+        public (int rho, int theta) FromHessian(HessianLine hessianLine) =>
+            ((int)Math.Round((hessianLine.Rho - _minRho) * _pixelPerRho),
+                (int)Math.Round(hessianLine.Theta * _pixelPerTheta));
 
         public Bitmap ToBitmap()
         {
@@ -146,14 +152,15 @@ public static class Hough
         // Build frequency table
         var frequency = new int[ParameterSpace.Width, ParameterSpace.Height];
 
+        var parameterSpace = new ParameterSpace(frequency, pixelPerTheta, pixelPerR, minR);
+
         foreach (var hessianLine in hessianLines)
         {
-            var u = (int)(hessianLine.Theta * pixelPerTheta);
-            var v = (int)((hessianLine.Rho - minR) * pixelPerR);
-            frequency[u, v] += 1;
+            var (rho, theta) = parameterSpace.FromHessian(hessianLine);
+            frequency[rho, theta] += 1;
         }
 
-        return new ParameterSpace(frequency, pixelPerTheta, pixelPerR, minR);
+        return parameterSpace;
     }
 
     private static List<((int, int), (int, int))> HoughLineDetection(byte[,] input, HessianLine hessianLine,
@@ -164,16 +171,17 @@ public static class Hough
         var width = input.GetLength(0);
         var height = input.GetLength(1);
 
-        var x1 = 0;
-        var y1 = 0;
+        var xL = 0;
+        var yL = 0;
 
         var xG = 0;
         var yG = 0;
 
-        var gapLength = 0;
-
         var trackingLine = false;
         var previousWasGap = false;
+
+        if (hessianLine.Theta is 0 or Math.PI)
+            return segmentList;
 
         // Loop over every x
         for (var x = 0; x < width; x++)
@@ -187,23 +195,32 @@ public static class Hough
 
             if (input[x, y] < minThreshold) // Is gap
             {
+                // Skip if we are not tracking a line
+                if (!trackingLine)
+                {
+                    previousWasGap = true;
+                    continue;
+                }
+
                 if (!previousWasGap)
                 {
                     // Start a new gap
-                    gapLength = 0;
                     xG = x;
                     yG = y;
-                }
-                else
-                {
-                    gapLength++;
+
+                    previousWasGap = true;
+                    continue;
                 }
 
-                if (gapLength > maxGap && trackingLine)
+                var gapLength = Math.Sqrt(Math.Pow(x - xG, 2) + Math.Pow(y - yG, 2));
+
+                if (gapLength > maxGap)
                 {
-                    // End the line at gap start
-                    if (Math.Sqrt(Math.Pow(x1 - xG, 2) + Math.Pow(y1 - yG, 2)) >= minLength)
-                        segmentList.Add(((x1, y1), (xG, yG)));
+                    var lineLength = Math.Sqrt(Math.Pow(xL - xG, 2) + Math.Pow(yL - yG, 2));
+
+                    // End the line at gap start if greater than the min length
+                    if (lineLength >= minLength)
+                        segmentList.Add(((xL, yL), (xG, yG)));
 
                     trackingLine = false;
                 }
@@ -215,8 +232,8 @@ public static class Hough
                 if (previousWasGap && !trackingLine)
                 {
                     // Start a new line
-                    x1 = x;
-                    y1 = y;
+                    xL = x;
+                    yL = y;
 
                     trackingLine = true;
                 }
@@ -233,22 +250,35 @@ public static class Hough
         var bitmap = input.ToBitmap();
         var (hessianLines, _) = PeakFinding(input, minThreshold);
 
-        var redPen = new Pen(Color.Red, 1);
-        var bluePen = new Pen(Color.Blue, 1);
+        var redPen = new Pen(Color.FromArgb(128, 0, 255, 0), 3);
+        var bluePen = new Pen(Color.FromArgb(10, 255, 0, 0), 1);
 
         // Draw line to screen.
         using var graphics = Graphics.FromImage(bitmap);
 
+        if (true)
+        {
+            foreach (var hessianLine in hessianLines)
+            {
+                // Calculate y
+                var y1 = (int)hessianLine.CalculateY(0);
+                var y2 = (int)hessianLine.CalculateY(bitmap.Width);
+
+                if (y1 is Int32.MaxValue or Int32.MinValue || y2 is Int32.MaxValue or Int32.MinValue)
+                {
+                    graphics.DrawLine(bluePen, (int)hessianLine.Rho, 0, (int)hessianLine.Rho, bitmap.Height);
+                    continue;
+                }
+
+                graphics.DrawLine(bluePen, 0, y1, bitmap.Width, y2);
+            }
+        }
+
         foreach (var hessianLine in hessianLines)
         {
-            // Calculate y
-            var y1 = (int)hessianLine.CalculateY(0);
-            var y2 = (int)hessianLine.CalculateY(bitmap.Width);
+            var lines = HoughLineDetection(input, hessianLine, minThreshold, minLength, maxGap);
 
-            graphics.DrawLine(bluePen, 0, y1, bitmap.Width, y2);
-
-            foreach (var ((xS, yS), (xE, yE)) in
-                     HoughLineDetection(input, hessianLine, minThreshold, minLength, maxGap))
+            foreach (var ((xS, yS), (xE, yE)) in lines)
             {
                 graphics.DrawLine(redPen, xS, yS, xE, yE);
             }
