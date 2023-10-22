@@ -12,9 +12,9 @@ public static class StructureElement
 {
     private static readonly byte[,] BasePlus =
     {
-        {0, 1, 0},
-        {2, 2, 1},
-        {0, 1, 0}
+        { 0, 1, 0 },
+        { 2, 2, 1 },
+        { 0, 1, 0 }
     };
 
     public static byte[,] Create(StructureType type, int size)

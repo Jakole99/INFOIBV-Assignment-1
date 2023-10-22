@@ -19,10 +19,12 @@ public static class SingleChannelExtensions
         var singleChannel = new byte[width, height];
 
         for (var x = 0; x < width; x++)
-        for (var y = 0; y < height; y++)
         {
-            var color = bitmap.GetPixel(x, y);
-            singleChannel[x, y] = (byte)((color.R + color.B + color.G) / 3);
+            for (var y = 0; y < height; y++)
+            {
+                var color = bitmap.GetPixel(x, y);
+                singleChannel[x, y] = (byte)((color.R + color.B + color.G) / 3);
+            }
         }
 
         return singleChannel;
@@ -42,11 +44,13 @@ public static class SingleChannelExtensions
         var output = new Bitmap(width, height);
 
         for (var x = 0; x < width; x++)
-        for (var y = 0; y < height; y++)
         {
-            var value = singleChannel[x, y];
-            var newColor = Color.FromArgb(value, value, value);
-            output.SetPixel(x, y, newColor);
+            for (var y = 0; y < height; y++)
+            {
+                var value = singleChannel[x, y];
+                var newColor = Color.FromArgb(value, value, value);
+                output.SetPixel(x, y, newColor);
+            }
         }
 
         return output;

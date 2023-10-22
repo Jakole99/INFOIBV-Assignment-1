@@ -8,20 +8,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace INFOIBV.InputForms
-{
-    public partial class PeakForm : Form
-    {
-        public int Threshold;
-        public PeakForm()
-        {
-            InitializeComponent();
-        }
+namespace INFOIBV.InputForms;
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            Threshold = (int)numericUpDown1.Value;
-            Close();
-        }
+public partial class PeakForm : Form
+{
+    public int Threshold;
+
+    public PeakForm()
+    {
+        InitializeComponent();
+    }
+
+    private void button1_Click(object sender, EventArgs e)
+    {
+        Threshold = (int)numericUpDown1.Value;
+        Close();
     }
 }

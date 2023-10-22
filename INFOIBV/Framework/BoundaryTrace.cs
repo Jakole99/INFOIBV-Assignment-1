@@ -5,17 +5,16 @@
 /// </summary>
 public static class BoundaryTrace
 {
-
     private static readonly sbyte[,] Delta =
     {
-        {1, 0},
-        {1, 1},
-        {0, 1},
-        {-1, 1},
-        {-1, 0},
-        {-1, -1},
-        {0, -1},
-        {1, -1},
+        { 1, 0 },
+        { 1, 1 },
+        { 0, 1 },
+        { -1, 1 },
+        { -1, 0 },
+        { -1, -1 },
+        { 0, -1 },
+        { 1, -1 }
     };
 
     public record CombinedContourLabelingResult(HashSet<Contour> Inner, HashSet<Contour> Outer, int[,] LabelMap);
@@ -27,7 +26,7 @@ public static class BoundaryTrace
         {
             for (var u = 0; u < input.GetLength(1); u++)
             {
-                paddedInput[u+1, v+1] = input[u, v];
+                paddedInput[u + 1, v + 1] = input[u, v];
             }
         }
 
@@ -74,6 +73,7 @@ public static class BoundaryTrace
                         var innerContour = TraceContour((u - 1, v), 1, label, paddedInput, labelMap);
                         innerContours.Add(innerContour);
                     }
+
                     label = 0;
                 }
             }
@@ -82,7 +82,8 @@ public static class BoundaryTrace
         return new CombinedContourLabelingResult(innerContours, outerContours, labelMap);
     }
 
-    private static Contour TraceContour((int u, int v) start, int startDirection, int label, byte[,] input, int[,] labelMap)
+    private static Contour TraceContour((int u, int v) start, int startDirection, int label, byte[,] input,
+        int[,] labelMap)
     {
         var (first, nextDirection) = FindNextPoint(start, startDirection, input, labelMap);
         var c = new List<(int u, int v)> { first };
@@ -97,7 +98,7 @@ public static class BoundaryTrace
 
             var previous = current;
             current = next;
-            done = (previous == start && current == first);
+            done = previous == start && current == first;
             if (!done)
                 c.Add(next);
         }
@@ -105,7 +106,8 @@ public static class BoundaryTrace
         return new Contour(c, label);
     }
 
-    private static ((int u, int v) xc, int d) FindNextPoint((int u, int v) startPoint, int direction, byte[,] input, int[,] labelMap)
+    private static ((int u, int v) xc, int d) FindNextPoint((int u, int v) startPoint, int direction, byte[,] input,
+        int[,] labelMap)
     {
         const int directions = 7;
 

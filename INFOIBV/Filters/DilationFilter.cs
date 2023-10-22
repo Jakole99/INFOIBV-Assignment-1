@@ -55,7 +55,8 @@ public class DilationFilter : Filter
 
 public partial class FilterCollectionExtensions
 {
-    public static FilterCollection AddDilationFilter(this FilterCollection filterCollection, StructureType type, int size, bool isBinary = false)
+    public static FilterCollection AddDilationFilter(this FilterCollection filterCollection, StructureType type,
+        int size, bool isBinary = false)
     {
         return filterCollection.AddProcess(new DilationFilter(type, size, isBinary));
     }

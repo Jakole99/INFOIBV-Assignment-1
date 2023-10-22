@@ -8,33 +8,30 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace INFOIBV.InputForms
+namespace INFOIBV.InputForms;
+
+public partial class AngleForm : Form
 {
-    public partial class AngleForm : Form
+    public double LowerAngle;
+    public double UpperAngle;
+
+    public AngleForm()
     {
-        public double LowerAngle;
-        public double UpperAngle;
+        InitializeComponent();
+    }
 
-        public AngleForm()
-        {
-            InitializeComponent();
-        }
+    private void button1_Click(object sender, EventArgs e)
+    {
+        UpperAngle = (double)numericUpDown1.Value;
+        LowerAngle = (double)numericUpDown2.Value;
+        Close();
+    }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            UpperAngle = (double)numericUpDown1.Value;
-            LowerAngle = (double)numericUpDown2.Value;
-            Close();
-        }
+    private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+    {
+    }
 
-        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void numericUpDown2_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
+    private void numericUpDown2_ValueChanged(object sender, EventArgs e)
+    {
     }
 }

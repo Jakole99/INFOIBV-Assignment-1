@@ -35,18 +35,24 @@ public class GaussianFilter : Filter
 
         // Create gaussian
         for (var i = 0; i < size; i++)
-        for (var j = 0; j < size; j++)
         {
-            var gaussian = Gaussian(i - k, j - k);
+            for (var j = 0; j < size; j++)
+            {
+                var gaussian = Gaussian(i - k, j - k);
 
-            kernel[i, j] = gaussian;
-            sum += gaussian;
+                kernel[i, j] = gaussian;
+                sum += gaussian;
+            }
         }
 
         // Normalize gaussian
         for (var i = 0; i < size; i++)
-        for (var j = 0; j < size; j++)
-            kernel[i, j] /= sum;
+        {
+            for (var j = 0; j < size; j++)
+            {
+                kernel[i, j] /= sum;
+            }
+        }
 
         return kernel;
 
