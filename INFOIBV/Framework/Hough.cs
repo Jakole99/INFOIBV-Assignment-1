@@ -172,7 +172,7 @@ public static class Hough
         foreach (var hessianLine in hessianLines)
         {
             var (rho, theta) = parameterSpace.FromHessian(hessianLine);
-            frequency[rho, theta] += 1;
+            frequency[theta, rho] += 1;
         }
 
         return parameterSpace;
