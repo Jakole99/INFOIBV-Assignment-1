@@ -203,11 +203,11 @@ public partial class Form1 : Form
             case ModeType.CumulativeHistogram:
                 return histogram.ToBitmap(512, 300, true);
             case ModeType.HoughTransform:
-                return Hough.HoughTransform(input);
+                return Hough.HoughTransform(input).ToBitmap();
             case ModeType.HoughPeaks:
                 var pForm = new PeakForm();
                 pForm.ShowDialog();
-                return Hough.PeakFinding(input, pForm.Threshold).Item2;
+                return Hough.PeakFinding(input, pForm.Threshold).Item2.ToBitmap();
             case ModeType.HoughVisualization:
                 var vForm = new VisualizeForm();
                 vForm.ShowDialog();
@@ -215,7 +215,7 @@ public partial class Form1 : Form
             case ModeType.HoughTransformAngleLimits:
                 var aForm = new AngleForm();
                 aForm.ShowDialog();
-                return Hough.HoughTransformAngleLimits(input, aForm.LowerAngle, aForm.UpperAngle);
+                return Hough.HoughTransformAngleLimits(input, aForm.LowerAngle, aForm.UpperAngle).ToBitmap();
             default:
                 return input.ToBitmap();
         }
