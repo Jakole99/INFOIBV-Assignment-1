@@ -59,8 +59,28 @@ public class SIFT
 
     private byte[,] ApplyGaussian(byte[,] input, double width)
     {
-        var b = new FilterCollection().AddGaussian(9, (float)width);
-        return b.Process(input);
+        var filter = new FilterCollection().AddGaussian(9, (float)width);
+        return filter.Process(input);
+    }
+
+    private byte[,] ApplyContrast(int[,] input)
+    {
+        var width = input.GetLength(0);
+        var height = input.GetLength(1);
+
+        var highest = input.Cast<int>().Max();
+        var lowest = input.Cast<int>().Min();
+
+        var output = new byte[width,height];
+        for (var v = 0; v < input.GetLength(1); v++)
+        {
+            for (var u = 0; u < input.GetLength(0); u++)
+            {   
+                output[u, v] = (byte)(Byte.MinValue + (input[u, v] - lowest) * (Byte.MaxValue - Byte.MinValue) / (highest - lowest));
+            }
+        }
+
+        return output;
     }
 
     private byte[][,] MakeGaussianOctave(byte[,] G)
@@ -101,11 +121,11 @@ public class SIFT
     private byte[][,] MakeDogGOctave(byte[][,] octave) 
     {
         var DogOctaves = new byte[Q + 1][,];
-        for (int q = 0; q < Q + 1; q++)
+        for (var q = 0; q < Q + 1; q++)
         {
             var G = octave[q];
             var G1 = octave[q+1];
-            var D = ImageDif(G,G1);
+            var D = ImageDif(G1,G);
             DogOctaves[q] = D;
 
         }
@@ -121,16 +141,24 @@ public class SIFT
         var width = input1.GetLength(0);
         var height = input1.GetLength(1);
 
-        var output = new byte[width, height];
+        var output = new int[width, height];
 
         for (var v = 0; v < height; v++)
         {
             for (var u = 0; u < width; u++)
             {
-                output[u, v] = (byte)(input1[u, v] - input2[u, v]);
+                var tmp = input1[u, v] - input2[u, v];
+                output[u, v] = (sbyte)(tmp);
             }
         }
 
-        return output;
+        //We need to contrastAdjust the inputs, otherwise we will get only very high or low values.
+        return ApplyContrast(output);
+    }
+
+    private byte[,] AbsDoG(byte[,] input)
+    {
+        var filter = new FilterCollection().AddThresholdFilter(80);
+        return filter.Process(input);
     }
 }

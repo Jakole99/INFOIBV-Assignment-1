@@ -19,8 +19,10 @@ public class ContrastAdjustmentFilter : Filter
 
     protected override byte ConvertPixel(int u, int v, byte[,] input)
     {
-        return (byte)(Byte.MinValue + (input[u, v] - _highest) * Byte.MaxValue / (_highest - _lowest));
+        return (byte)(Byte.MinValue + (input[u, v] - _lowest) * Byte.MaxValue / (_highest - _lowest));
     }
+
+
 }
 
 public static partial class FilterCollectionExtensions
