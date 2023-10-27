@@ -47,9 +47,18 @@ public partial class Form1 : Form
             .AddContrastAdjustment();
         availableProcessors.AddProcess(imageA);
 
-        var imageB = FilterCollection.From(imageA, "Image B")
-            .AddGaussian(5, 1);
+        var imageB = FilterCollection.From(imageA, "Image B1")
+            .AddGaussian(9, 3.2f);
         availableProcessors.AddProcess(imageB);
+        var imageB2 = FilterCollection.From(imageA, "Image B2")
+            .AddGaussian(9, 3.2f);
+        availableProcessors.AddProcess(imageB2);
+        var imageB3 = FilterCollection.From(imageA, "Image B3")
+            .AddGaussian(9, 40.2f);
+        availableProcessors.AddProcess(imageB3);
+        var imageB4 = FilterCollection.From(imageA, "Image B4")
+            .AddGaussian(9, 100f);
+        availableProcessors.AddProcess(imageB4);
 
         var imageW = FilterCollection.From(imageB, "Image W")
             .AddThresholdFilter(128);
@@ -211,8 +220,31 @@ public partial class Form1 : Form
                 var aForm = new AngleForm();
                 aForm.ShowDialog();
                 return Hough.HoughTransformAngleLimits(input, aForm.LowerAngle, aForm.UpperAngle).ToBitmap();
+            case ModeType.SIFT:
+                SiftDoG(input);
+                return input.ToBitmap();
             default:
                 return input.ToBitmap();
+        }
+    }
+
+    private void SiftDoG(byte[,] input)
+    {
+        var (gaussianScaleSpace, DoGScaleSpace) = new SIFT().BuildSiftScaleSpace(input, 0.5, 1.6, 4, 3);
+
+        var combinedList = gaussianScaleSpace.Zip(DoGScaleSpace);
+        foreach (var scale in combinedList)
+        {
+            var DoGForm = new DoGTest();
+            DoGForm.G1.Image = scale.First[0].ToBitmap();
+            DoGForm.G2.Image = scale.First[1].ToBitmap();
+            DoGForm.G3.Image = scale.First[2].ToBitmap();
+            DoGForm.G4.Image = scale.First[3].ToBitmap();
+
+            DoGForm.D1.Image = scale.Second[0].ToBitmap();
+            DoGForm.D2.Image = scale.Second[1].ToBitmap();
+            DoGForm.D3.Image = scale.Second[2].ToBitmap();
+            DoGForm.ShowDialog();
         }
     }
 

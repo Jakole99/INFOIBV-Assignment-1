@@ -70,7 +70,7 @@ public class GaussianFilter : Filter
 public static partial class FilterCollectionExtensions
 {
     /// <inheritdoc cref="GaussianFilter(int,float)" />
-    public static FilterCollection AddGaussian(this FilterCollection filterCollection, int size, int sigma)
+    public static FilterCollection AddGaussian(this FilterCollection filterCollection, int size, float sigma)
     {
         return filterCollection.AddProcess(new GaussianFilter(size, sigma));
     }
