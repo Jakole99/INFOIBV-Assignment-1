@@ -140,7 +140,7 @@ public partial class Form1 : Form
     /// Checks, sets and displays the input image
     /// </summary>
     /// <param name="value">Bitmap to display</param>
-    private void SetInputImage(Image value)
+    private void SetInputImage(System.Drawing.Image value)
     {
         if (value.Size.Height <= 0 || value.Size.Width <= 0 ||
             value.Size.Height > 512 || value.Size.Width > 512)
@@ -231,7 +231,7 @@ public partial class Form1 : Form
 
     private static void SiftDoG(byte[,] input)
     {
-        var parameters = new SiftScaleSpace.Parameters() { Input = new(input) };
+        var parameters = new SiftScaleSpace.Parameters { Input = new(input) };
         var output = SiftScaleSpace.Build(parameters);
 
         for (var i = 0; i < parameters.OctaveCount; i++)
