@@ -1,6 +1,7 @@
 using INFOIBV.Filters;
 using INFOIBV.Framework;
 using INFOIBV.InputForms;
+using INFOIBV.SIFT;
 
 namespace INFOIBV;
 
@@ -228,23 +229,23 @@ public partial class Form1 : Form
         }
     }
 
-    private void SiftDoG(byte[,] input)
+    private static void SiftDoG(byte[,] input)
     {
-        var (gaussianScaleSpace, DoGScaleSpace) = new SIFT.SIFT().BuildSiftScaleSpace(input, 0.5, 1.6, 4, 3);
+        var parameters = new SiftScaleSpace.Parameters() { Input = new(input) };
+        var output = SiftScaleSpace.Build(parameters);
 
-        var combinedList = gaussianScaleSpace.Zip(DoGScaleSpace);
-        foreach (var scale in combinedList)
+        for (var i = 0; i < parameters.OctaveCount; i++)
         {
-            var DoGForm = new DoGTest();
-            DoGForm.G1.Image = scale.First[0].ToBitmap();
-            DoGForm.G2.Image = scale.First[1].ToBitmap();
-            DoGForm.G3.Image = scale.First[2].ToBitmap();
-            DoGForm.G4.Image = scale.First[3].ToBitmap();
+            var doGForm = new DoGTest();
+            doGForm.G1.Image = output.GaussianOctaves[i][1].Bytes.ToBitmap();
+            doGForm.G2.Image = output.GaussianOctaves[i][2].Bytes.ToBitmap();
+            doGForm.G3.Image = output.GaussianOctaves[i][3].Bytes.ToBitmap();
+            doGForm.G4.Image = output.GaussianOctaves[i][4].Bytes.ToBitmap();
 
-            DoGForm.D1.Image = scale.Second[0].ToBitmap();
-            DoGForm.D2.Image = scale.Second[1].ToBitmap();
-            DoGForm.D3.Image = scale.Second[2].ToBitmap();
-            DoGForm.ShowDialog();
+            doGForm.D1.Image = output.DifferenceOfGaussiansOctaves[i][1].Bytes.ToBitmap();
+            doGForm.D2.Image = output.DifferenceOfGaussiansOctaves[i][2].Bytes.ToBitmap();
+            doGForm.D3.Image = output.DifferenceOfGaussiansOctaves[i][3].Bytes.ToBitmap();
+            doGForm.ShowDialog();
         }
     }
 

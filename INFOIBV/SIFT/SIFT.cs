@@ -128,7 +128,7 @@ public class SIFT
         return DogOctaves;
     }
 
-    private byte[,] ImageDif(byte[,] input1, byte[,] input2)
+    private static byte[,] ImageDif(byte[,] input1, byte[,] input2)
     {
         //Check if both images are same size
         if (input1.GetLength(0) != input2.GetLength(0) || input1.GetLength(1) != input2.GetLength(1))
