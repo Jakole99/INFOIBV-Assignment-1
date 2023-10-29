@@ -230,7 +230,7 @@ public partial class Form1 : Form
 
     private void SiftDoG(byte[,] input)
     {
-        var (gaussianScaleSpace, DoGScaleSpace) = new SIFT().BuildSiftScaleSpace(input, 0.5, 1.6, 4, 3);
+        var (gaussianScaleSpace, DoGScaleSpace) = new SIFT.SIFT().BuildSiftScaleSpace(input, 0.5, 1.6, 4, 3);
 
         var combinedList = gaussianScaleSpace.Zip(DoGScaleSpace);
         foreach (var scale in combinedList)

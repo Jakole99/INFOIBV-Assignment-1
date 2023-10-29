@@ -1,6 +1,9 @@
 ﻿using INFOIBV.Filters;
+using INFOIBV.Framework;
 
-namespace INFOIBV.Framework;
+// ReSharper disable InconsistentNaming
+
+namespace INFOIBV.SIFT;
 
 public class SIFT
 {
@@ -24,7 +27,7 @@ public class SIFT
         //Gaussian scale levels, Gp,−1 and Gp, Q+1, are required in each octave
 
         //absolute scale value of m = -1, with m being the linear scale index.
-        var omegaAbs = referenceScale * Math.Pow(2, (-1 / scaleSteps));
+        var omegaAbs = referenceScale * Math.Pow(2, (float)-1 / scaleSteps);
 
         //relative scale value of m = -1
         var omegaRel = Math.Sqrt(omegaAbs * omegaAbs - samplingScale * samplingScale);
@@ -34,10 +37,7 @@ public class SIFT
 
         var G0 = MakeGaussianOctave(G);
 
-        List<byte[][,]> gaussianScaleSpace = new List<byte[][,]>();
-        List<byte[][,]> DoGScaleSpace = new List<byte[][,]>();
-
-        gaussianScaleSpace.Add(G0);
+        var gaussianScaleSpace = new List<byte[][,]> { G0 };
 
         for (var p = 1; p <= P - 1; p++)
         {
@@ -47,23 +47,19 @@ public class SIFT
             gaussianScaleSpace.Add(GLastScaled);
         }
 
-        foreach (var octave in gaussianScaleSpace)
-        {
-            var D = MakeDogGOctave(octave);
-            DoGScaleSpace.Add(D);
-        }
+        var DoGScaleSpace = gaussianScaleSpace.Select(MakeDogGOctave).ToList();
 
         return (gaussianScaleSpace, DoGScaleSpace);
 
     }
 
-    private byte[,] ApplyGaussian(byte[,] input, double width)
+    private static byte[,] ApplyGaussian(byte[,] input, double width)
     {
         var filter = new FilterCollection().AddGaussian(9, (float)width);
         return filter.Process(input);
     }
 
-    private byte[,] ApplyContrast(int[,] input)
+    private static byte[,] ApplyContrast(int[,] input)
     {
         var width = input.GetLength(0);
         var height = input.GetLength(1);
@@ -97,7 +93,7 @@ public class SIFT
         return gaussianOctaves;
     }
 
-    private byte[,] Decimate(byte[,] Gin)
+    private static byte[,] Decimate(byte[,] Gin)
     {
         var M = Gin.GetLength(0);
         var N = Gin.GetLength(1);
@@ -156,7 +152,7 @@ public class SIFT
         return ApplyContrast(output);
     }
 
-    private byte[,] AbsDoG(byte[,] input)
+    private static byte[,] AbsDoG(byte[,] input)
     {
         var filter = new FilterCollection().AddThresholdFilter(80);
         return filter.Process(input);
