@@ -1,13 +1,45 @@
-﻿using Accessibility;
-using MathNet.Numerics.LinearAlgebra;
-using static INFOIBV.SIFT.SiftScaleSpace;
+﻿using MathNet.Numerics.LinearAlgebra;
 
 namespace INFOIBV.SIFT;
 
 public static class KeyPointSelection
 {
+    public readonly struct KeyPoint
+    {
+        public int Octave { get; }
+
+        public int ScaleStep { get; }
+
+        public int U { get; }
+
+        public int V { get; }
+
+        public KeyPoint(int p, int q, int u, int v)
+        {
+            Octave = p;
+            ScaleStep = q;
+            U = u;
+            V = v;
+        }
+
+        public static KeyPoint operator +(KeyPoint a, KeyPoint b)
+        {
+            var (p0, q0, u0, v0) = a;
+            var (p1, q1, u1, v1) = b;
+            return new(p0+p1, q0+q1, u0+u1, v0+v1);
+        }
+
+        public void Deconstruct(out int octave, out int scaleStep, out int u, out int v)
+        {
+            octave = Octave;
+            scaleStep = ScaleStep;
+            u = U;
+            v = V;
+        }
+    }
+
     #region Algorithm 7.3
-    public static List<(int?, int?, int?, int?)> GetSiftFeatures(SiftScaleSpace.Parameters parameters)
+    public static List<KeyPoint> GetSiftFeatures(SiftScaleSpace.Parameters parameters)
     {
         var scaleSpace = SiftScaleSpace.Build(parameters);
 
@@ -17,21 +49,21 @@ public static class KeyPointSelection
         return keyPoints;
     }
 
-    private static List<(int?, int?, int?, int?)> GetKeyPoints(Image[][] dogSpace, int octaveCount, int scaleSteps)
+    private static List<KeyPoint> GetKeyPoints(Image[][] dogSpace, int octaveCount, int scaleSteps)
     {
-        List<(int?, int?, int?, int?)> keyPoints = new List<(int?, int?, int?, int?)>();
+        var keyPoints = new List<KeyPoint>();
 
-        for (var p = 0; p < octaveCount; p++)
+        for (var p = 1; p < octaveCount; p++)
         {
-            for (var q = 0; q < scaleSteps; q++)
+            for (var q = 1; q < scaleSteps; q++)
             {
-                var extremas = FindExtrema(dogSpace, p, q);
+                var extrema = FindExtrema(dogSpace, p, q);
 
-                foreach (var extrema in extremas)
+                foreach (var extreme in extrema)
                 {
-                    var dk = RefineKeyPosition(dogSpace, extrema, scaleSteps);
-                    if (dk != (null, null, null, null))
-                        keyPoints.Add(dk);
+                    var kPrime = RefineKeyPosition(dogSpace, extreme, scaleSteps);
+                    if (kPrime.HasValue)
+                        keyPoints.Add(kPrime.Value);
                 }
             }
         }
@@ -39,101 +71,98 @@ public static class KeyPointSelection
         return keyPoints;
     }
 
-    private static List<(int, int, int, int)> FindExtrema(Image[][] dogSpace, int p, int q)
+    private static List<KeyPoint> FindExtrema(Image[][] dogSpace, int p, int q)
     {
         const double tMag = 0.01;
         var layer = dogSpace[p][q].Bytes;
         var m = layer.GetLength(0);
         var n = layer.GetLength(1);
 
-        List<(int, int, int, int)> extremas = new List<(int, int, int, int)>();
+        var extrema = new List<KeyPoint>();
 
         for (var u = 1; u < m-1; u++)
         {
             for (var v = 1; v < n-1; v++)
             {
-                if (Math.Abs(layer[u, v]) > tMag)
-                {
-                    var k = (p, q, u, v);
-                    var N = GetNeighborHood(dogSpace, p, 1, u, v);
-                    
-                    if (IsExtremum(N))
-                        extremas.Add(k);
-                }
+                if (!(layer[u, v] > tMag))
+                    continue;
+
+                var k = new KeyPoint(p, q, u, v);
+                var neighborHood = GetNeighborHood(dogSpace, k);
+
+                if (IsExtremum(neighborHood))
+                    extrema.Add(k);
             }
         }
 
-        return extremas;
+        return extrema;
     }
 
     #endregion
 
     #region Algorithm 7.4
 
-    private static (int?, int?, int?, int?) RefineKeyPosition(Image[][] dogSpace, (int, int, int, int) k, int scaleSteps)
+    private static KeyPoint? RefineKeyPosition(Image[][] dogSpace, KeyPoint k, int scaleSteps)
     {
         const double reMax = 10.0;
         const int nRefine = 5;
         const double tPeak = 0.01;
 
-        (int?, int?, int?, int?) dk = (null, null, null, null);
 
-        var maxAlpha = Math.Pow((reMax + 1), 2) / reMax;
+        var maxAlpha = Math.Pow(reMax + 1, 2) / reMax;
+        KeyPoint? kPrime = null;
         var n = 1;
         var done = false;
 
         while (!done && n <= nRefine && IsInside(dogSpace, k, scaleSteps))
         {
-            var (p, q, u, v) = k;
-            var N = GetNeighborHood(dogSpace, p, q, u, v);
-            var gradient = Gradient(N);
-            var hessianMatrix = Hessian(N);
+            var neighborHood = GetNeighborHood(dogSpace, k);
+            var gradient = Gradient(neighborHood);
+            var hessianMatrix = Hessian(neighborHood);
 
             if (hessianMatrix.Determinant() == 0)
-                done = true;
+            {
+                 done = true;
+            }
             else
             {
                 var d = -hessianMatrix.Inverse() * gradient;
-                var dx = Math.Round(d[0]);
-                var dy = Math.Round(d[1]);
-                    
-                if (dx < 0.5 || dy < 0.5)
+                var dx = d[0];
+                var dy = d[1];
+
+                if (Math.Abs(dx) < 0.5 || Math.Abs(dy) < 0.5)
                 {
                     done = true;
-                    var gradientT = TransposeVector(gradient);
-                    var peakD = N[1, 1, 1] + 0.5 * gradientT * d;
-                    var hessianMatrixXY = hessianMatrix.SubMatrix(0, 1, 0, 1);
+                    var peakD = neighborHood[1, 1, 1] + 0.5 * gradient * d;
+                    var hessianMatrix2D = hessianMatrix.SubMatrix(0, 1, 0, 1);
 
-                    if (Math.Abs(peakD) > tPeak && hessianMatrixXY.Determinant() > 0)
+                    if (Math.Abs(peakD) > tPeak && hessianMatrix2D.Determinant() > 0)
                     {
-                        var dxx = hessianMatrixXY.At(0, 0);
-                        var dyy = hessianMatrixXY.At(1, 1);
-
-                        var alpha = (dxx + dyy * dxx + dyy) / hessianMatrixXY.Determinant();
+                        var alpha = Math.Pow(hessianMatrix2D.Trace(), 2) / hessianMatrix2D.Determinant();
                         if (alpha <= maxAlpha)
-                            dk = (p, q, u + (int)dx, v + (int)dy);
+                            kPrime = k + new KeyPoint(0, 0, (int)Math.Round(dx), (int)Math.Round(dy));
                     }
                 }
                 else
                 {
-                    var du = Math.Min(1, Math.Max(-1, Math.Round(dx)));
-                    var dv = Math.Min(1, Math.Max(-1, Math.Round(dy)));
-                    k = (p, q, u + (int)du, v + (int)dv);
+                    var uPrime = (int)Math.Min(1, Math.Max(-1, Math.Round(dx)));
+                    var vPrime = (int)Math.Min(1, Math.Max(-1, Math.Round(dy)));
+                    k += new KeyPoint(0, 0, uPrime, vPrime);
                 }
             }
 
             n++;
         }
 
-        return dk;
+        return kPrime;
     }
 
     #endregion
 
     #region Algorithm 7.5
-    private static bool IsInside(Image[][] dogSpace, (int, int, int, int) k, int scaleSteps)
+    private static bool IsInside(Image[][] dogSpace, KeyPoint k, int scaleSteps)
     {
-        var (p,q,u,v) = k;
+        var (p, q, u, v) = k;
 
         if (q < 1 || q > scaleSteps + 1)
             return false;
@@ -145,9 +174,9 @@ public static class KeyPointSelection
         return 0 < u && u < m - 1 && 0 < v && v < n - 1;
     }
 
-    private static byte[,,] GetNeighborHood(Image[][] dogSpace, int p, int q, int u, int v)
+    private static byte[,,] GetNeighborHood(Image[][] dogSpace, KeyPoint keyPoint)
     {
-
+        var (p, q, u, v) = keyPoint;
         var neighborhood = new byte[3, 3, 3];
 
         for (var i = -1; i < 2; i++)
@@ -221,34 +250,33 @@ public static class KeyPointSelection
     }
     #endregion
 
-    #region Helper Functions
-
-    private static Vector<double> TransposeVector(Vector<double> vector)
-    {
-        var matrix = vector.ToColumnMatrix();
-        var transposedMatrix = matrix.Transpose();
-        var transposedVector = transposedMatrix.Column(0);
-
-        return transposedVector;
-    }
-    #endregion
-
     #region Testing
 
-    private static Bitmap DrawKeypoint(byte[,] input, List<(int?, int?, int?, int?)> keypoints)
+    public static Bitmap DrawKeypoint(byte[,] input)
     {
         var width = input.GetLength(0);
         var height = input.GetLength(1);
 
+        var keyPoints = GetSiftFeatures(new()
+        {
+            Input = new(input)
+        });
+
         var output = new Bitmap(width, height);
         var newColor = Color.FromArgb(255, 0, 160);
 
-        foreach (var keypoint in keypoints)
+        foreach (var keypoint in keyPoints)
         {
-            //output.SetPixel(keypoint.Item1, keypoint.Item2, newColor);
+            if (keypoint.U < 0 || keypoint.U >= width)
+                continue;
+
+            if (keypoint.V < 0 || keypoint.V >= height)
+                continue;
+
+            output.SetPixel(keypoint.U, keypoint.V, newColor);
         }
 
-        throw new NotImplementedException();
+        return output;
     }
 
     #endregion

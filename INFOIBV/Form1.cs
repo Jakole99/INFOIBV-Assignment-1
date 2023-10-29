@@ -222,8 +222,7 @@ public partial class Form1 : Form
                 aForm.ShowDialog();
                 return Hough.HoughTransformAngleLimits(input, aForm.LowerAngle, aForm.UpperAngle).ToBitmap();
             case ModeType.SIFT:
-                //SiftDoG(input);
-                return ;
+                return KeyPointSelection.DrawKeypoint(input);
             default:
                 return input.ToBitmap();
         }
