@@ -222,6 +222,7 @@ public partial class Form1 : Form
                 aForm.ShowDialog();
                 return Hough.HoughTransformAngleLimits(input, aForm.LowerAngle, aForm.UpperAngle).ToBitmap();
             case ModeType.SIFT:
+                SiftDoG(input);
                 return KeyPointSelection.DrawKeypoint(input);
             default:
                 return input.ToBitmap();
@@ -230,10 +231,11 @@ public partial class Form1 : Form
 
     private static void SiftDoG(byte[,] input)
     {
-        var parameters = new SiftScaleSpace.Parameters { Input = new(input) };
-        var output = SiftScaleSpace.Build(parameters);
+        var image = new SIFT.Image(input);
+        var output = KeyPointSelection.BuildSiftScaleSpace(image);
 
-        for (var i = 0; i < parameters.OctaveCount; i++)
+        const int octaveCount = 4;
+        for (var i = 0; i < octaveCount; i++)
         {
             var doGForm = new DoGTest();
             doGForm.G1.Image = output.GaussianOctaves[i][1].Bytes.ToBitmap();
