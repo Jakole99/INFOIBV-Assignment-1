@@ -26,8 +26,8 @@ public static class KeyPointSelection
     private const int n_Smooth = 2;
     private const double reMax = 10.0;
     private const double t_DomOr = 0.8;
-    private const double t_Mag = 0.01;
-    private const double t_Peak = 0.01;
+    private const double t_Mag = 11.0; //0.01 <- lager wordt nooit gehaald 
+    private const double t_Peak = 11.0; //0.01 <- lager wordt nooit gehaald
 
     // Feature descriptor
     private const int n_Spat = 4;
@@ -228,7 +228,7 @@ public static class KeyPointSelection
 
         for (var p = 0; p < P; p++)      ////////
         {
-            for (var q = 1; q < Q - 1; q++)       //////////   
+            for (var q = 1; q < Q + 1 ; q++)       //////////   
             {
                 var extrema = FindExtrema(dogSpace, p, q);
 
@@ -302,6 +302,7 @@ public static class KeyPointSelection
                     done = true;
                     var peakD = neighborHood[1, 1, 1] + 0.5 * gradient * d;
                     var hessianMatrix2D = hessianMatrix.SubMatrix(0, 2, 0, 2);
+
 
                     if (Math.Abs(peakD) > t_Peak && hessianMatrix2D.Determinant() > 0)
                     {
@@ -708,30 +709,6 @@ public static class KeyPointSelection
     #endregion
 
     #region Testing
-    public static Image[][] MakeDogImages(ImageS[][] dogOctaves)
-    {
-        var dogOctavesImage = new Image[P][];
-        
-        for (var p = 0; p < P; p++)
-        {
-            dogOctavesImage[p] = MakeDogOctaveImage(dogOctaves[p],Q);
-        }
-
-        return dogOctavesImage;
-    }
-
-    private static Image[] MakeDogOctaveImage(ImageS[] dogs, int scaleSteps)
-    {
-        var dogsImages = new Image[scaleSteps + 2];
-
-        for (var q = 1; q < scaleSteps+1; q++)
-        {
-            dogsImages[q] = new ImageS().Visualize(dogs[q]);
-        }
-
-        return dogsImages;
-    }
-
     private static List<KeyPoint> GetSiftKeyPoints(Image input)
     {
         var scaleSpace = BuildSiftScaleSpace(input, false);
@@ -754,11 +731,11 @@ public static class KeyPointSelection
         // TODO: Draw after the big DEBUG hell
         foreach (var keyPoint in keyPoints)
         {
-            var (_, q, xS, yS) = keyPoint;
+            var (p, _, xS, yS) = keyPoint;
 
             //return to normal scale
-            var x = (int)(xS * Math.Pow(2, q));
-            var y = (int)(yS * Math.Pow(2, q));
+            var x = (int)(xS * Math.Pow(2, p));
+            var y = (int)(yS * Math.Pow(2, p));
 
             if (x < 0 || x >= width)
                 continue;
@@ -772,5 +749,31 @@ public static class KeyPointSelection
         return output;
     }
 
+    #endregion
+
+    #region HelperFunctions
+    public static Image[][] MakeDogImages(ImageS[][] dogOctaves)
+    {
+        var dogOctavesImage = new Image[P][];
+
+        for (var p = 0; p < P; p++)
+        {
+            dogOctavesImage[p] = MakeDogOctaveImage(dogOctaves[p], Q);
+        }
+
+        return dogOctavesImage;
+    }
+
+    private static Image[] MakeDogOctaveImage(ImageS[] dogs, int scaleSteps)
+    {
+        var dogsImages = new Image[scaleSteps + 2];
+
+        for (var q = 1; q < scaleSteps + 1; q++)
+        {
+            dogsImages[q] = new ImageS().Visualize(dogs[q]);
+        }
+
+        return dogsImages;
+    }
     #endregion
 }
