@@ -9,5 +9,6 @@ public enum ModeType
     HoughPeaks,
     HoughVisualization,
     HoughTransformAngleLimits,
-    SIFT
+    SIFT,
+
 }

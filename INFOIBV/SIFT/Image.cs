@@ -9,7 +9,7 @@ public readonly struct Image
         Bytes = bytes;
     }
 
-    public static Image operator -(Image a, Image b)
+    public static ImageS operator -(Image a, Image b)
     {
         var width = a.Bytes.GetLength(0);
         var height = a.Bytes.GetLength(1);
@@ -31,29 +31,7 @@ public readonly struct Image
             }
         }
 
-        var output = new byte[width, height];
-
-        if (max - min == 0)
-        {
-            for (var v = 0; v < height; v++)
-            {
-                for (var u = 0; u < width; u++)
-                {
-                    output[u, v] = (byte)difference[u, v];
-                }
-            }
-
-            return new(output);
-        }
-
-        for (var v = 0; v < height; v++)
-        {
-            for (var u = 0; u < width; u++)
-            {
-                output[u, v] = (byte)((difference[u, v] - min) * Byte.MaxValue / (max - min));
-            }
-        }
-
-        return new(output);
+        return new ImageS(difference, max, min);
     }
+
 }

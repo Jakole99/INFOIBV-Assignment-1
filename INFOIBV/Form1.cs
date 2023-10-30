@@ -222,17 +222,20 @@ public partial class Form1 : Form
                 aForm.ShowDialog();
                 return Hough.HoughTransformAngleLimits(input, aForm.LowerAngle, aForm.UpperAngle).ToBitmap();
             case ModeType.SIFT:
-                SiftDoG(input);
+                SiftDoG(input, false);
                 return KeyPointSelection.DrawKeypoint(input);
             default:
                 return input.ToBitmap();
         }
     }
 
-    private static void SiftDoG(byte[,] input)
+    private static void SiftDoG(byte[,] input, bool visualize)
     {
+        if (!visualize)
+            return;
+        
         var image = new SIFT.Image(input);
-        var output = KeyPointSelection.BuildSiftScaleSpace(image);
+        var output = KeyPointSelection.BuildSiftScaleSpace(image, visualize);
 
         const int octaveCount = 4;
         for (var i = 0; i < octaveCount; i++)
@@ -243,9 +246,9 @@ public partial class Form1 : Form
             doGForm.G3.Image = output.GaussianOctaves[i][3].Bytes.ToBitmap();
             doGForm.G4.Image = output.GaussianOctaves[i][4].Bytes.ToBitmap();
 
-            doGForm.D1.Image = output.DifferenceOfGaussiansOctaves[i][1].Bytes.ToBitmap();
-            doGForm.D2.Image = output.DifferenceOfGaussiansOctaves[i][2].Bytes.ToBitmap();
-            doGForm.D3.Image = output.DifferenceOfGaussiansOctaves[i][3].Bytes.ToBitmap();
+            doGForm.D1.Image = output.DifferenceOfGaussiansOctavesByte[i][1].Bytes.ToBitmap();
+            doGForm.D2.Image = output.DifferenceOfGaussiansOctavesByte[i][2].Bytes.ToBitmap();
+            doGForm.D3.Image = output.DifferenceOfGaussiansOctavesByte[i][3].Bytes.ToBitmap();
             doGForm.ShowDialog();
         }
     }

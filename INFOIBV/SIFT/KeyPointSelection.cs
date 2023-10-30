@@ -1,5 +1,6 @@
 ﻿using INFOIBV.Filters;
 using INFOIBV.Framework;
+using INFOIBV.InputForms;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace INFOIBV.SIFT;
@@ -100,10 +101,10 @@ public static class KeyPointSelection
 
     #region Algorithm 7.2
 
-    public static ScaleSpace BuildSiftScaleSpace(Image input)
+    public static ScaleSpace BuildSiftScaleSpace(Image input, bool visualize)
     {
         var gaussianOctaves = new Image[P][];
-        var dogOctaves = new Image[P][];
+        var dogOctaves = new ImageS[P][];
 
         var initialAbsScale = sigma_0 * Math.Pow(2, (float)-1 / Q);
         var initialRelScale = Math.Sqrt(initialAbsScale * initialAbsScale - sigma_s * sigma_s);
@@ -125,7 +126,8 @@ public static class KeyPointSelection
         return new()
         {
             GaussianOctaves = gaussianOctaves,
-            DifferenceOfGaussiansOctaves = dogOctaves
+            DifferenceOfGaussiansOctaves = dogOctaves,
+            DifferenceOfGaussiansOctavesByte = visualize ? MakeDogImages(dogOctaves) : null,
         };
     }
 
@@ -133,7 +135,9 @@ public static class KeyPointSelection
     {
         public Image[][] GaussianOctaves { get; init; }
 
-        public Image[][] DifferenceOfGaussiansOctaves { get; init; }
+        public ImageS[][] DifferenceOfGaussiansOctaves { get; init; }
+
+        public Image[][] DifferenceOfGaussiansOctavesByte { get; init; }
     }
 
     private static Image[] MakeGaussianOctave(Image input, int scaleSteps, double referenceScale)
@@ -151,9 +155,9 @@ public static class KeyPointSelection
         return gaussians;
     }
 
-    private static Image[] MakeDogOctave(Image[] gaussians, int scaleSteps)
+    private static ImageS[] MakeDogOctave(Image[] gaussians, int scaleSteps)
     {
-        var dogs = new Image[scaleSteps + 2];
+        var dogs = new ImageS[scaleSteps + 2];
 
         for (var q = -1; q < scaleSteps + 1; q++)
         {
@@ -197,7 +201,7 @@ public static class KeyPointSelection
 
     public static List<KeyDescriptor> GetSiftFeatures(Image input)
     {
-        var scaleSpace = BuildSiftScaleSpace(input);
+        var scaleSpace = BuildSiftScaleSpace(input, false);
 
         var keyPoints = GetKeyPoints(scaleSpace.DifferenceOfGaussiansOctaves);
 
@@ -217,13 +221,13 @@ public static class KeyPointSelection
         return descriptors;
     }
 
-    private static List<KeyPoint> GetKeyPoints(Image[][] dogSpace)
+    private static List<KeyPoint> GetKeyPoints(ImageS[][] dogSpace)
     {
         var keyPoints = new List<KeyPoint>();
 
-        for (var p = 1; p < P; p++)
+        for (var p = 0; p < P; p++)      ////////
         {
-            for (var q = 1; q < Q; q++)
+            for (var q = 1; q < Q - 1; q++)       //////////   
             {
                 var extrema = FindExtrema(dogSpace, p, q);
 
@@ -236,12 +240,17 @@ public static class KeyPointSelection
             }
         }
 
+        foreach (var keyPoint in keyPoints)
+        {
+            continue;
+        }
+
         return keyPoints;
     }
 
-    private static List<KeyPoint> FindExtrema(Image[][] dogSpace, int p, int q)
+    private static List<KeyPoint> FindExtrema(ImageS[][] dogSpace, int p, int q)
     {
-        var layer = dogSpace[p][q].Bytes;
+        var layer = dogSpace[p][q].Ints;
         var m = layer.GetLength(0);
         var n = layer.GetLength(1);
 
@@ -269,7 +278,7 @@ public static class KeyPointSelection
 
     #region Algorithm 7.4
 
-    private static KeyPoint? RefineKeyPosition(Image[][] dogSpace, KeyPoint k)
+    private static KeyPoint? RefineKeyPosition(ImageS[][] dogSpace, KeyPoint k)
     {
         var maxAlpha = Math.Pow(reMax + 1, 2) / reMax;
         KeyPoint? kPrime = null;
@@ -296,7 +305,7 @@ public static class KeyPointSelection
                 {
                     done = true;
                     var peakD = neighborHood[1, 1, 1] + 0.5 * gradient * d;
-                    var hessianMatrix2D = hessianMatrix.SubMatrix(0, 1, 0, 1);
+                    var hessianMatrix2D = hessianMatrix.SubMatrix(0, 2, 0, 2);
 
                     if (Math.Abs(peakD) > t_Peak && hessianMatrix2D.Determinant() > 0)
                     {
@@ -323,24 +332,24 @@ public static class KeyPointSelection
 
     #region Algorithm 7.5
 
-    private static bool IsInside(Image[][] dogSpace, KeyPoint k)
+    private static bool IsInside(ImageS[][] dogSpace, KeyPoint k)
     {
         var (p, q, u, v) = k;
 
-        if (q is < 1 or > Q + 1)
+        if (q is < 1 or > Q + 1)                  ////////
             return false;
 
-        var layer = dogSpace[p][q].Bytes;
+        var layer = dogSpace[p][q].Ints;
         var m = layer.GetLength(0);
         var n = layer.GetLength(1);
 
         return 0 < u && u < m - 1 && 0 < v && v < n - 1;
     }
 
-    private static byte[,,] GetNeighborHood(Image[][] dogSpace, KeyPoint keyPoint)
+    private static int[,,] GetNeighborHood(ImageS[][] dogSpace, KeyPoint keyPoint)
     {
         var (p, q, u, v) = keyPoint;
-        var neighborhood = new byte[3, 3, 3];
+        var neighborhood = new int[3, 3, 3];
 
         for (var i = -1; i < 2; i++)
         {
@@ -352,7 +361,7 @@ public static class KeyPointSelection
                     var dv = v + j;
                     var dq = q + k;
 
-                    var layer = dogSpace[p][dq].Bytes;
+                    var layer = dogSpace[p][dq].Ints;
 
                     neighborhood[i + 1, j + 1, k + 1] = layer[du, dv];
                 }
@@ -362,7 +371,7 @@ public static class KeyPointSelection
         return neighborhood;
     }
 
-    private static bool IsExtremum(byte[,,] neighborHood)
+    private static bool IsExtremum(int[,,] neighborHood)
     {
         var c = neighborHood[1, 1, 1];
 
@@ -387,7 +396,7 @@ public static class KeyPointSelection
         return isMin || isMax;
     }
 
-    private static Vector<double> Gradient(byte[,,] n)
+    private static Vector<double> Gradient(int[,,] n)
     {
         var dx = 0.5 * (n[2, 1, 1] - n[0, 1, 1]);
         var dy = 0.5 * (n[1, 2, 1] - n[1, 0, 1]);
@@ -395,7 +404,7 @@ public static class KeyPointSelection
         return Vector<double>.Build.Dense(new[] { dx, dy, dz });
     }
 
-    private static Matrix<double> Hessian(byte[,,] n)
+    private static Matrix<double> Hessian(int[,,] n)
     {
         var dxx = n[0, 1, 1] - 2 * n[1, 1, 1] + n[2, 1, 1];
         var dyy = n[1, 0, 1] - 2 * n[1, 1, 1] + n[1, 2, 1];
@@ -703,19 +712,60 @@ public static class KeyPointSelection
     #endregion
 
     #region Testing
+    public static Image[][] MakeDogImages(ImageS[][] dogOctaves)
+    {
+        var dogOctavesImage = new Image[P][];
+        
+        for (var p = 0; p < P; p++)
+        {
+            dogOctavesImage[p] = MakeDogOctaveImage(dogOctaves[p],Q);
+        }
+
+        return dogOctavesImage;
+    }
+
+    private static Image[] MakeDogOctaveImage(ImageS[] dogs, int scaleSteps)
+    {
+        var dogsImages = new Image[scaleSteps + 2];
+
+        for (var q = 1; q < scaleSteps+1; q++)
+        {
+            dogsImages[q] = new ImageS().Visualize(dogs[q]);
+        }
+
+        return dogsImages;
+    }
+
+    private static List<KeyPoint> GetSiftKeyPoints(Image input)
+    {
+        var scaleSpace = BuildSiftScaleSpace(input, false);
+
+        var keyPoints = GetKeyPoints(scaleSpace.DifferenceOfGaussiansOctaves);
+
+        return keyPoints;
+    }
 
     public static Bitmap DrawKeypoint(byte[,] input)
     {
         var width = input.GetLength(0);
         var height = input.GetLength(1);
 
-        var keyPoints = GetSiftFeatures(new(input));
+        var keyPoints = GetSiftKeyPoints(new(input));
 
         var output = input.ToBitmap();
         var newColor = Color.FromArgb(255, 0, 160);
 
         // TODO: Draw after the big DEBUG hell
-        throw new NotImplementedException();
+        foreach (var keyPoint in keyPoints)
+        {
+            var (_, q, xS, yS) = keyPoint;
+
+            //return to normal scale
+            //var x = xS * Math.Pow(2, q);
+            //var y = yS * Math.Pow(2, q);
+
+            output.SetPixel((int)xS, (int)yS, newColor);
+        }
 
         return output;
     }
