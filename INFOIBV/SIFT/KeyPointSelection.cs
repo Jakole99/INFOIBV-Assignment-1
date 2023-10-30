@@ -2,6 +2,7 @@
 using INFOIBV.Framework;
 using INFOIBV.InputForms;
 using MathNet.Numerics.LinearAlgebra;
+using static INFOIBV.SIFT.KeyPointSelection;
 
 namespace INFOIBV.SIFT;
 
@@ -240,11 +241,6 @@ public static class KeyPointSelection
             }
         }
 
-        foreach (var keyPoint in keyPoints)
-        {
-            continue;
-        }
-
         return keyPoints;
     }
 
@@ -260,7 +256,7 @@ public static class KeyPointSelection
         {
             for (var v = 1; v < n - 1; v++)
             {
-                if (!(layer[u, v] > t_Mag))
+                if (!(Math.Abs(layer[u, v]) > t_Mag))
                     continue;
 
                 var k = new KeyPoint(p, q, u, v);
@@ -761,10 +757,16 @@ public static class KeyPointSelection
             var (_, q, xS, yS) = keyPoint;
 
             //return to normal scale
-            //var x = xS * Math.Pow(2, q);
-            //var y = yS * Math.Pow(2, q);
+            var x = (int)(xS * Math.Pow(2, q));
+            var y = (int)(yS * Math.Pow(2, q));
 
-            output.SetPixel((int)xS, (int)yS, newColor);
+            if (x < 0 || x >= width)
+                continue;
+
+            if (y < 0 || y >= height)
+                continue;
+
+            output.SetPixel(x, y, newColor);
         }
 
         return output;
