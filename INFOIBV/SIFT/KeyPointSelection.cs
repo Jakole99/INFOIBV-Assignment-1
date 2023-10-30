@@ -27,7 +27,7 @@ public static class KeyPointSelection
     private const int n_Smooth = 2;
     private const double reMax = 10.0;
     private const double t_DomOr = 0.8;
-    private const double t_Mag = 11.0; //0.01 <- lager wordt nooit gehaald 
+    private const double t_Mag = 15.0; //0.01 <- lager wordt nooit gehaald 
     private const double t_Peak = 11.0; //0.01 <- lager wordt nooit gehaald
 
     // Feature descriptor
@@ -796,7 +796,7 @@ public static class KeyPointSelection
 
         foreach (var keyDescriptor in keyDescriptors)
         {
-            var (x, y, sigma, theta, f) = keyDescriptor;
+            var (x, y, scale, theta, f) = keyDescriptor;
 
             if (x < 0 || x >= width)
                 continue;
@@ -804,7 +804,7 @@ public static class KeyPointSelection
             if (y < 0 || y >= height)
                 continue;
 
-            DrawThetaDirection(output, x, y, theta);
+            DrawThetaDirection(output, x, y, theta, scale);
             output.SetPixel(x, y, newColor);
         }
 
@@ -838,17 +838,19 @@ public static class KeyPointSelection
         return dogsImages;
     }
 
-    public static void DrawThetaDirection(Bitmap bitmap, int x, int y, double theta)
+    public static void DrawThetaDirection(Bitmap bitmap, int x, int y, double theta, double scale)
     {
         // Draw line to screen.
         using var graphics = Graphics.FromImage(bitmap);
 
-        var length = 9;
+        var length = scale;
         var xE = x + (int)(length * Math.Cos(theta));
         var yE = y + (int)(length * Math.Sin(theta));
 
-        var pen = new Pen(Color.FromArgb(255, 0, 200, 255), 1);
-        graphics.DrawLine(pen, x, y, xE, yE);
+        var penLine = new Pen(Color.FromArgb(255, 0, 200, 255), 1);
+        var penCirlce = new Pen(Color.FromArgb(255, 0, 200, 100), 1);
+        graphics.DrawEllipse(penCirlce, (float)(x - scale), (float)(y - scale), (float)(2 * scale), (float)(2 * scale));
+        graphics.DrawLine(penLine, x, y, xE, yE);
     }
     #endregion
 }
