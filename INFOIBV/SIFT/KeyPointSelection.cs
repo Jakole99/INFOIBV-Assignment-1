@@ -2,6 +2,7 @@
 using INFOIBV.Framework;
 using INFOIBV.InputForms;
 using MathNet.Numerics.LinearAlgebra;
+using System.Drawing;
 using static INFOIBV.SIFT.KeyPointSelection;
 
 namespace INFOIBV.SIFT;
@@ -97,6 +98,15 @@ public static class KeyPointSelection
             Sigma = sigma;
             Theta = theta;
             FeatureVector = featureVector;
+        }
+
+        public void Deconstruct(out int x, out int y, out double sigma, out double theta, out byte[] featureVector)
+        {
+            x = X; 
+            y = Y;
+            sigma = Sigma;
+            theta = Theta;
+            featureVector = FeatureVector;
         }
     }
 
@@ -587,6 +597,10 @@ public static class KeyPointSelection
 
                 var (r, phi) = GetGradientPolar(gaussian.Bytes, u, v);
                 var phiPrime = (phi - theta) % (2 * Math.PI);
+                if (phiPrime < 0)                                                                   //////
+                {
+                    phiPrime += 2 * Math.PI;
+                }
                 var wg = Math.Exp(-r2 / (2 * sd * sd));
                 var z = r * wg;
                 UpdateGradientHistogram(h, uPrime, vPrime, phiPrime, z);
@@ -606,9 +620,10 @@ public static class KeyPointSelection
 
     private static void UpdateGradientHistogram(double[,,] h, double uPrime, double vPrime, double phiPrime, double z)
     {
-        var iPrime = n_Spat * uPrime + 0.5 * (n_Spat - 1);
+        var iPrime = n_Spat * uPrime + 0.5 * (n_Spat - 1); 
         var jPrime = n_Spat * vPrime + 0.5 * (n_Spat - 1);
-        var kPrime = n_Angl * (phiPrime / (2 * Math.PI));
+        var kPrime = n_Angl * (phiPrime / (2 * Math.PI));   
+
         var i = new int[2];
         i[0] = (int)Math.Floor(iPrime);
         i[1] = i[0] + 1;
@@ -618,7 +633,7 @@ public static class KeyPointSelection
         j[1] = j[0] + 1;
 
         var k = new int[2];
-        k[0] = (int)Math.Floor(kPrime) % n_Angl;
+        k[0] = (int)(Math.Floor(kPrime) % n_Angl);
         k[1] = (k[0] + 1) % n_Angl;
 
         var alpha = new double[2];
@@ -733,7 +748,6 @@ public static class KeyPointSelection
         var output = input.ToBitmap();
         var newColor = Color.FromArgb(255, 0, 160);
 
-        // TODO: Draw after the big DEBUG hell
         foreach (var keyPoint in keyPoints)
         {
             var (p, _, xS, yS) = keyPoint;
@@ -754,7 +768,6 @@ public static class KeyPointSelection
         return output;
     }
 
-
     public static void GetSiftDominantOrientation(Image input)
     {
         var scaleSpace = BuildSiftScaleSpace(input, false);
@@ -771,11 +784,37 @@ public static class KeyPointSelection
         }
     }
 
+    public static Bitmap DrawFeatures(byte[,] input)
+    {
+        var width = input.GetLength(0);
+        var height = input.GetLength(1);
+
+        var keyDescriptors = GetSiftFeatures(new(input));
+
+        var output = input.ToBitmap();
+        var newColor = Color.FromArgb(255, 0, 160);
+
+        foreach (var keyDescriptor in keyDescriptors)
+        {
+            var (x, y, sigma, theta, f) = keyDescriptor;
+
+            if (x < 0 || x >= width)
+                continue;
+
+            if (y < 0 || y >= height)
+                continue;
+
+            DrawThetaDirection(output, x, y, theta);
+            output.SetPixel(x, y, newColor);
+        }
+
+        return output;
+    }
+
     #endregion
-    
 
     #region HelperFunctions
-        public static Image[][] MakeDogImages(ImageS[][] dogOctaves)
+    public static Image[][] MakeDogImages(ImageS[][] dogOctaves)
     {
         var dogOctavesImage = new Image[P][];
 
@@ -797,6 +836,19 @@ public static class KeyPointSelection
         }
 
         return dogsImages;
+    }
+
+    public static void DrawThetaDirection(Bitmap bitmap, int x, int y, double theta)
+    {
+        // Draw line to screen.
+        using var graphics = Graphics.FromImage(bitmap);
+
+        var length = 9;
+        var xE = x + (int)(length * Math.Cos(theta));
+        var yE = y + (int)(length * Math.Sin(theta));
+
+        var pen = new Pen(Color.FromArgb(255, 0, 200, 255), 1);
+        graphics.DrawLine(pen, x, y, xE, yE);
     }
     #endregion
 }
