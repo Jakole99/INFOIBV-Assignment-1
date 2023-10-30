@@ -223,10 +223,17 @@ public partial class Form1 : Form
                 return Hough.HoughTransformAngleLimits(input, aForm.LowerAngle, aForm.UpperAngle).ToBitmap();
             case ModeType.SIFT:
                 SiftDoG(input, false);
-                return KeyPointSelection.DrawKeypoint(input);
+                return Test(input);
             default:
                 return input.ToBitmap();
         }
+    }
+
+    private Bitmap Test(byte[,] input)
+    {
+        KeyPointSelection.GetSiftDominantOrientation(new SIFT.Image(input));
+
+        return input.ToBitmap();
     }
 
     private static void SiftDoG(byte[,] input, bool visualize)

@@ -458,15 +458,15 @@ public static class KeyPointSelection
         var peakOrientations = new List<double>();
         var hMax = h.Max();
 
-        for (var k = 0; k < n; k++)
+        for (var k = 1; k < n; k++)                         ////
         {
-            var hc = h[0];
+            var hc = h[k];
 
             if (!(hc > t_DomOr * hMax))
                 continue;
 
-            var hp = h[(k - 1) % n];
-            var hn = h[(k + 1) % n];
+            var hp = h[(k - 1) % n];                    ////
+            var hn = h[(k + 1) % n];                    ////
 
             if (!(hc > hp) || !(hc > hn))
                 continue;
@@ -490,9 +490,9 @@ public static class KeyPointSelection
         var gaussian = gaussians[p][q].Bytes;
         var m = gaussian.GetLength(0);
         var n = gaussian.GetLength(1);
-        var h = new double[n_Orient];
+        var h = new double[n_Orient+2];                 /////
 
-        var sw = 1.5 * sigma_0 * Math.Pow(2, (double)p / Q);
+        var sw = 1.5 * sigma_0 * Math.Pow(2, (double)q / Q);
         var rw = Math.Max(1, 2.5 * sw);
         var uMin = (int)Math.Max(Math.Floor(x - rw), 1);
         var uMax = (int)Math.Min(Math.Ceiling(x + rw), m - 2);
@@ -507,15 +507,20 @@ public static class KeyPointSelection
                 if (r2 >= rw * rw)
                     continue;
 
-                var (r, phi) = GetGradientPolar(gaussian, u, v);
+                var (r, phi) = GetGradientPolar(gaussian, u, v);  ////
                 var wg = Math.Exp(-(Math.Pow(u - x, 2) + Math.Pow(v - y, 2)) / (2 * sw * sw));
                 var z = r * wg;
                 var kPhi = n_Orient * (phi / (2 * Math.PI));
                 var alpha = kPhi - Math.Floor(kPhi);
+
                 var k0 = (int)Math.Floor(kPhi) % n_Orient;
+                var k0Indexed = k0 + n_Orient/2;   ////
+
                 var k1 = (k0 + 1) % n_Orient;
-                h[k0] += (1 - alpha) * z;
-                h[k1] += alpha * z;
+                var k1Indexed = k1 + n_Orient/2;   ////
+
+                h[k0Indexed] += (1 - alpha) * z;
+                h[k1Indexed] += alpha * z;
             }
         }
 
@@ -749,10 +754,28 @@ public static class KeyPointSelection
         return output;
     }
 
+
+    public static void GetSiftDominantOrientation(Image input)
+    {
+        var scaleSpace = BuildSiftScaleSpace(input, false);
+
+        var keyPoints = GetKeyPoints(scaleSpace.DifferenceOfGaussiansOctaves);
+
+        var listOfDominantOrientations = new List<List<Double>>();
+
+        foreach (var keyPoint in keyPoints)
+        {
+            var dominantOrientations = GetDominantOrientations(scaleSpace.GaussianOctaves, keyPoint);
+            if (dominantOrientations.Count > 0)
+                listOfDominantOrientations.Add(dominantOrientations);
+        }
+    }
+
     #endregion
+    
 
     #region HelperFunctions
-    public static Image[][] MakeDogImages(ImageS[][] dogOctaves)
+        public static Image[][] MakeDogImages(ImageS[][] dogOctaves)
     {
         var dogOctavesImage = new Image[P][];
 
