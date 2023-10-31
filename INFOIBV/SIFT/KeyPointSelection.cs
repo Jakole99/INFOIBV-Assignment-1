@@ -108,6 +108,39 @@ public static class KeyPointSelection
             theta = Theta;
             featureVector = FeatureVector;
         }
+
+    }
+
+    public readonly struct DescriptorMatch
+    {
+        public KeyDescriptor S1 { get; }
+
+        public KeyDescriptor S2 { get; }
+
+        public double Distance { get; }
+
+        public DescriptorMatch(KeyDescriptor s1, KeyDescriptor s2, double dist)
+        {
+            S1 = s1;
+            S2 = s2;
+            Distance = dist;
+        }
+
+        public void Deconstruct(out KeyDescriptor s1, out KeyDescriptor s2, out double dist)
+        {
+            s1 = S1;
+            s2 = S2;
+            dist = Distance;
+        }
+
+    }
+
+    public readonly struct DescriptorMatchComparer : IComparer<DescriptorMatch>
+    {
+        public int Compare(DescriptorMatch a, DescriptorMatch b)
+        {
+            return a.Distance.CompareTo(b.Distance);
+        }
     }
 
     #region Algorithm 7.2
@@ -728,6 +761,67 @@ public static class KeyPointSelection
 
     #endregion
 
+    #region Algorithm 7.11
+
+    public static List<DescriptorMatch> MatchDescriptors(List<KeyDescriptor> sA, List<KeyDescriptor> sB)
+    {
+        var matchList = new List<DescriptorMatch>();
+
+        foreach (var si in sA)
+        {
+            KeyDescriptor? s1 = null;
+            var dr1 = double.PositiveInfinity;
+
+            KeyDescriptor? s2 = null;
+            var dr2 = double.PositiveInfinity;
+
+            foreach (var sj in sB)
+            {
+                var d = Dist(si, sj);
+                if (d < dr1)
+                {
+                    s2 = s1;
+                    dr2 = dr1;
+                    s1 = sj;
+                    dr1 = d;
+                }
+                else
+                {
+                    if (d < dr2)
+                    {
+                        s2 = sj;
+                        dr2 = d;
+                    }
+                }
+            }
+
+            if (s2 != null && (dr1 / dr2) <= rmMax)
+            {
+                matchList.Add(new DescriptorMatch(si,(KeyDescriptor)s1,dr1));
+            }
+        }
+        matchList.Sort(new DescriptorMatchComparer());
+        return matchList;
+    }
+
+    private static double Dist(KeyDescriptor sa, KeyDescriptor sb)
+    {
+        var (_, _, _, _, fa) = sa;
+        var (_, _, _, _, fb) = sb;
+
+        var n = fa.Length;
+        var sum = 0.0;
+
+        for (var i = 0; i < n; i++)
+        {
+            sum += Math.Pow(fa[i] - fb[i], 2);
+        }
+
+        return Math.Sqrt(sum);
+    }
+
+    #endregion
+
     #region Testing
     private static List<KeyPoint> GetSiftKeyPoints(Image input)
     {
@@ -809,6 +903,14 @@ public static class KeyPointSelection
         }
 
         return output;
+    }
+
+    public static void MatchFeatures(byte[,] input)
+    {
+        var keyDescriptors = GetSiftFeatures(new(input));
+
+        //Test the matching with the same image.
+        MatchDescriptors(keyDescriptors, keyDescriptors);
     }
 
     #endregion

@@ -231,7 +231,9 @@ public partial class Form1 : Form
 
     private Bitmap Test(byte[,] input)
     {
-        return KeyPointSelection.DrawFeatures(input);
+        //return KeyPointSelection.DrawFeatures(input);
+        KeyPointSelection.MatchFeatures(input);
+        return input.ToBitmap();
     }
 
     private static void SiftDoG(byte[,] input, bool visualize)
