@@ -111,7 +111,7 @@ public static class KeyPointSelection
 
     }
 
-    public readonly struct DescriptorMatch
+    public readonly struct DescriptorMatch 
     {
         public KeyDescriptor S1 { get; }
 
@@ -132,7 +132,6 @@ public static class KeyPointSelection
             s2 = S2;
             dist = Distance;
         }
-
     }
 
     public readonly struct DescriptorMatchComparer : IComparer<DescriptorMatch>
@@ -822,6 +821,52 @@ public static class KeyPointSelection
 
     #endregion
 
+    #region Projective Mapping
+
+    private static Matrix<double> GetTransformationParameters(int x1, int x2, int x3, int x4, int y1, int y2, int y3, int y4)
+    {
+        var a31 = ((x1 - x2 + x3 - x4) * (y4 - y3) - (y1 - y2 + y3 - y4) * (x4 - x3)) /
+                  ((x2 - x3) * (y4 - y3) - (x4 - x3) * (y2 - y3));
+        var a32 = ((y1 - y2 + y3 - y4) * (x2 - x3) - (x1 - x2 + x3 - x4) * (y2 - y3)) /
+                  ((x2 - x3) * (y4 - y3) - (x4 - x3) * (y2 - y3));
+        var a11 = x2 - x1 + a31 * x2;
+        var a12 = x4 - x1 + a32 * x4;
+        var a13 = x1;
+        var a21 = y2 - y1 + a31 * y2;
+        var a22 = y4 - y1 + a32 * y4;
+        var a23= y1;
+        var a33 = 1;
+
+        return Matrix<double>.Build.DenseOfArray(new double[,]
+        {
+            { a11, a12, a13 },
+            { a21, a22, a23 },
+            { a31, a32, a33 }
+        });
+    }
+
+    private static Matrix<double> GetTransformMatrix(List<DescriptorMatch> matches)
+    {
+        var s1X = new int[4];
+        var s1Y = new int[4];
+        var s2X = new int[4];
+        var s2Y = new int[4];
+
+        for (var i = 0; i < 4; i++)
+        {
+            s1X[i] = matches[i].S1.X;
+            s1Y[i] = matches[i].S1.Y;
+            s2X[i] = matches[i].S2.X;
+            s2Y[i] = matches[i].S2.Y;
+        }
+
+        var A1 = GetTransformationParameters(s1X[0], s1X[1], s1X[2], s1X[3], s1Y[0], s1Y[1], s1Y[2], s1Y[3]);
+        var A2 = GetTransformationParameters(s2X[0], s2X[1], s2X[2], s2X[3], s2Y[0], s2Y[1], s2Y[2], s2Y[3]);
+        return A2 * A1.Inverse();
+    }
+ 
+    #endregion
+
     #region Testing
     private static List<KeyPoint> GetSiftKeyPoints(Image input)
     {
@@ -907,16 +952,68 @@ public static class KeyPointSelection
 
     public static void MatchFeatures(byte[,] input)
     {
-        var keyDescriptors = GetSiftFeatures(new(input));
+        var lenaSmall = new Bitmap("Images/lenaSmall.png").ToSingleChannel();
+
+        var keyDescriptorsReference = GetSiftFeatures(new(input));
+        var keyDescriptors = GetSiftFeatures(new(lenaSmall));
 
         //Test the matching with the same image.
-        MatchDescriptors(keyDescriptors, keyDescriptors);
+        var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptors);
+    }
+
+    public static Bitmap DrawBoundingBox(byte[,] input)
+    {
+        var width = input.GetLength(0);
+        var height = input.GetLength(1);
+
+        var lenaSmall = new Bitmap("Images/lenaSmall.png").ToSingleChannel();
+
+        return lenaSmall.ToBitmap();
+        var keyDescriptorsReference = GetSiftFeatures(new(input));
+        var keyDescriptors = GetSiftFeatures(new(lenaSmall));
+
+        var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptors);
+
+        var topMatches = new List<DescriptorMatch>();
+        var count = 0;
+
+        foreach (var match in matches)
+        {
+
+            if (!topMatches.Any(previousMatches => (previousMatches.S1.X == match.S1.X && previousMatches.S1.Y == match.S1.Y) && 
+                                                       (previousMatches.S2.X == match.S2.X && previousMatches.S2.Y == match.S2.Y)))                     // We need 4 different coordinates for the project mapping
+            { 
+                topMatches.Add(match);
+                count++;
+
+                if (count >= 4)
+                    break;
+            }
+        }
+
+        var transformMatrix = GetTransformMatrix(topMatches);
+
+        var (corner1X, corner1Y) = GetTransformedCoordinate(transformMatrix, 0, 0);
+        var (corner2X, corner2Y) = GetTransformedCoordinate(transformMatrix, 255, 0);
+        var (corner3X, corner3Y) = GetTransformedCoordinate(transformMatrix, 0, 255);
+        var (corner4X, corner4Y) = GetTransformedCoordinate(transformMatrix, 255, 255);
+
+        var output = input.ToBitmap();
+        var penLine = new Pen(Color.FromArgb(255, 255, 0, 0), 1);
+        using var graphics = Graphics.FromImage(output);
+        graphics.DrawLine(penLine, corner1X, corner1Y, corner2X, corner2Y);
+        graphics.DrawLine(penLine, corner1X, corner1Y, corner3X, corner3Y);
+        graphics.DrawLine(penLine, corner4X, corner4Y, corner2X, corner2Y);
+        graphics.DrawLine(penLine, corner4X, corner4Y, corner3X, corner3Y);
+
+        return output;
+
     }
 
     #endregion
 
     #region HelperFunctions
-    public static Image[][] MakeDogImages(ImageS[][] dogOctaves)
+    private static Image[][] MakeDogImages(ImageS[][] dogOctaves)
     {
         var dogOctavesImage = new Image[P][];
 
@@ -940,7 +1037,7 @@ public static class KeyPointSelection
         return dogsImages;
     }
 
-    public static void DrawThetaDirection(Bitmap bitmap, int x, int y, double theta, double scale)
+    private static void DrawThetaDirection(Bitmap bitmap, int x, int y, double theta, double scale)
     {
         // Draw line to screen.
         using var graphics = Graphics.FromImage(bitmap);
@@ -954,5 +1051,19 @@ public static class KeyPointSelection
         graphics.DrawEllipse(penCirlce, (float)(x - scale), (float)(y - scale), (float)(2 * scale), (float)(2 * scale));
         graphics.DrawLine(penLine, x, y, xE, yE);
     }
+
+    private static (int, int) GetTransformedCoordinate(Matrix<double> transformMatrix, int x, int y)
+    {
+        var vector = Matrix<double>.Build.DenseOfArray(new double[,]
+        {
+            { x },
+            { y }
+        });
+
+        var transformedVector = transformMatrix * vector;
+
+        return ((int)transformedVector[0,0], (int)transformedVector[1,0]);
+    }
+
     #endregion
 }
