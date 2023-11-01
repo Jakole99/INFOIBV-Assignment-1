@@ -907,6 +907,13 @@ public static class KeyPointSelection
         return output;
     }
 
+    public static Bitmap DrawBothKeypoints(byte[,] input)
+    {
+        var lenaSmall = new Bitmap("Images/lenaSmall.png").ToSingleChannel();
+        new Form1().SetInputImage(DrawKeypoint(lenaSmall));
+        return DrawKeypoint(input);
+    }
+
     public static void GetSiftDominantOrientation(Image input)
     {
         var scaleSpace = BuildSiftScaleSpace(input, false);
@@ -950,44 +957,67 @@ public static class KeyPointSelection
         return output;
     }
 
-    public static void MatchFeatures(byte[,] input)
+    public static void MatchFeatures(byte[,] referenceInput, byte[,] input)
     {
-        var lenaSmall = new Bitmap("Images/lenaSmall.png").ToSingleChannel();
 
-        var keyDescriptorsReference = GetSiftFeatures(new(input));
-        var keyDescriptors = GetSiftFeatures(new(lenaSmall));
+        var keyDescriptorsReference = GetSiftFeatures(new(referenceInput));
+        var keyDescriptors = GetSiftFeatures(new(input));
 
         //Test the matching with the same image.
         var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptors);
+
+        var topMatches = GetTopMatches(matches, 4);
+
     }
 
-    public static Bitmap DrawBoundingBox(byte[,] input)
+    public static (Bitmap, Bitmap) DrawMatchFeatures(byte[,] inputReference, byte[,] input)
+    {
+        var amount = 4; //The amount of matches we want to check
+        var keyDescriptorsReference = GetSiftFeatures(new(inputReference));
+        var keyDescriptors = GetSiftFeatures(new(input));
+
+        //Test the matching with the same image.
+        var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptorsReference);
+
+        var topMatches = GetTopMatches(matches, amount);
+
+        var outputReference = inputReference.ToBitmap();
+        var output = input.ToBitmap();
+
+        //A different main color for each match, for testing purposes
+        var colors = GetColors(amount);
+        var pen= new Pen(Color.FromArgb( 255, 255, 255), 1); 
+        var size = 10;
+        using var gReference = Graphics.FromImage(outputReference);
+        using var g = Graphics.FromImage(outputReference);
+
+        for (int i = 0; i < amount; i++)
+        {
+            var (s1, s2, _) = topMatches[i];
+            pen.Color = colors[i];
+
+            //Draw in the reference
+            var (x1, y1, _, _, _) = s1;
+            gReference.DrawEllipse(pen,x1,y1, size, size);
+
+            //draw in the output
+            var (x2, y2, _, _, _) = s2;
+            g.DrawEllipse(pen, x2, y2, size, size);
+
+        }
+        
+        return (outputReference, output);
+    }
+
+    public static Bitmap DrawBoundingBox(byte[,] referenceImage, byte[,] input)
     {
 
-        var lenaSmall = new Bitmap("Images/lenaSmall.png").ToSingleChannel();
-
-        var keyDescriptorsReference = GetSiftFeatures(new(input));
-        var keyDescriptors = GetSiftFeatures(new(lenaSmall));
+        var keyDescriptorsReference = GetSiftFeatures(new(referenceImage));
+        var keyDescriptors = GetSiftFeatures(new(input));
 
         var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptors);
 
-        var topMatches = new List<DescriptorMatch>();
-        var count = 0;
-
-        foreach (var match in matches)
-        {
-
-            if (!topMatches.Any(previousMatches => (previousMatches.S1.X == match.S1.X && previousMatches.S1.Y == match.S1.Y) && 
-                                                       (previousMatches.S2.X == match.S2.X && previousMatches.S2.Y == match.S2.Y)))                     // We need 4 different coordinates for the project mapping
-            { 
-                topMatches.Add(match);
-                count++;
-
-                if (count >= 4)
-                    break;
-            }
-        }
-
+        var topMatches = GetTopMatches(matches, 4);
         var transformMatrix = GetTransformMatrix(topMatches);
 
         var (corner1X, corner1Y) = GetTransformedCoordinate(transformMatrix, 0, 0);
@@ -995,7 +1025,7 @@ public static class KeyPointSelection
         var (corner3X, corner3Y) = GetTransformedCoordinate(transformMatrix, 0, 255);
         var (corner4X, corner4Y) = GetTransformedCoordinate(transformMatrix, 255, 255);
 
-        var output = lenaSmall.ToBitmap();
+        var output = input.ToBitmap();
         var penLine = new Pen(Color.FromArgb(255, 255, 0, 0), 1);
         using var graphics = Graphics.FromImage(output);
         graphics.DrawLine(penLine, corner1X, corner1Y, corner2X, corner2Y);
@@ -1061,6 +1091,45 @@ public static class KeyPointSelection
         var transformedVector = transformMatrix * vector;
 
         return ((int)transformedVector[0,0], (int)transformedVector[1,0]);
+    }
+
+    private static List<DescriptorMatch> GetTopMatches(List<DescriptorMatch> matches, int amount)
+    {
+        var topMatches = new List<DescriptorMatch>();
+        var count = 0;
+
+        foreach (var match in matches)
+        {
+
+            if (!topMatches.Any(previousMatches => (previousMatches.S1.X == match.S1.X && previousMatches.S1.Y == match.S1.Y) &&
+                                                   (previousMatches.S2.X == match.S2.X && previousMatches.S2.Y == match.S2.Y)))                     // We need 4 different coordinates for the project mapping
+            {
+                topMatches.Add(match);
+                count++;
+
+                if (count >= amount)
+                    break;
+            }
+        }
+
+        return topMatches;
+    }
+
+    private static Color[] GetColors(int amount)
+    {
+        var colors = new Color[amount];
+        int red, green, blue;
+        for (var i = 0; i < amount; i++)
+        {
+            red = (i % 3 == 0) ? 255 : 0;
+            green = ((i + 1) % 3 == 0) ? 255 : 0;
+            blue = ((i + 2) % 3 == 0) ? 255 : 0;
+
+            var newColor = Color.FromArgb(red, green, blue);
+            colors[i] = newColor;
+        }
+
+        return colors;
     }
 
     #endregion

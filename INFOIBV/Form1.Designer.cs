@@ -52,6 +52,8 @@ partial class Form1
         checkBinary = new CheckBox();
         numericSize = new NumericUpDown();
         button1 = new Button();
+        cbDetectionImage = new ComboBox();
+        label4 = new Label();
         ((System.ComponentModel.ISupportInitialize)inputImageBox).BeginInit();
         ((System.ComponentModel.ISupportInitialize)outputImageBox).BeginInit();
         ((System.ComponentModel.ISupportInitialize)numericSize).BeginInit();
@@ -79,7 +81,7 @@ partial class Form1
         imageFileName.Margin = new Padding(4, 5, 4, 5);
         imageFileName.Name = "imageFileName";
         imageFileName.ReadOnly = true;
-        imageFileName.Size = new Size(427, 27);
+        imageFileName.Size = new Size(131, 27);
         imageFileName.TabIndex = 1;
         // 
         // inputImageBox
@@ -295,11 +297,33 @@ partial class Form1
         button1.UseVisualStyleBackColor = true;
         button1.Click += HoughTestButton_Click;
         // 
+        // cbDetectionImage
+        // 
+        cbDetectionImage.DropDownStyle = ComboBoxStyle.DropDownList;
+        cbDetectionImage.FormattingEnabled = true;
+        cbDetectionImage.Location = new Point(596, 21);
+        cbDetectionImage.Margin = new Padding(3, 4, 3, 4);
+        cbDetectionImage.Name = "cbDetectionImage";
+        cbDetectionImage.Size = new Size(137, 28);
+        cbDetectionImage.TabIndex = 23;
+        cbDetectionImage.SelectedIndexChanged += cbDetectionImage_SelectedIndexChanged;
+        // 
+        // label4
+        // 
+        label4.AutoSize = true;
+        label4.Location = new Point(414, 26);
+        label4.Name = "label4";
+        label4.Size = new Size(176, 20);
+        label4.TabIndex = 24;
+        label4.Text = "Choose Detection Image:";
+        // 
         // Form1
         // 
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1543, 942);
+        Controls.Add(label4);
+        Controls.Add(cbDetectionImage);
         Controls.Add(button1);
         Controls.Add(numericSize);
         Controls.Add(checkBinary);
@@ -362,4 +386,6 @@ partial class Form1
     private CheckBox checkBinary;
     private NumericUpDown numericSize;
     private Button button1;
+    private ComboBox cbDetectionImage;
+    private Label label4;
 }

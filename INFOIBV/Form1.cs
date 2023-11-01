@@ -7,6 +7,7 @@ namespace INFOIBV;
 
 public partial class Form1 : Form
 {
+    private Bitmap ReferenceImage { get; init; }
     public Form1()
     {
         InitializeComponent();
@@ -15,6 +16,11 @@ public partial class Form1 : Form
         cbFilter.DataSource = GetFilters().ImageProcessors;
         cbMode.DataSource = Enum.GetValues(typeof(ModeType));
         cbStructureElement.DataSource = Enum.GetValues(typeof(StructureType));
+        cbDetectionImage.DataSource = Enum.GetValues((typeof(DetectionInputs)));
+        ReferenceImage = new Bitmap("Images/TestingImages/UnoReference.jpeg");
+
+        //Manually set input image at start
+        SetInputImage(new Bitmap("Images/TestingImages/Test1.jpeg"));
 
 #if DEBUG
         //cbFilter.SelectedItem = ((List<IImageProcessor>)cbFilter.DataSource).Find(x => x.DisplayName == "Edge Magnitude");
@@ -140,7 +146,7 @@ public partial class Form1 : Form
     /// Checks, sets and displays the input image
     /// </summary>
     /// <param name="value">Bitmap to display</param>
-    private void SetInputImage(System.Drawing.Image value)
+    public void SetInputImage(System.Drawing.Image value)
     {
         if (value.Size.Height <= 0 || value.Size.Width <= 0 ||
             value.Size.Height > 512 || value.Size.Width > 512)
@@ -223,22 +229,37 @@ public partial class Form1 : Form
                 return Hough.HoughTransformAngleLimits(input, aForm.LowerAngle, aForm.UpperAngle).ToBitmap();
             case ModeType.SIFT:
                 SiftDoG(input, false);
-                return Test(input);
+                return DrawFeatures(input);
             default:
                 return input.ToBitmap();
         }
     }
 
-    private Bitmap Test(byte[,] input)
+    #region Tests
+
+    private Bitmap DrawFeatures(byte[,] input)
     {
-        return KeyPointSelection.DrawBoundingBox(input);
+        return KeyPointSelection.DrawFeatures(input);
+    }
+
+    private Bitmap DrawBothKeypoints(byte[,] input)
+    {
+        SetInputImage(KeyPointSelection.DrawKeypoint(ReferenceImage.ToSingleChannel()));
+        return KeyPointSelection.DrawKeypoint(input);
+    }
+
+    private Bitmap DrawTopMatches(byte[,] input)
+    {
+        var (outputReference, output) = KeyPointSelection.DrawMatchFeatures(ReferenceImage.ToSingleChannel(), input);
+        SetInputImage(outputReference);
+        return output;
     }
 
     private static void SiftDoG(byte[,] input, bool visualize)
     {
         if (!visualize)
             return;
-        
+
         var image = new SIFT.Image(input);
         var output = KeyPointSelection.BuildSiftScaleSpace(image, visualize);
 
@@ -258,6 +279,7 @@ public partial class Form1 : Form
         }
     }
 
+    #endregion
     /// <summary>
     /// Process when the user clicks on the "Save" button
     /// </summary>
@@ -310,5 +332,20 @@ public partial class Form1 : Form
         if (numericSize.Value % 2 == 0) numericSize.Value += 1;
 
         cbFilter.DataSource = GetFilters().ImageProcessors;
+    }
+
+    private void cbDetectionImage_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        switch (cbDetectionImage.SelectedValue)
+        {
+            case DetectionInputs.None:
+                break;
+            case DetectionInputs.ReferenceImage:
+                SetInputImage(new Bitmap("Images/TestingImages/UnoReference.jpeg"));
+                break;
+            case DetectionInputs.Image1:
+                SetInputImage(new Bitmap("Images/TestingImages/Test1.jpeg"));
+                break;
+        }
     }
 }
