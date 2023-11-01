@@ -38,7 +38,7 @@ public static class KeyPointSelection
     private const double t_Fclip = 0.2;
 
     // Feature matching
-    private const double rmMax = 0.8;
+    private const double rmMax = 1; // was eerst 0.8
 
     // ReSharper restore IdentifierTypo
     // ReSharper restore InconsistentNaming
@@ -963,12 +963,9 @@ public static class KeyPointSelection
 
     public static Bitmap DrawBoundingBox(byte[,] input)
     {
-        var width = input.GetLength(0);
-        var height = input.GetLength(1);
 
         var lenaSmall = new Bitmap("Images/lenaSmall.png").ToSingleChannel();
 
-        return lenaSmall.ToBitmap();
         var keyDescriptorsReference = GetSiftFeatures(new(input));
         var keyDescriptors = GetSiftFeatures(new(lenaSmall));
 
@@ -998,7 +995,7 @@ public static class KeyPointSelection
         var (corner3X, corner3Y) = GetTransformedCoordinate(transformMatrix, 0, 255);
         var (corner4X, corner4Y) = GetTransformedCoordinate(transformMatrix, 255, 255);
 
-        var output = input.ToBitmap();
+        var output = lenaSmall.ToBitmap();
         var penLine = new Pen(Color.FromArgb(255, 255, 0, 0), 1);
         using var graphics = Graphics.FromImage(output);
         graphics.DrawLine(penLine, corner1X, corner1Y, corner2X, corner2Y);
@@ -1057,7 +1054,8 @@ public static class KeyPointSelection
         var vector = Matrix<double>.Build.DenseOfArray(new double[,]
         {
             { x },
-            { y }
+            { y },
+            { 1 }
         });
 
         var transformedVector = transformMatrix * vector;
