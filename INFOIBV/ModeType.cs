@@ -9,6 +9,10 @@ public enum ModeType
     HoughPeaks,
     HoughVisualization,
     HoughTransformAngleLimits,
-    SIFT,
+    SiftDog,
+    SiftFeatures,
+    SiftFeaturesBoth,
+    SiftTopKeyPointMatches,
+    SIFT
 
 }

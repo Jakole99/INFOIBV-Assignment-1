@@ -27,7 +27,7 @@ public static class KeyPointSelection
     private const int n_Smooth = 2;
     private const double reMax = 10.0;
     private const double t_DomOr = 0.8;
-    private const double t_Mag = 15.0; //0.01 <- lager wordt nooit gehaald 
+    private const double t_Mag = 20.0; //0.01 <- lager wordt nooit gehaald 
     private const double t_Peak = 11.0; //0.01 <- lager wordt nooit gehaald
 
     // Feature descriptor
@@ -38,7 +38,7 @@ public static class KeyPointSelection
     private const double t_Fclip = 0.2;
 
     // Feature matching
-    private const double rmMax = 1; // was eerst 0.8
+    private const double rmMax = 0.9; // was eerst 0.8
 
     // ReSharper restore IdentifierTypo
     // ReSharper restore InconsistentNaming
@@ -141,6 +141,7 @@ public static class KeyPointSelection
             return a.Distance.CompareTo(b.Distance);
         }
     }
+
 
     #region Algorithm 7.2
 
@@ -907,13 +908,6 @@ public static class KeyPointSelection
         return output;
     }
 
-    public static Bitmap DrawBothKeypoints(byte[,] input)
-    {
-        var lenaSmall = new Bitmap("Images/lenaSmall.png").ToSingleChannel();
-        new Form1().SetInputImage(DrawKeypoint(lenaSmall));
-        return DrawKeypoint(input);
-    }
-
     public static void GetSiftDominantOrientation(Image input)
     {
         var scaleSpace = BuildSiftScaleSpace(input, false);
@@ -935,6 +929,9 @@ public static class KeyPointSelection
         var width = input.GetLength(0);
         var height = input.GetLength(1);
 
+        //preprocessing
+        //var filter = new FilterCollection().AddEdgeMagnitudeFilter();
+
         var keyDescriptors = GetSiftFeatures(new(input));
 
         var output = input.ToBitmap();
@@ -944,11 +941,11 @@ public static class KeyPointSelection
         {
             var (x, y, scale, theta, f) = keyDescriptor;
 
-            if (x < 0 || x >= width)
-                continue;
+            //if (x < 0 || x >= width)
+              //  continue;
 
-            if (y < 0 || y >= height)
-                continue;
+            //if (y < 0 || y >= height)
+              //  continue;
 
             DrawThetaDirection(output, x, y, theta, scale);
             output.SetPixel(x, y, newColor);
@@ -973,11 +970,15 @@ public static class KeyPointSelection
     public static (Bitmap, Bitmap) DrawMatchFeatures(byte[,] inputReference, byte[,] input)
     {
         var amount = 4; //The amount of matches we want to check
-        var keyDescriptorsReference = GetSiftFeatures(new(inputReference));
-        var keyDescriptors = GetSiftFeatures(new(input));
+
+        var filter = new FilterCollection().AddEdgeMagnitudeFilter();
+
+        //preprocessing
+        var keyDescriptorsReference = GetSiftFeatures(new(filter.Process(inputReference)));
+        var keyDescriptors = GetSiftFeatures(new(filter.Process(input)));
 
         //Test the matching with the same image.
-        var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptorsReference);
+        var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptors);
 
         var topMatches = GetTopMatches(matches, amount);
 
@@ -986,26 +987,28 @@ public static class KeyPointSelection
 
         //A different main color for each match, for testing purposes
         var colors = GetColors(amount);
-        var pen= new Pen(Color.FromArgb( 255, 255, 255), 1); 
+        var pen= new Pen(Color.FromArgb( 255, 255, 255), 4); 
         var size = 10;
         using var gReference = Graphics.FromImage(outputReference);
-        using var g = Graphics.FromImage(outputReference);
+        using var g = Graphics.FromImage(output);
 
-        for (int i = 0; i < amount; i++)
+        if (topMatches.Count > 0)
         {
-            var (s1, s2, _) = topMatches[i];
-            pen.Color = colors[i];
+            for (int i = 0; i < topMatches.Count; i++)
+            {
+                var (s1, s2, _) = topMatches[i];
+                pen.Color = colors[i];
 
-            //Draw in the reference
-            var (x1, y1, _, _, _) = s1;
-            gReference.DrawEllipse(pen,x1,y1, size, size);
+                //Draw in the reference
+                var (x1, y1, _, _, _) = s1;
+                gReference.DrawEllipse(pen, x1, y1, size, size);
 
-            //draw in the output
-            var (x2, y2, _, _, _) = s2;
-            g.DrawEllipse(pen, x2, y2, size, size);
-
+                //draw in the output
+                var (x2, y2, _, _, _) = s2;
+                g.DrawEllipse(pen, x2, y2, size, size);
+            }
         }
-        
+
         return (outputReference, output);
     }
 
@@ -1021,9 +1024,9 @@ public static class KeyPointSelection
         var transformMatrix = GetTransformMatrix(topMatches);
 
         var (corner1X, corner1Y) = GetTransformedCoordinate(transformMatrix, 0, 0);
-        var (corner2X, corner2Y) = GetTransformedCoordinate(transformMatrix, 255, 0);
-        var (corner3X, corner3Y) = GetTransformedCoordinate(transformMatrix, 0, 255);
-        var (corner4X, corner4Y) = GetTransformedCoordinate(transformMatrix, 255, 255);
+        var (corner2X, corner2Y) = GetTransformedCoordinate(transformMatrix, 328, 0);
+        var (corner3X, corner3Y) = GetTransformedCoordinate(transformMatrix, 0, 512);
+        var (corner4X, corner4Y) = GetTransformedCoordinate(transformMatrix, 328, 512);
 
         var output = input.ToBitmap();
         var penLine = new Pen(Color.FromArgb(255, 255, 0, 0), 1);
@@ -1069,13 +1072,13 @@ public static class KeyPointSelection
         // Draw line to screen.
         using var graphics = Graphics.FromImage(bitmap);
 
-        var length = scale;
+        var length = scale*2;
         var xE = x + (int)(length * Math.Cos(theta));
         var yE = y + (int)(length * Math.Sin(theta));
 
         var penLine = new Pen(Color.FromArgb(255, 0, 200, 255), 1);
         var penCirlce = new Pen(Color.FromArgb(255, 0, 200, 100), 1);
-        graphics.DrawEllipse(penCirlce, (float)(x - scale), (float)(y - scale), (float)(2 * scale), (float)(2 * scale));
+        graphics.DrawEllipse(penCirlce, (float)(x - length), (float)(y - length), (float)(2 * length), (float)(2 * length));
         graphics.DrawLine(penLine, x, y, xE, yE);
     }
 

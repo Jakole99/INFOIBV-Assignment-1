@@ -17,10 +17,11 @@ public partial class Form1 : Form
         cbMode.DataSource = Enum.GetValues(typeof(ModeType));
         cbStructureElement.DataSource = Enum.GetValues(typeof(StructureType));
         cbDetectionImage.DataSource = Enum.GetValues((typeof(DetectionInputs)));
-        ReferenceImage = new Bitmap("Images/TestingImages/UnoReference.jpeg");
+        //ReferenceImage = new Bitmap("Images/TestingImages/UnoReference.jpeg");
+        ReferenceImage = new Bitmap("Images/lena_color.jpg");
 
         //Manually set input image at start
-        SetInputImage(new Bitmap("Images/TestingImages/Test1.jpeg"));
+        SetInputImage(new Bitmap("Images/lena_color.jpg"));
 
 #if DEBUG
         //cbFilter.SelectedItem = ((List<IImageProcessor>)cbFilter.DataSource).Find(x => x.DisplayName == "Edge Magnitude");
@@ -227,9 +228,20 @@ public partial class Form1 : Form
                 var aForm = new AngleForm();
                 aForm.ShowDialog();
                 return Hough.HoughTransformAngleLimits(input, aForm.LowerAngle, aForm.UpperAngle).ToBitmap();
+            case ModeType.SiftDog:
+                SiftDoG(input, true);
+                return input.ToBitmap();
+            case ModeType.SiftFeatures:
+                return KeyPointSelection.DrawFeatures(input);
+            case ModeType.SiftFeaturesBoth:
+                SetInputImage(KeyPointSelection.DrawFeatures(ReferenceImage.ToSingleChannel()));
+                return KeyPointSelection.DrawFeatures(input);
+            case ModeType.SiftTopKeyPointMatches:
+                var (outputReference, output) = KeyPointSelection.DrawMatchFeatures(ReferenceImage.ToSingleChannel(), input);
+                SetInputImage(outputReference);
+                return output;
             case ModeType.SIFT:
-                SiftDoG(input, false);
-                return DrawFeatures(input);
+                return Test(input);
             default:
                 return input.ToBitmap();
         }
@@ -237,22 +249,10 @@ public partial class Form1 : Form
 
     #region Tests
 
-    private Bitmap DrawFeatures(byte[,] input)
+    private Bitmap Test(byte[,] input)
     {
-        return KeyPointSelection.DrawFeatures(input);
-    }
-
-    private Bitmap DrawBothKeypoints(byte[,] input)
-    {
-        SetInputImage(KeyPointSelection.DrawKeypoint(ReferenceImage.ToSingleChannel()));
-        return KeyPointSelection.DrawKeypoint(input);
-    }
-
-    private Bitmap DrawTopMatches(byte[,] input)
-    {
-        var (outputReference, output) = KeyPointSelection.DrawMatchFeatures(ReferenceImage.ToSingleChannel(), input);
-        SetInputImage(outputReference);
-        return output;
+        SetInputImage(ReferenceImage);
+        return KeyPointSelection.DrawBoundingBox(ReferenceImage.ToSingleChannel(), input);
     }
 
     private static void SiftDoG(byte[,] input, bool visualize)
@@ -280,6 +280,7 @@ public partial class Form1 : Form
     }
 
     #endregion
+
     /// <summary>
     /// Process when the user clicks on the "Save" button
     /// </summary>
