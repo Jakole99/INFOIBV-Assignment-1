@@ -13,6 +13,7 @@ public enum ModeType
     SiftFeatures,
     SiftFeaturesBoth,
     SiftTopKeyPointMatches,
+    SiftDrawBorder,
     SIFT
 
 }

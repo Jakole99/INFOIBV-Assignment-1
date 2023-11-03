@@ -1,3 +1,4 @@
+using System.Security.Cryptography.Xml;
 using INFOIBV.Filters;
 using INFOIBV.Framework;
 using INFOIBV.InputForms;
@@ -17,11 +18,11 @@ public partial class Form1 : Form
         cbMode.DataSource = Enum.GetValues(typeof(ModeType));
         cbStructureElement.DataSource = Enum.GetValues(typeof(StructureType));
         cbDetectionImage.DataSource = Enum.GetValues((typeof(DetectionInputs)));
-        //ReferenceImage = new Bitmap("Images/TestingImages/UnoReference.jpeg");
-        ReferenceImage = new Bitmap("Images/lena_color.jpg");
+        ReferenceImage = new Bitmap("Images/TestingImages/UnoReference.jpeg");
+        //ReferenceImage = new Bitmap("Images/lena_color.jpg");
 
         //Manually set input image at start
-        SetInputImage(new Bitmap("Images/lena_color.jpg"));
+        SetInputImage(new Bitmap("Images/lenaDraai.png"));
 
 #if DEBUG
         //cbFilter.SelectedItem = ((List<IImageProcessor>)cbFilter.DataSource).Find(x => x.DisplayName == "Edge Magnitude");
@@ -240,7 +241,11 @@ public partial class Form1 : Form
                 var (outputReference, output) = KeyPointSelection.DrawMatchFeatures(ReferenceImage.ToSingleChannel(), input);
                 SetInputImage(outputReference);
                 return output;
+            case ModeType.SiftDrawBorder:
+                SetInputImage(ReferenceImage);
+                return KeyPointSelection.DrawBoundingBox(ReferenceImage.ToSingleChannel(), input);
             case ModeType.SIFT:
+                KeyPointSelection.GetSiftDominantOrientation(new SIFT.Image(input));
                 return Test(input);
             default:
                 return input.ToBitmap();

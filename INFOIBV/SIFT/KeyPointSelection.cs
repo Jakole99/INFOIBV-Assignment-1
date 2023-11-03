@@ -2,6 +2,7 @@
 using INFOIBV.Framework;
 using INFOIBV.InputForms;
 using MathNet.Numerics.LinearAlgebra;
+using System;
 using System.Drawing;
 using static INFOIBV.SIFT.KeyPointSelection;
 
@@ -27,7 +28,7 @@ public static class KeyPointSelection
     private const int n_Smooth = 2;
     private const double reMax = 10.0;
     private const double t_DomOr = 0.8;
-    private const double t_Mag = 20.0; //0.01 <- lager wordt nooit gehaald 
+    private const double t_Mag = 18.0; //0.01 <- lager wordt nooit gehaald 
     private const double t_Peak = 11.0; //0.01 <- lager wordt nooit gehaald
 
     // Feature descriptor
@@ -141,7 +142,6 @@ public static class KeyPointSelection
             return a.Distance.CompareTo(b.Distance);
         }
     }
-
 
     #region Algorithm 7.2
 
@@ -487,7 +487,7 @@ public static class KeyPointSelection
             for (var j = 0; j < n - 1; j++)
             {
                 var c = h[j];
-                h[j] = h0 * p + h1 * h[j] + h2 * h[j + 1];
+                h[j] = h0 * p + h1 * h[j] + h2 * h[j+1];
                 p = c;
             }
 
@@ -501,7 +501,7 @@ public static class KeyPointSelection
         var peakOrientations = new List<double>();
         var hMax = h.Max();
 
-        for (var k = 1; k < n; k++)                         ////
+        for (var k = 1; k < n - 1; k++)                         ////
         {
             var hc = h[k];
 
@@ -533,7 +533,8 @@ public static class KeyPointSelection
         var gaussian = gaussians[p][q].Bytes;
         var m = gaussian.GetLength(0);
         var n = gaussian.GetLength(1);
-        var h = new double[n_Orient+2];                 /////
+
+        var h = new double[n_Orient + 2];                   /////
 
         var sw = 1.5 * sigma_0 * Math.Pow(2, (double)q / Q);
         var rw = Math.Max(1, 2.5 * sw);
@@ -551,6 +552,7 @@ public static class KeyPointSelection
                     continue;
 
                 var (r, phi) = GetGradientPolar(gaussian, u, v);  ////
+                                                                  
                 var wg = Math.Exp(-(Math.Pow(u - x, 2) + Math.Pow(v - y, 2)) / (2 * sw * sw));
                 var z = r * wg;
                 var kPhi = n_Orient * (phi / (2 * Math.PI));
@@ -576,7 +578,13 @@ public static class KeyPointSelection
         var dy = 0.5 * (gaussian[u, v + 1] - gaussian[u, v - 1]);
 
         var r = Math.Sqrt(dx * dx + dy * dy);
-        var phi = Math.Atan2(dx, dy);
+        var phi = Math.Atan2(dy, dx);
+
+        if (phi < -Math.PI)                                                                   //////
+            phi += 2 * Math.PI;
+        if (phi > Math.PI)
+            phi -= 2 * Math.PI;
+
         return (r, phi);
     }
 
@@ -625,8 +633,8 @@ public static class KeyPointSelection
                 });
 
                 var canonCoords = 1 / wd * transformMatrix * coords;
-                var uPrime = canonCoords[0, 0];
-                var vPrime = canonCoords[1, 0];
+                var uPrime = Math.Clamp(canonCoords[0, 0], -0.5, 0.5);
+                var vPrime = Math.Clamp(canonCoords[1, 0], -0.5, 0.5);
 
                 var (r, phi) = GetGradientPolar(gaussian.Bytes, u, v);
                 var phiPrime = (phi - theta) % (2 * Math.PI);
@@ -974,8 +982,8 @@ public static class KeyPointSelection
         var filter = new FilterCollection().AddEdgeMagnitudeFilter();
 
         //preprocessing
-        var keyDescriptorsReference = GetSiftFeatures(new(filter.Process(inputReference)));
-        var keyDescriptors = GetSiftFeatures(new(filter.Process(input)));
+        var keyDescriptorsReference = GetSiftFeatures(new(inputReference));
+        var keyDescriptors = GetSiftFeatures(new(input));
 
         //Test the matching with the same image.
         var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptors);
