@@ -1,4 +1,5 @@
 ﻿using System.Formats.Asn1;
+using System.Runtime.InteropServices.ComTypes;
 using INFOIBV.Filters;
 using INFOIBV.Framework;
 using MathNet.Numerics.LinearAlgebra;
@@ -25,7 +26,7 @@ public static class KeyPointSelection
     private const int n_Smooth = 2;
     private const double reMax = 10.0;
     private const double t_DomOr = 0.8;
-    private const double t_Mag = 18.0; //0.01 <- lager wordt nooit gehaald 
+    private const double t_Mag = 15.0; //0.01 <- lager wordt nooit gehaald 
     private const double t_Peak = 11.0; //0.01 <- lager wordt nooit gehaald
 
     // Feature descriptor
@@ -36,7 +37,7 @@ public static class KeyPointSelection
     private const double t_Fclip = 0.2;
 
     // Feature matching
-    private const double rmMax = 0.9; // was eerst 0.8
+    private const double rmMax = 0.8; // was eerst 0.8
 
     // ReSharper restore IdentifierTypo
     // ReSharper restore InconsistentNaming
@@ -822,7 +823,7 @@ public static class KeyPointSelection
 
     #region Projective Mapping
 
-    private static Matrix<double> GetUnitProjectionMatrix((int x, int y) p1, (int x, int y) p2, (int x, int y) p3,
+    public static Matrix<double> GetUnitProjectionMatrix((int x, int y) p1, (int x, int y) p2, (int x, int y) p3,
         (int x, int y) p4)
     {
         var (x1, y1) = p1;
@@ -936,7 +937,7 @@ public static class KeyPointSelection
         var height = input.GetLength(1);
 
         //preprocessing
-        //var filter = new FilterCollection().AddEdgeMagnitudeFilter();
+        //TODO Add preprocessing logic
 
         var keyDescriptors = GetSiftFeatures(new(input));
 
@@ -947,11 +948,11 @@ public static class KeyPointSelection
         {
             var (x, y, scale, theta, f) = keyDescriptor;
 
-            //if (x < 0 || x >= width)
-            //  continue;
+            if (x < 0 || x >= width)
+              continue;
 
-            //if (y < 0 || y >= height)
-            //  continue;
+            if (y < 0 || y >= height)
+              continue;
 
             DrawThetaDirection(output, x, y, theta, scale);
             output.SetPixel(x, y, newColor);
@@ -975,9 +976,9 @@ public static class KeyPointSelection
     {
         var amount = 4; //The amount of matches we want to check
 
-        var filter = new FilterCollection().AddEdgeMagnitudeFilter();
-
         //preprocessing
+        //TODO: Add preprocessing logic
+
         var keyDescriptorsReference = GetSiftFeatures(new(inputReference));
         var keyDescriptors = GetSiftFeatures(new(input));
 
@@ -1086,7 +1087,7 @@ public static class KeyPointSelection
         graphics.DrawLine(penLine, x, y, xE, yE);
     }
 
-    private static (int, int) GetTransformedCoordinate(Matrix<double> transformMatrix, int x, int y)
+    public static (int, int) GetTransformedCoordinate(Matrix<double> transformMatrix, int x, int y)
     {
         var vector = Matrix<double>.Build.DenseOfArray(new double[,]
         {
@@ -1095,7 +1096,7 @@ public static class KeyPointSelection
             { 1 }
         });
 
-        var transformedVector = transformMatrix * vector;
+        var transformedVector = transformMatrix.Inverse() * vector;
 
         return ((int)transformedVector[0, 0], (int)transformedVector[1, 0]);
     }

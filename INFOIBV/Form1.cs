@@ -56,79 +56,6 @@ public partial class Form1 : Form
             .AddContrastAdjustment();
         availableProcessors.AddProcess(imageA);
 
-        var imageB = FilterCollection.From(imageA, "Image B1")
-            .AddGaussian(9, 3.2f);
-        availableProcessors.AddProcess(imageB);
-        var imageB2 = FilterCollection.From(imageA, "Image B2")
-            .AddGaussian(9, 3.2f);
-        availableProcessors.AddProcess(imageB2);
-        var imageB3 = FilterCollection.From(imageA, "Image B3")
-            .AddGaussian(9, 40.2f);
-        availableProcessors.AddProcess(imageB3);
-        var imageB4 = FilterCollection.From(imageA, "Image B4")
-            .AddGaussian(9, 100f);
-        availableProcessors.AddProcess(imageB4);
-
-        var imageW = FilterCollection.From(imageB, "Image W")
-            .AddThresholdFilter(128);
-        availableProcessors.AddProcess(imageW);
-
-        var imageX = FilterCollection.From(imageW, "Image X")
-            .AddDilationFilter(StructureType.Plus, 3);
-        availableProcessors.AddProcess(imageX);
-
-        var imageY = FilterCollection.From(imageW, "Image Y")
-            .AddErosionFilter(StructureType.Plus, 3);
-        availableProcessors.AddProcess(imageY);
-
-        var imageZ = new FilterCollection("Image Z")
-            .AddProcess(new AndFilter(imageX, imageY));
-        availableProcessors.AddProcess(imageZ);
-
-        var imageE1 = FilterCollection.From(imageA, "Image E1")
-            .AddDilationFilter(StructureType.Plus, 3);
-        availableProcessors.AddProcess(imageE1);
-
-        var imageE2 = FilterCollection.From(imageA, "Image E2")
-            .AddDilationFilter(StructureType.Plus, 7);
-        availableProcessors.AddProcess(imageE2);
-
-        var imageE3 = FilterCollection.From(imageA, "Image E3")
-            .AddDilationFilter(StructureType.Plus, 13);
-        availableProcessors.AddProcess(imageE3);
-
-        var imageE4 = FilterCollection.From(imageA, "Image E4")
-            .AddDilationFilter(StructureType.Plus, 25);
-        availableProcessors.AddProcess(imageE4);
-
-        var imageE5 = FilterCollection.From(imageA, "Image E5")
-            .AddDilationFilter(StructureType.Plus, 49);
-        availableProcessors.AddProcess(imageE5);
-
-        var imageGear = new FilterCollection("image G")
-            .AddThresholdFilter(150);
-        availableProcessors.AddProcess(imageGear);
-
-        var imageG1 = FilterCollection.From(imageGear, "image G1")
-            .AddOpeningFilter(StructureType.Square, 3, true);
-        availableProcessors.AddProcess(imageG1);
-
-        var imageG2 = FilterCollection.From(imageGear, "image G2")
-            .AddOpeningFilter(StructureType.Square, 23, true);
-        availableProcessors.AddProcess(imageG2);
-
-        var imageG3 = FilterCollection.From(imageGear, "image G3")
-            .AddOpeningFilter(StructureType.Square, 43, true);
-        availableProcessors.AddProcess(imageG3);
-
-        var imageG4 = FilterCollection.From(imageGear, "image G4")
-            .AddOpeningFilter(StructureType.Square, 63, true);
-        availableProcessors.AddProcess(imageG4);
-
-        var imageG5 = FilterCollection.From(imageGear, "image G5")
-            .AddOpeningFilter(StructureType.Square, 83, true);
-        availableProcessors.AddProcess(imageG5);
-
         var imageEdgeThresh = FilterCollection.From(imageA, "Edge With threshold")
             .AddGaussian(5, 3)
             .AddEdgeMagnitudeFilter()
@@ -351,6 +278,33 @@ public partial class Form1 : Form
                 break;
             case DetectionInputs.Image1:
                 SetInputImage(new Bitmap("Images/TestingImages/Test1.jpeg"));
+                break;
+            case DetectionInputs.Image2:
+                SetInputImage(new Bitmap("Images/TestingImages/Test2.jpg"));
+                break;
+            case DetectionInputs.Image3:
+                SetInputImage(new Bitmap("Images/TestingImages/Test3.jpg"));
+                break;
+            case DetectionInputs.Image4:
+                SetInputImage(new Bitmap("Images/TestingImages/Test4.jpg"));
+                break;
+            case DetectionInputs.Image5:
+                SetInputImage(new Bitmap("Images/TestingImages/Test5.jpg"));
+                break;
+            case DetectionInputs.Image6:
+                SetInputImage(new Bitmap("Images/TestingImages/Test6.jpg"));
+                break;
+            case DetectionInputs.Image7:
+                SetInputImage(new Bitmap("Images/TestingImages/Test7.jpg"));
+                break;
+            case DetectionInputs.Image8:
+                SetInputImage(new Bitmap("Images/TestingImages/Test8.jpg"));
+                break;
+            case DetectionInputs.Image9:
+                SetInputImage(new Bitmap("Images/TestingImages/Test9.jpg"));
+                break;
+            case DetectionInputs.Image10:
+                SetInputImage(new Bitmap("Images/TestingImages/Test10.jpg"));
                 break;
         }
     }
