@@ -937,7 +937,7 @@ public static class KeyPointSelection
         var height = input.GetLength(1);
 
         //preprocessing
-        //TODO Add preprocessing logic
+        //TODO: Add preprocessing logic
 
         var keyDescriptors = GetSiftFeatures(new(input));
 
