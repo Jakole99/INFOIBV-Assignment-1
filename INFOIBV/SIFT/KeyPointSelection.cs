@@ -220,6 +220,11 @@ public static class KeyPointSelection
 
     private static Image ApplyGaussian(Image input, double width)
     {
+        var size = (int)width;
+
+        if (size % 2 == 0)
+            size++;
+
         var filter = new FilterCollection().AddGaussian(9, (float)width);
         return new(filter.Process(input.Bytes));
     }
@@ -991,6 +996,7 @@ public static class KeyPointSelection
         var topMatches = GetTopMatches(matches, 4);
         var transformMatrix = GetTransformMatrix(topMatches);
 
+
         // Drawing
         var width = processedReferenceImage.GetLength(0);
         var height = processedReferenceImage.GetLength(1);
@@ -1009,6 +1015,19 @@ public static class KeyPointSelection
         var blue = new Pen(Color.FromArgb(255, 0, 0, 255), 3);
         var yellow = new Pen(Color.FromArgb(255, 255, 255, 0), 3);
         using var graphics = Graphics.FromImage(output);
+
+        foreach (var VARIABLE in corners)
+        {
+            
+        }
+
+        graphics.DrawLine(red, corners[0].x, corners[0].y, corners[1].x, corners[1].y);
+        graphics.DrawLine(red, corners[1].x, corners[1].y, corners[2].x, corners[2].y);
+        graphics.DrawLine(red, corners[2].x, corners[2].y, corners[3].x, corners[3].y);
+        graphics.DrawLine(red, corners[3].x, corners[3].y, corners[0].x, corners[0].y);
+
+
+        return output;
 
         for (var i = 0; i < 4; i++)
         {

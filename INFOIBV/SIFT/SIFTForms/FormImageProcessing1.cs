@@ -266,6 +266,46 @@ namespace INFOIBV
                     SetInputImage(new Bitmap("Images/TestingImages/Test10.jpg"));
                     InputImage = new Bitmap("Images/TestingImages/Test10.jpg");
                     break;
+                case DetectionInputs.Distractor1:
+                    SetInputImage(new Bitmap("Images/TestingImages/Distractor1.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Distractor1.jpg");
+                    break;                
+                case DetectionInputs.Distractor2:
+                    SetInputImage(new Bitmap("Images/TestingImages/Distractor2.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Distractor2.jpg");
+                    break;                
+                case DetectionInputs.Distractor3:
+                    SetInputImage(new Bitmap("Images/TestingImages/Distractor3.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Distractor3.jpg");
+                    break;                
+                case DetectionInputs.Distractor4:
+                    SetInputImage(new Bitmap("Images/TestingImages/Distractor4.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Distractor4.jpg");
+                    break;                
+                case DetectionInputs.Distractor5:
+                    SetInputImage(new Bitmap("Images/TestingImages/Distractor5.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Distractor5.jpg");
+                    break;                
+                case DetectionInputs.Distractor6:
+                    SetInputImage(new Bitmap("Images/TestingImages/Distractor6.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Distractor6.jpg");
+                    break;                
+                case DetectionInputs.Distractor7:
+                    SetInputImage(new Bitmap("Images/TestingImages/Distractor7.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Distractor7.jpg");
+                    break;                
+                case DetectionInputs.Distractor8:
+                    SetInputImage(new Bitmap("Images/TestingImages/Distractor8.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Distractor8.jpg");
+                    break;                
+                case DetectionInputs.Distractor9:
+                    SetInputImage(new Bitmap("Images/TestingImages/Distractor9.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Distractor9.jpg");
+                    break;               
+                case DetectionInputs.Distractor10:
+                    SetInputImage(new Bitmap("Images/TestingImages/Distractor10.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Distractor10.jpg");
+                    break;
             }
         }
 

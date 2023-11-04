@@ -6,6 +6,5 @@ public enum SIFTModes
     SiftFeatures,
     SiftFeaturesBoth,
     SiftTopKeyPointMatches,
-    SiftDrawBorder,
-    SIFT
+    SiftDrawBorder
 }
