@@ -1,6 +1,4 @@
-﻿using System.Formats.Asn1;
-using System.Runtime.InteropServices.ComTypes;
-using INFOIBV.Filters;
+﻿using INFOIBV.Filters;
 using INFOIBV.Framework;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -26,8 +24,8 @@ public static class KeyPointSelection
     private const int n_Smooth = 2;
     private const double reMax = 10.0;
     private const double t_DomOr = 0.8;
-    private const double t_Mag = 18.0; //0.01 <- lager wordt nooit gehaald 
-    private const double t_Peak = 11.0; //0.01 <- lager wordt nooit gehaald
+    private const double t_Mag = 18.0; //0.01 <- Lower is infeasible
+    private const double t_Peak = 11.0; //0.01 <- Lower is infeasible
 
     // Feature descriptor
     private const int n_Spat = 4;
@@ -37,7 +35,7 @@ public static class KeyPointSelection
     private const double t_Fclip = 0.2;
 
     // Feature matching
-    private const double rmMax = 0.8; // was eerst 0.8
+    private const double rmMax = 0.8; // was 0.8
 
     // ReSharper restore IdentifierTypo
     // ReSharper restore InconsistentNaming
@@ -78,7 +76,7 @@ public static class KeyPointSelection
         }
     }
 
-    public readonly struct KeyDescriptor
+    private readonly struct KeyDescriptor
     {
         public int X { get; }
 
@@ -109,7 +107,7 @@ public static class KeyPointSelection
         }
     }
 
-    public readonly struct DescriptorMatch
+    private readonly struct DescriptorMatch
     {
         public KeyDescriptor S1 { get; }
 
@@ -124,11 +122,10 @@ public static class KeyPointSelection
             Distance = dist;
         }
 
-        public void Deconstruct(out KeyDescriptor s1, out KeyDescriptor s2, out double dist)
+        public void Deconstruct(out KeyDescriptor s1, out KeyDescriptor s2)
         {
             s1 = S1;
             s2 = S2;
-            dist = Distance;
         }
     }
 
@@ -170,7 +167,7 @@ public static class KeyPointSelection
 
         public ImageS[][] DifferenceOfGaussiansOctaves { get; init; }
 
-        public Image[][] DifferenceOfGaussiansOctavesByte { get; init; }
+        public Image[][]? DifferenceOfGaussiansOctavesByte { get; init; }
     }
 
     private static Image[] MakeGaussianOctave(Image input, int scaleSteps, double referenceScale)
@@ -232,7 +229,7 @@ public static class KeyPointSelection
 
     #region Algorithm 7.3
 
-    public static List<KeyDescriptor> GetSiftFeatures(Image input)
+    private static List<KeyDescriptor> GetSiftFeatures(Image input)
     {
         var scaleSpace = BuildSiftScaleSpace(input, false);
 
@@ -761,7 +758,7 @@ public static class KeyPointSelection
 
     #region Algorithm 7.11
 
-    public static List<DescriptorMatch> MatchDescriptors(List<KeyDescriptor> sA, List<KeyDescriptor> sB)
+    private static List<DescriptorMatch> MatchDescriptors(List<KeyDescriptor> sA, List<KeyDescriptor> sB)
     {
         var matchList = new List<DescriptorMatch>();
 
@@ -823,7 +820,7 @@ public static class KeyPointSelection
 
     #region Projective Mapping
 
-    public static Matrix<double> GetUnitProjectionMatrix((int x, int y) p1, (int x, int y) p2, (int x, int y) p3,
+    private static Matrix<double> GetUnitProjectionMatrix((int x, int y) p1, (int x, int y) p2, (int x, int y) p3,
         (int x, int y) p4)
     {
         var (x1, y1) = p1;
@@ -915,22 +912,6 @@ public static class KeyPointSelection
         return output;
     }
 
-    public static void GetSiftDominantOrientation(Image input)
-    {
-        var scaleSpace = BuildSiftScaleSpace(input, false);
-
-        var keyPoints = GetKeyPoints(scaleSpace.DifferenceOfGaussiansOctaves);
-
-        var listOfDominantOrientations = new List<List<double>>();
-
-        foreach (var keyPoint in keyPoints)
-        {
-            var dominantOrientations = GetDominantOrientations(scaleSpace.GaussianOctaves, keyPoint);
-            if (dominantOrientations.Count > 0)
-                listOfDominantOrientations.Add(dominantOrientations);
-        }
-    }
-
     public static Bitmap DrawFeatures(byte[,] input)
     {
         var width = input.GetLength(0);
@@ -943,13 +924,13 @@ public static class KeyPointSelection
 
         foreach (var keyDescriptor in keyDescriptors)
         {
-            var (x, y, scale, theta, f) = keyDescriptor;
+            var (x, y, scale, theta, _) = keyDescriptor;
 
             if (x < 0 || x >= width)
-              continue;
+                continue;
 
             if (y < 0 || y >= height)
-              continue;
+                continue;
 
             DrawThetaDirection(output, x, y, theta, scale);
             output.SetPixel(x, y, newColor);
@@ -958,20 +939,10 @@ public static class KeyPointSelection
         return output;
     }
 
-    public static void MatchFeatures(byte[,] referenceInput, byte[,] input)
+    public static (Bitmap, Bitmap) DrawMatchFeatures(byte[,] inputReference, byte[,] input,
+        byte[,] processedInputReference, byte[,] processedInput)
     {
-        var keyDescriptorsReference = GetSiftFeatures(new(referenceInput));
-        var keyDescriptors = GetSiftFeatures(new(input));
-
-        //Test the matching with the same image.
-        var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptors);
-
-        var topMatches = GetTopMatches(matches, 4);
-    }
-
-    public static (Bitmap, Bitmap) DrawMatchFeatures(byte[,] inputReference, byte[,] input, byte[,] processedInputReference, byte[,] processedInput)
-    {
-        var amount = 4; //The amount of matches we want to check
+        const int amount = 4; //The amount of matches we want to check
 
         var keyDescriptorsReference = GetSiftFeatures(new(processedInputReference));
         var keyDescriptors = GetSiftFeatures(new(processedInput));
@@ -987,25 +958,25 @@ public static class KeyPointSelection
         //A different main color for each match, for testing purposes
         var colors = GetColors(amount);
         var pen = new Pen(Color.FromArgb(255, 255, 255), 4);
-        var size = 10;
+        const int size = 10;
         using var gReference = Graphics.FromImage(outputReference);
         using var g = Graphics.FromImage(output);
 
-        if (topMatches.Count > 0)
+        if (topMatches.Count <= 0)
+            return (outputReference, output);
+
+        for (var i = 0; i < topMatches.Count; i++)
         {
-            for (int i = 0; i < topMatches.Count; i++)
-            {
-                var (s1, s2, _) = topMatches[i];
-                pen.Color = colors[i];
+            var (s1, s2) = topMatches[i];
+            pen.Color = colors[i];
 
-                //Draw in the reference
-                var (x1, y1, _, _, _) = s1;
-                gReference.DrawEllipse(pen, x1, y1, size, size);
+            //Draw in the reference
+            var (x1, y1, _, _, _) = s1;
+            gReference.DrawEllipse(pen, x1, y1, size, size);
 
-                //draw in the output
-                var (x2, y2, _, _, _) = s2;
-                g.DrawEllipse(pen, x2, y2, size, size);
-            }
+            //draw in the output
+            var (x2, y2, _, _, _) = s2;
+            g.DrawEllipse(pen, x2, y2, size, size);
         }
 
         return (outputReference, output);
@@ -1021,19 +992,39 @@ public static class KeyPointSelection
         var topMatches = GetTopMatches(matches, 4);
         var transformMatrix = GetTransformMatrix(topMatches);
 
-        var (corner1X, corner1Y) = GetTransformedCoordinate(transformMatrix, 0, 0);
-        var (corner2X, corner2Y) = GetTransformedCoordinate(transformMatrix, 328, 0);
-        var (corner3X, corner3Y) = GetTransformedCoordinate(transformMatrix, 0, 512);
-        var (corner4X, corner4Y) = GetTransformedCoordinate(transformMatrix, 328, 512);
+        // Works till this point
+
+        var corners = new (int x, int y)[]
+        {
+            (0, 0),
+            (0, 200),
+            (200, 200),
+            (200, 0),
+        };
 
         var output = input.ToBitmap();
-        var penLine = new Pen(Color.FromArgb(255, 255, 0, 0), 1);
+        var red = new Pen(Color.FromArgb(255, 255, 0, 0), 3);
+        var green = new Pen(Color.FromArgb(255, 0, 255, 0), 3);
+        var blue = new Pen(Color.FromArgb(255, 0, 0, 255), 3);
+        var yellow = new Pen(Color.FromArgb(255, 255, 255, 0), 3);
         using var graphics = Graphics.FromImage(output);
 
-        graphics.DrawLine(penLine, corner1X, corner1Y, corner2X, corner2Y);
-        graphics.DrawLine(penLine, corner1X, corner1Y, corner3X, corner3Y);
-        graphics.DrawLine(penLine, corner4X, corner4Y, corner2X, corner2Y);
-        graphics.DrawLine(penLine, corner4X, corner4Y, corner3X, corner3Y);
+        for (var i = 0; i < 4; i++)
+        {
+            var (cx, cy) = corners[i];
+            var (x, y) = GetTransformedCoordinate(transformMatrix, cx, cy);
+
+            var pen = i switch
+            {
+                0 => red,
+                1 => green,
+                2 => blue,
+                _ => yellow
+            };
+
+            graphics.DrawEllipse(pen, cx, cy, 5, 5);
+            graphics.DrawEllipse(pen, x, y, 10, 10);
+        }
 
         return output;
     }
@@ -1042,7 +1033,7 @@ public static class KeyPointSelection
 
     #region HelperFunctions
 
-    private static Image[][] MakeDogImages(ImageS[][] dogOctaves)
+    private static Image[][] MakeDogImages(IReadOnlyList<ImageS[]> dogOctaves)
     {
         var dogOctavesImage = new Image[P][];
 
@@ -1076,24 +1067,20 @@ public static class KeyPointSelection
         var yE = y + (int)(length * Math.Sin(theta));
 
         var penLine = new Pen(Color.FromArgb(255, 0, 200, 255), 1);
-        var penCirlce = new Pen(Color.FromArgb(255, 0, 200, 100), 1);
-        graphics.DrawEllipse(penCirlce, (float)(x - length), (float)(y - length), (float)(2 * length),
+        var penCircle = new Pen(Color.FromArgb(255, 0, 200, 100), 1);
+        graphics.DrawEllipse(penCircle, (float)(x - length), (float)(y - length), (float)(2 * length),
             (float)(2 * length));
         graphics.DrawLine(penLine, x, y, xE, yE);
     }
 
-    public static (int, int) GetTransformedCoordinate(Matrix<double> transformMatrix, int x, int y)
+    private static (int, int) GetTransformedCoordinate(Matrix<double> transformMatrix, int x, int y)
     {
-        var vector = Matrix<double>.Build.DenseOfArray(new double[,]
-        {
-            { x },
-            { y },
-            { 1 }
-        });
+        var vector = Vector<double>.Build.DenseOfArray(new double[] { x, y, 1 });
 
-        var transformedVector = transformMatrix.Inverse() * vector;
+        var transformedVector = transformMatrix * vector;
+        var homogenizedVector = 1 / transformedVector[2] * transformedVector;
 
-        return ((int)transformedVector[0, 0], (int)transformedVector[1, 0]);
+        return ((int)Math.Round(homogenizedVector[0]), (int)Math.Round(homogenizedVector[1]));
     }
 
     /// <summary>

@@ -172,7 +172,6 @@ public partial class Form1 : Form
                 //SetInputImage(ReferenceImage);
                 //return KeyPointSelection.DrawBoundingBox(ReferenceImage.ToSingleChannel(), input);
             case ModeType.SIFT:
-                KeyPointSelection.GetSiftDominantOrientation(new SIFT.Image(input));
                 return Test(input);
             default:
                 return input.ToBitmap();
