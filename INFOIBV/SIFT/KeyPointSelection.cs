@@ -26,7 +26,7 @@ public static class KeyPointSelection
     private const int n_Smooth = 2;
     private const double reMax = 10.0;
     private const double t_DomOr = 0.8;
-    private const double t_Mag = 15.0; //0.01 <- lager wordt nooit gehaald 
+    private const double t_Mag = 18.0; //0.01 <- lager wordt nooit gehaald 
     private const double t_Peak = 11.0; //0.01 <- lager wordt nooit gehaald
 
     // Feature descriptor
@@ -936,9 +936,6 @@ public static class KeyPointSelection
         var width = input.GetLength(0);
         var height = input.GetLength(1);
 
-        //preprocessing
-        //TODO: Add preprocessing logic
-
         var keyDescriptors = GetSiftFeatures(new(input));
 
         var output = input.ToBitmap();
@@ -972,15 +969,12 @@ public static class KeyPointSelection
         var topMatches = GetTopMatches(matches, 4);
     }
 
-    public static (Bitmap, Bitmap) DrawMatchFeatures(byte[,] inputReference, byte[,] input)
+    public static (Bitmap, Bitmap) DrawMatchFeatures(byte[,] inputReference, byte[,] input, byte[,] processedInputReference, byte[,] processedInput)
     {
         var amount = 4; //The amount of matches we want to check
 
-        //preprocessing
-        //TODO: Add preprocessing logic
-
-        var keyDescriptorsReference = GetSiftFeatures(new(inputReference));
-        var keyDescriptors = GetSiftFeatures(new(input));
+        var keyDescriptorsReference = GetSiftFeatures(new(processedInputReference));
+        var keyDescriptors = GetSiftFeatures(new(processedInput));
 
         //Test the matching with the same image.
         var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptors);
@@ -1017,10 +1011,10 @@ public static class KeyPointSelection
         return (outputReference, output);
     }
 
-    public static Bitmap DrawBoundingBox(byte[,] referenceImage, byte[,] input)
+    public static Bitmap DrawBoundingBox(byte[,] processedReferenceImage, byte[,] processedInput, byte[,] input)
     {
-        var keyDescriptorsReference = GetSiftFeatures(new(referenceImage));
-        var keyDescriptors = GetSiftFeatures(new(input));
+        var keyDescriptorsReference = GetSiftFeatures(new(processedReferenceImage));
+        var keyDescriptors = GetSiftFeatures(new(processedInput));
 
         var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptors);
 
@@ -1035,6 +1029,7 @@ public static class KeyPointSelection
         var output = input.ToBitmap();
         var penLine = new Pen(Color.FromArgb(255, 255, 0, 0), 1);
         using var graphics = Graphics.FromImage(output);
+
         graphics.DrawLine(penLine, corner1X, corner1Y, corner2X, corner2Y);
         graphics.DrawLine(penLine, corner1X, corner1Y, corner3X, corner3Y);
         graphics.DrawLine(penLine, corner4X, corner4Y, corner2X, corner2Y);

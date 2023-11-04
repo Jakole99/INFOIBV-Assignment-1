@@ -165,12 +165,12 @@ public partial class Form1 : Form
                 SetInputImage(KeyPointSelection.DrawFeatures(ReferenceImage.ToSingleChannel()));
                 return KeyPointSelection.DrawFeatures(input);
             case ModeType.SiftTopKeyPointMatches:
-                var (outputReference, output) = KeyPointSelection.DrawMatchFeatures(ReferenceImage.ToSingleChannel(), input);
-                SetInputImage(outputReference);
-                return output;
+                //var (outputReference, output) = KeyPointSelection.DrawMatchFeatures(ReferenceImage.ToSingleChannel(), input);
+                //SetInputImage(outputReference);
+                //return output;
             case ModeType.SiftDrawBorder:
-                SetInputImage(ReferenceImage);
-                return KeyPointSelection.DrawBoundingBox(ReferenceImage.ToSingleChannel(), input);
+                //SetInputImage(ReferenceImage);
+                //return KeyPointSelection.DrawBoundingBox(ReferenceImage.ToSingleChannel(), input);
             case ModeType.SIFT:
                 KeyPointSelection.GetSiftDominantOrientation(new SIFT.Image(input));
                 return Test(input);
@@ -184,7 +184,7 @@ public partial class Form1 : Form
     private Bitmap Test(byte[,] input)
     {
         SetInputImage(ReferenceImage);
-        return KeyPointSelection.DrawBoundingBox(ReferenceImage.ToSingleChannel(), input);
+        return null; //KeyPointSelection.DrawBoundingBox(ReferenceImage.ToSingleChannel(), input);
     }
 
     private static void SiftDoG(byte[,] input, bool visualize)

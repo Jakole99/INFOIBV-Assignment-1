@@ -7,7 +7,8 @@ namespace INFOIBV
 {
     public partial class FormImageProcessing1 : Form
     {
-        private Bitmap ReferenceImage { get; init; }
+        private Bitmap ReferenceImage { get; set; }
+        private Bitmap InputImage { get; set; }
         public FormImageProcessing1()
         {
             InitializeComponent();
@@ -15,7 +16,7 @@ namespace INFOIBV
             // Set combo boxes
             cbMode.DataSource = Enum.GetValues(typeof(SIFTModes));
             cbDetectionImage.DataSource = Enum.GetValues((typeof(DetectionInputs)));
-            ReferenceImage = new Bitmap("Images/TestingImages/UnoReference.jpeg");
+
         }
 
         /// <summary>
@@ -98,7 +99,21 @@ namespace INFOIBV
             imageFileName.Text = file;
 
             SetInputImage(new Bitmap(file));
+            InputImage = new Bitmap(file);
         }
+
+        private void LoadReferenceButton_Click(object sender, EventArgs e)
+        {
+            if (openImageDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            var file = openImageDialog.FileName;
+            ReferenceImageFileName.Text = file;
+
+            SetReferenceImage(new Bitmap(file));
+            ReferenceImage = new Bitmap(file);
+        }
+
 
         /// <summary>
         /// Process when user clicks on the "Apply" button
@@ -111,15 +126,13 @@ namespace INFOIBV
             if (!Enum.TryParse<SIFTModes>(cbMode.SelectedValue?.ToString(), out var mode))
                 return;
 
-            outputImageBoxP1.Image?.Dispose();
-
             applyButton.Enabled = false;
 
             var singleChannel = inputImageBox.Image.ToSingleChannel();
-
+            
             var histogram = new Histogram(singleChannel);
 
-            outputImageBoxP1.Image = GetShowOptions(singleChannel, histogram, mode);
+            SetOutputImage(singleChannel, mode);
 
             filterLabel.Text =
                 $"{histogram.UniqueCount} Unique values | {histogram.NonBackgroundCount} Number of non background values";
@@ -127,41 +140,42 @@ namespace INFOIBV
             applyButton.Enabled = true;
         }
 
-        private Bitmap GetShowOptions(byte[,] input, Histogram histogram, SIFTModes mode)
+        private void SetOutputImage(byte[,] input, SIFTModes mode)
         {
             switch (mode)
             {
                 case SIFTModes.SiftDog:
                     SiftDoG(input, true);
-                    return input.ToBitmap();
+                    break;
                 case SIFTModes.SiftFeatures:
-                    return KeyPointSelection.DrawFeatures(input);
+                    outputImageBox.Visible = true;
+                    outputImageBox.Image = KeyPointSelection.DrawFeatures(input);
+                    break;
                 case SIFTModes.SiftFeaturesBoth:
-                    SetInputImage(KeyPointSelection.DrawFeatures(ReferenceImage.ToSingleChannel()));
-                    return KeyPointSelection.DrawFeatures(input);
+                    outputImageBox.Visible = false;
+                    outputImageBoxP1.Image = KeyPointSelection.DrawFeatures(inputImageBox.Image.ToSingleChannel());
+                    outputImageBoxP2.Image = KeyPointSelection.DrawFeatures(inputReferenceImageBox.Image.ToSingleChannel());
+                    break;
                 case SIFTModes.SiftTopKeyPointMatches:
-                    var (outputReference, output) = KeyPointSelection.DrawMatchFeatures(ReferenceImage.ToSingleChannel(), input);
-                    SetInputImage(outputReference);
-                    return output;
+                    if (inputReferenceImageBox.Image == null)
+                        break;
+                    var (outputReference, output) = KeyPointSelection.DrawMatchFeatures(
+                        ReferenceImage.ToSingleChannel(), InputImage.ToSingleChannel(),
+                        inputReferenceImageBox.Image.ToSingleChannel(), inputImageBox.Image.ToSingleChannel());
+                    outputImageBox.Visible = false;
+                    SetOutputImageP1(output);
+                    SetOutputImageP2(outputReference);
+                    break;
                 case SIFTModes.SiftDrawBorder:
-                    SetInputImage(ReferenceImage);
-                    return KeyPointSelection.DrawBoundingBox(ReferenceImage.ToSingleChannel(), input);
-                case SIFTModes.SIFT:
-                    KeyPointSelection.GetSiftDominantOrientation(new SIFT.Image(input));
-                    return Test(input);
-                default:
-                    return input.ToBitmap();
+                    if (inputReferenceImageBox.Image == null)
+                        break;
+                    outputImageBox.Visible = true;
+                    SetOutputImage(KeyPointSelection.DrawBoundingBox(inputReferenceImageBox.Image.ToSingleChannel(), inputImageBox.Image.ToSingleChannel(), InputImage.ToSingleChannel()));
+                    break;
             }
         }
 
         #region Tests
-
-        private Bitmap Test(byte[,] input)
-        {
-            SetInputImage(ReferenceImage);
-            return KeyPointSelection.DrawBoundingBox(ReferenceImage.ToSingleChannel(), input);
-        }
-
         private static void SiftDoG(byte[,] input, bool visualize)
         {
             if (!visualize)
@@ -210,36 +224,47 @@ namespace INFOIBV
                     break;
                 case DetectionInputs.ReferenceImage:
                     SetInputImage(new Bitmap("Images/TestingImages/UnoReference.jpeg"));
+                    InputImage = new Bitmap("Images/TestingImages/UnoReference.jpeg");
                     break;
                 case DetectionInputs.Image1:
                     SetInputImage(new Bitmap("Images/TestingImages/Test1.jpeg"));
+                    InputImage = new Bitmap("Images/TestingImages/Test1.jpeg");
                     break;
                 case DetectionInputs.Image2:
                     SetInputImage(new Bitmap("Images/TestingImages/Test2.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Test2.jpg");
                     break;
                 case DetectionInputs.Image3:
                     SetInputImage(new Bitmap("Images/TestingImages/Test3.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Test3.jpg");
                     break;
                 case DetectionInputs.Image4:
                     SetInputImage(new Bitmap("Images/TestingImages/Test4.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Test4.jpg");
                     break;
                 case DetectionInputs.Image5:
                     SetInputImage(new Bitmap("Images/TestingImages/Test5.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Test5.jpg");
                     break;
                 case DetectionInputs.Image6:
                     SetInputImage(new Bitmap("Images/TestingImages/Test6.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Test6.jpg");
                     break;
                 case DetectionInputs.Image7:
                     SetInputImage(new Bitmap("Images/TestingImages/Test7.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Test7.jpg");
                     break;
                 case DetectionInputs.Image8:
                     SetInputImage(new Bitmap("Images/TestingImages/Test8.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Test8.jpg");
                     break;
                 case DetectionInputs.Image9:
                     SetInputImage(new Bitmap("Images/TestingImages/Test9.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Test9.jpg");
                     break;
                 case DetectionInputs.Image10:
                     SetInputImage(new Bitmap("Images/TestingImages/Test10.jpg"));
+                    InputImage = new Bitmap("Images/TestingImages/Test10.jpg");
                     break;
             }
         }
@@ -257,6 +282,27 @@ namespace INFOIBV
 
             SetInputImage(preProcessForm.processedImageBox.Image);
 
+        }
+
+        private void preprocessRefButton_Click(object sender, EventArgs e)
+        {
+            if (inputReferenceImageBox.Image == null)
+                return;
+
+            var preProcessForm = new FormPreprocessing(inputReferenceImageBox.Image);
+            preProcessForm.ShowDialog();
+
+            if (preProcessForm.processedImageBox.Image == null)
+                return;
+
+            SetReferenceImage(preProcessForm.processedImageBox.Image);
+
+        }
+
+        private void loadUnoButton_Click(object sender, EventArgs e)
+        {
+            SetReferenceImage(new Bitmap("Images/TestingImages/UnoReference.jpeg"));
+            ReferenceImage = new Bitmap("Images/TestingImages/UnoReference.jpeg");
         }
     }
 }

@@ -50,6 +50,11 @@
             outputImageBoxP2 = new PictureBox();
             outputImageBox = new PictureBox();
             outputLabel = new Label();
+            ReferenceImageFileName = new TextBox();
+            LoadReferenceButton = new Button();
+            preprocessRefButton = new Button();
+            label1 = new Label();
+            loadUnoButton = new Button();
             ((System.ComponentModel.ISupportInitialize)inputImageBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)outputImageBoxP1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)inputReferenceImageBox).BeginInit();
@@ -128,7 +133,7 @@
             outputImageBoxP1.Margin = new Padding(4, 5, 4, 5);
             outputImageBoxP1.Name = "outputImageBoxP1";
             outputImageBoxP1.Size = new Size(486, 386);
-            outputImageBoxP1.SizeMode = PictureBoxSizeMode.CenterImage;
+            outputImageBoxP1.SizeMode = PictureBoxSizeMode.Zoom;
             outputImageBoxP1.TabIndex = 5;
             outputImageBoxP1.TabStop = false;
             // 
@@ -175,7 +180,6 @@
             // 
             // button1
             // 
-            button1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             button1.Location = new Point(385, 62);
             button1.Margin = new Padding(4, 5, 4, 5);
             button1.Name = "button1";
@@ -199,7 +203,7 @@
             // 
             filterLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             filterLabel.BackColor = Color.Transparent;
-            filterLabel.Location = new Point(574, 905);
+            filterLabel.Location = new Point(574, 941);
             filterLabel.Name = "filterLabel";
             filterLabel.Size = new Size(398, 25);
             filterLabel.TabIndex = 14;
@@ -208,6 +212,7 @@
             // 
             // inputReferenceImageBox
             // 
+            inputReferenceImageBox.Anchor = AnchorStyles.Top;
             inputReferenceImageBox.Location = new Point(530, 107);
             inputReferenceImageBox.Margin = new Padding(4, 5, 4, 5);
             inputReferenceImageBox.Name = "inputReferenceImageBox";
@@ -218,19 +223,20 @@
             // 
             // inputLabel
             // 
-            inputLabel.Location = new Point(16, 108);
+            inputLabel.Location = new Point(213, 905);
             inputLabel.Name = "inputLabel";
             inputLabel.Size = new Size(54, 29);
             inputLabel.TabIndex = 27;
-            inputLabel.Text = "Input:";
+            inputLabel.Text = "Input";
             // 
             // referenceLabel
             // 
-            referenceLabel.Location = new Point(529, 107);
+            referenceLabel.Anchor = AnchorStyles.Top;
+            referenceLabel.Location = new Point(739, 907);
             referenceLabel.Name = "referenceLabel";
             referenceLabel.Size = new Size(85, 29);
             referenceLabel.TabIndex = 28;
-            referenceLabel.Text = "Reference:";
+            referenceLabel.Text = "Reference";
             // 
             // outputImageBoxP2
             // 
@@ -239,33 +245,96 @@
             outputImageBoxP2.Margin = new Padding(4, 5, 4, 5);
             outputImageBoxP2.Name = "outputImageBoxP2";
             outputImageBoxP2.Size = new Size(486, 386);
-            outputImageBoxP2.SizeMode = PictureBoxSizeMode.CenterImage;
+            outputImageBoxP2.SizeMode = PictureBoxSizeMode.Zoom;
             outputImageBoxP2.TabIndex = 30;
             outputImageBoxP2.TabStop = false;
             // 
             // outputImageBox
             // 
-            outputImageBox.Location = new Point(1044, 108);
+            outputImageBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            outputImageBox.Location = new Point(1044, 107);
             outputImageBox.Margin = new Padding(4, 5, 4, 5);
             outputImageBox.Name = "outputImageBox";
-            outputImageBox.Size = new Size(506, 788);
+            outputImageBox.Size = new Size(498, 788);
             outputImageBox.SizeMode = PictureBoxSizeMode.CenterImage;
             outputImageBox.TabIndex = 31;
             outputImageBox.TabStop = false;
             // 
             // outputLabel
             // 
-            outputLabel.Location = new Point(1043, 107);
+            outputLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            outputLabel.Location = new Point(1287, 907);
             outputLabel.Name = "outputLabel";
-            outputLabel.Size = new Size(85, 29);
+            outputLabel.Size = new Size(58, 29);
             outputLabel.TabIndex = 32;
-            outputLabel.Text = "Output:";
+            outputLabel.Text = "Output";
+            // 
+            // ReferenceImageFileName
+            // 
+            ReferenceImageFileName.Anchor = AnchorStyles.Top;
+            ReferenceImageFileName.Location = new Point(751, 27);
+            ReferenceImageFileName.Margin = new Padding(4, 5, 4, 5);
+            ReferenceImageFileName.Name = "ReferenceImageFileName";
+            ReferenceImageFileName.ReadOnly = true;
+            ReferenceImageFileName.Size = new Size(283, 27);
+            ReferenceImageFileName.TabIndex = 34;
+            // 
+            // LoadReferenceButton
+            // 
+            LoadReferenceButton.Anchor = AnchorStyles.Top;
+            LoadReferenceButton.Location = new Point(534, 22);
+            LoadReferenceButton.Margin = new Padding(4, 5, 4, 5);
+            LoadReferenceButton.Name = "LoadReferenceButton";
+            LoadReferenceButton.Size = new Size(209, 35);
+            LoadReferenceButton.TabIndex = 33;
+            LoadReferenceButton.Text = "Load Reference image...";
+            LoadReferenceButton.UseVisualStyleBackColor = true;
+            LoadReferenceButton.Click += LoadReferenceButton_Click;
+            // 
+            // preprocessRefButton
+            // 
+            preprocessRefButton.Anchor = AnchorStyles.Top;
+            preprocessRefButton.Location = new Point(897, 62);
+            preprocessRefButton.Margin = new Padding(4, 5, 4, 5);
+            preprocessRefButton.Name = "preprocessRefButton";
+            preprocessRefButton.Size = new Size(137, 35);
+            preprocessRefButton.TabIndex = 35;
+            preprocessRefButton.Text = "Preprocess Image";
+            preprocessRefButton.UseVisualStyleBackColor = true;
+            preprocessRefButton.Click += preprocessRefButton_Click;
+            // 
+            // label1
+            // 
+            label1.Anchor = AnchorStyles.Top;
+            label1.AutoSize = true;
+            label1.Location = new Point(534, 72);
+            label1.Name = "label1";
+            label1.Size = new Size(86, 20);
+            label1.TabIndex = 36;
+            label1.Text = "Quick Load:";
+            // 
+            // loadUnoButton
+            // 
+            loadUnoButton.Anchor = AnchorStyles.Top;
+            loadUnoButton.Location = new Point(627, 64);
+            loadUnoButton.Margin = new Padding(4, 5, 4, 5);
+            loadUnoButton.Name = "loadUnoButton";
+            loadUnoButton.Size = new Size(137, 35);
+            loadUnoButton.TabIndex = 37;
+            loadUnoButton.Text = "Uno";
+            loadUnoButton.UseVisualStyleBackColor = true;
+            loadUnoButton.Click += loadUnoButton_Click;
             // 
             // FormImageProcessing1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1543, 942);
+            ClientSize = new Size(1543, 993);
+            Controls.Add(loadUnoButton);
+            Controls.Add(label1);
+            Controls.Add(preprocessRefButton);
+            Controls.Add(ReferenceImageFileName);
+            Controls.Add(LoadReferenceButton);
             Controls.Add(outputLabel);
             Controls.Add(outputImageBox);
             Controls.Add(outputImageBoxP2);
@@ -326,5 +395,10 @@
         private PictureBox outputImageBoxP2;
         private PictureBox outputImageBox;
 
+        private TextBox ReferenceImageFileName;
+        private Button LoadReferenceButton;
+        private Button preprocessRefButton;
+        private Label label1;
+        private Button loadUnoButton;
     }
 }
