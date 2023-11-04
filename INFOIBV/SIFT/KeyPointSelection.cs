@@ -220,11 +220,6 @@ public static class KeyPointSelection
 
     private static Image ApplyGaussian(Image input, double width)
     {
-        var size = (int)width;
-
-        if (size % 2 == 0)
-            size++;
-
         var filter = new FilterCollection().AddGaussian(9, (float)width);
         return new(filter.Process(input.Bytes));
     }
@@ -366,7 +361,7 @@ public static class KeyPointSelection
     {
         var (p, q, u, v) = k;
 
-        if (q is < 1 or > Q + 1) ////////
+        if (q is < 1 or > Q + 1)
             return false;
 
         var layer = dogSpace[p][q].Ints;
@@ -994,13 +989,15 @@ public static class KeyPointSelection
         var matches = MatchDescriptors(keyDescriptorsReference, keyDescriptors);
 
         var topMatches = GetTopMatches(matches, 4);
+
+        if (topMatches.Count < 4)
+            return input.ToBitmap();
+
+
         var transformMatrix = GetTransformMatrix(topMatches);
 
-
-        // Drawing
         var width = processedReferenceImage.GetLength(0);
         var height = processedReferenceImage.GetLength(1);
-
         var corners = new (int x, int y)[]
         {
             (0, 0),
@@ -1011,39 +1008,15 @@ public static class KeyPointSelection
 
         var output = input.ToBitmap();
         var red = new Pen(Color.FromArgb(255, 255, 0, 0), 3);
-        var green = new Pen(Color.FromArgb(255, 0, 255, 0), 3);
-        var blue = new Pen(Color.FromArgb(255, 0, 0, 255), 3);
-        var yellow = new Pen(Color.FromArgb(255, 255, 255, 0), 3);
         using var graphics = Graphics.FromImage(output);
 
-        foreach (var VARIABLE in corners)
+        for (var i = 1; i < 4; i++)
         {
-            
-        }
-
-        graphics.DrawLine(red, corners[0].x, corners[0].y, corners[1].x, corners[1].y);
-        graphics.DrawLine(red, corners[1].x, corners[1].y, corners[2].x, corners[2].y);
-        graphics.DrawLine(red, corners[2].x, corners[2].y, corners[3].x, corners[3].y);
-        graphics.DrawLine(red, corners[3].x, corners[3].y, corners[0].x, corners[0].y);
-
-
-        return output;
-
-        for (var i = 0; i < 4; i++)
-        {
-            var (cx, cy) = corners[i];
-            var (x, y) = GetTransformedCoordinate(transformMatrix, cx, cy);
-
-            var pen = i switch
-            {
-                0 => red,
-                1 => green,
-                2 => blue,
-                _ => yellow
-            };
-
-            graphics.DrawEllipse(pen, cx, cy, 5, 5);
-            graphics.DrawEllipse(pen, x, y, 10, 10);
+            var (cx0, cy0) = corners[i - 1];
+            var (cx1, cy1) = corners[i];
+            var (x0, y0) = GetTransformedCoordinate(transformMatrix, cx0, cy0);
+            var (x1, y1) = GetTransformedCoordinate(transformMatrix, cx1, cy1);
+            graphics.DrawLine(red, x0, y0, x1, y1);
         }
 
         return output;
