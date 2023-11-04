@@ -35,7 +35,7 @@ public static class KeyPointSelection
     private const double t_Fclip = 0.2;
 
     // Feature matching
-    private const double rmMax = 0.8; // was 0.8
+    private const double rmMax = 0.8;
 
     // ReSharper restore IdentifierTypo
     // ReSharper restore InconsistentNaming
@@ -220,7 +220,6 @@ public static class KeyPointSelection
 
     private static Image ApplyGaussian(Image input, double width)
     {
-        // TODO: Variable kernel size formula?
         var filter = new FilterCollection().AddGaussian(9, (float)width);
         return new(filter.Process(input.Bytes));
     }
@@ -992,14 +991,16 @@ public static class KeyPointSelection
         var topMatches = GetTopMatches(matches, 4);
         var transformMatrix = GetTransformMatrix(topMatches);
 
-        // Works till this point
+        // Drawing
+        var width = processedReferenceImage.GetLength(0);
+        var height = processedReferenceImage.GetLength(1);
 
         var corners = new (int x, int y)[]
         {
             (0, 0),
-            (0, 200),
-            (200, 200),
-            (200, 0),
+            (0, height),
+            (width, height),
+            (width, 0)
         };
 
         var output = input.ToBitmap();
