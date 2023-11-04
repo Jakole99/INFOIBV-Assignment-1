@@ -10,9 +10,23 @@ namespace INFOIBV.SIFT
         public FormPreprocessing(System.Drawing.Image value)
         {
             InitializeComponent();
-            _initialImage = value;
-            processedImageBox.Image = value;
+
+            GrayScale(value);
             dilationStructure.DataSource = Enum.GetValues(typeof(StructureType));
+            erosionStructure.DataSource = Enum.GetValues(typeof(StructureType)); 
+            openingStructure.DataSource = Enum.GetValues(typeof(StructureType));
+            closingStructure.DataSource = Enum.GetValues(typeof(StructureType));
+            resetButton.Enabled = false;
+        }
+
+        private void GrayScale(System.Drawing.Image value)
+        {
+            var filter = new FilterCollection().AddProcess(new FilterCollection("GrayScale"));
+            var processedImage = filter.Process(value);
+
+            SetProcessedImage(processedImage.ToBitmap());
+            _initialImage = new Bitmap(value);
+            _initialImage = processedImage.ToBitmap();
         }
 
         /// <summary>
@@ -107,7 +121,40 @@ namespace INFOIBV.SIFT
         {
             DisableButtons();
             var structureElement = dilationStructure.SelectedItem as StructureType? ?? StructureType.Plus;
-            var filter = new FilterCollection().AddDilationFilter(structureElement, (int)dilationUpDown.Value);
+            var filter = new FilterCollection().AddDilationFilter(structureElement, (int)dilationUpDown.Value, dilationBinary.Checked);
+            var processedImage = filter.Process(processedImageBox.Image);
+
+            SetProcessedImage(processedImage.ToBitmap());
+            EnableButtons();
+        }
+
+        private void erosionButton_Click(object sender, EventArgs e)
+        {
+            DisableButtons();
+            var structureElement = erosionStructure.SelectedItem as StructureType? ?? StructureType.Plus;
+            var filter = new FilterCollection().AddErosionFilter(structureElement, (int)erosionUpDown.Value, erosionBinary.Checked);
+            var processedImage = filter.Process(processedImageBox.Image);
+
+            SetProcessedImage(processedImage.ToBitmap());
+            EnableButtons();
+        }
+
+        private void openingButton_Click(object sender, EventArgs e)
+        {
+            DisableButtons();
+            var structureElement = openingStructure.SelectedItem as StructureType? ?? StructureType.Plus;
+            var filter = new FilterCollection().AddOpeningFilter(structureElement, (int)openingUpDown.Value, openingBinary.Checked);
+            var processedImage = filter.Process(processedImageBox.Image);
+
+            SetProcessedImage(processedImage.ToBitmap());
+            EnableButtons();
+        }
+
+        private void closingButton_Click(object sender, EventArgs e)
+        {
+            DisableButtons();
+            var structureElement = closingStructure.SelectedItem as StructureType? ?? StructureType.Plus;
+            var filter = new FilterCollection().AddClosingFilter(structureElement, (int)closingUpDown.Value, closingBinary.Checked);
             var processedImage = filter.Process(processedImageBox.Image);
 
             SetProcessedImage(processedImage.ToBitmap());
@@ -115,14 +162,39 @@ namespace INFOIBV.SIFT
         }
 
 
+
         private void DisableButtons()
         {
-
+            resetButton.Enabled = false;
+            continueButton.Enabled = false;
+            contrastButton.Enabled = false;
+            dilationButton.Enabled = false;
+            edgeButton.Enabled = false;
+            gaussianButton.Enabled = false;
+            histogramButton.Enabled = false;
+            invertButton.Enabled = false;
+            threshButton.Enabled = false;
+            medianButton.Enabled = false;
+            erosionButton.Enabled = false;
+            openingButton.Enabled = false;
+            closingButton.Enabled = false;
         }
 
         private void EnableButtons()
         {
-
+            resetButton.Enabled = true;
+            continueButton.Enabled = true;
+            contrastButton.Enabled = true;
+            dilationButton.Enabled = true;
+            edgeButton.Enabled = true;
+            gaussianButton.Enabled = true;
+            histogramButton.Enabled = true;
+            invertButton.Enabled = true;
+            threshButton.Enabled = true;
+            medianButton.Enabled = true;
+            erosionButton.Enabled = true;
+            openingButton.Enabled = true;
+            closingButton.Enabled = true;
         }
 
         private void continueButton_Click(object sender, EventArgs e)
@@ -132,7 +204,11 @@ namespace INFOIBV.SIFT
 
         private void resetButton_Click(object sender, EventArgs e)
         {
-            SetProcessedImage(_initialImage);
+            var value = _initialImage;
+            var filter = new FilterCollection().AddProcess(new FilterCollection("GrayScale"));
+            var processedImage = filter.Process(value);
+            SetProcessedImage(processedImage.ToBitmap());
+            resetButton.Enabled = false;
         }
 
         private void gaussianSize_ValueChanged(object sender, EventArgs e)
@@ -149,6 +225,12 @@ namespace INFOIBV.SIFT
         {
             if (gaussianSize.Value % 2 == 0) gaussianSize.Value += 1;
         }
+
+        private void erosionUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            if (gaussianSize.Value % 2 == 0) gaussianSize.Value += 1;
+        }
+
 
 
 

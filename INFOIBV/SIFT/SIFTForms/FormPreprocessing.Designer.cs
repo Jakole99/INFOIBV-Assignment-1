@@ -38,10 +38,9 @@
             threshButton = new Button();
             gaussianButton = new Button();
             dilationButton = new Button();
-            button4 = new Button();
-            button5 = new Button();
-            button6 = new Button();
-            button7 = new Button();
+            erosionButton = new Button();
+            openingButton = new Button();
+            closingButton = new Button();
             thresholdUpDown = new NumericUpDown();
             gaussianSize = new NumericUpDown();
             gaussianUpDown = new NumericUpDown();
@@ -53,12 +52,24 @@
             label3 = new Label();
             label1 = new Label();
             label2 = new Label();
+            erosionStructure = new ComboBox();
+            erosionUpDown = new NumericUpDown();
+            erosionBinary = new CheckBox();
+            openingStructure = new ComboBox();
+            openingUpDown = new NumericUpDown();
+            openingBinary = new CheckBox();
+            closingStructure = new ComboBox();
+            closingUpDown = new NumericUpDown();
+            closingBinary = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)processedImageBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)thresholdUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gaussianSize).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gaussianUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dilationUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)medianUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)erosionUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)openingUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)closingUpDown).BeginInit();
             SuspendLayout();
             // 
             // processedImageBox
@@ -179,49 +190,41 @@
             dilationButton.UseVisualStyleBackColor = true;
             dilationButton.Click += dilationButton_Click;
             // 
-            // button4
+            // erosionButton
             // 
-            button4.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            button4.Location = new Point(730, 515);
-            button4.Margin = new Padding(4, 5, 4, 5);
-            button4.Name = "button4";
-            button4.Size = new Size(137, 35);
-            button4.TabIndex = 13;
-            button4.Text = "Histogram Eq";
-            button4.UseVisualStyleBackColor = true;
+            erosionButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            erosionButton.Location = new Point(730, 515);
+            erosionButton.Margin = new Padding(4, 5, 4, 5);
+            erosionButton.Name = "erosionButton";
+            erosionButton.Size = new Size(137, 35);
+            erosionButton.TabIndex = 13;
+            erosionButton.Text = "Erosion";
+            erosionButton.UseVisualStyleBackColor = true;
+            erosionButton.Click += erosionButton_Click;
             // 
-            // button5
+            // openingButton
             // 
-            button5.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            button5.Location = new Point(730, 560);
-            button5.Margin = new Padding(4, 5, 4, 5);
-            button5.Name = "button5";
-            button5.Size = new Size(137, 35);
-            button5.TabIndex = 14;
-            button5.Text = "Histogram Eq";
-            button5.UseVisualStyleBackColor = true;
+            openingButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            openingButton.Location = new Point(730, 560);
+            openingButton.Margin = new Padding(4, 5, 4, 5);
+            openingButton.Name = "openingButton";
+            openingButton.Size = new Size(137, 35);
+            openingButton.TabIndex = 14;
+            openingButton.Text = "Opening";
+            openingButton.UseVisualStyleBackColor = true;
+            openingButton.Click += openingButton_Click;
             // 
-            // button6
+            // closingButton
             // 
-            button6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            button6.Location = new Point(730, 605);
-            button6.Margin = new Padding(4, 5, 4, 5);
-            button6.Name = "button6";
-            button6.Size = new Size(137, 35);
-            button6.TabIndex = 15;
-            button6.Text = "Histogram Eq";
-            button6.UseVisualStyleBackColor = true;
-            // 
-            // button7
-            // 
-            button7.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            button7.Location = new Point(730, 650);
-            button7.Margin = new Padding(4, 5, 4, 5);
-            button7.Name = "button7";
-            button7.Size = new Size(137, 35);
-            button7.TabIndex = 16;
-            button7.Text = "Histogram Eq";
-            button7.UseVisualStyleBackColor = true;
+            closingButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            closingButton.Location = new Point(730, 605);
+            closingButton.Margin = new Padding(4, 5, 4, 5);
+            closingButton.Name = "closingButton";
+            closingButton.Size = new Size(137, 35);
+            closingButton.TabIndex = 15;
+            closingButton.Text = "Closing";
+            closingButton.UseVisualStyleBackColor = true;
+            closingButton.Click += closingButton_Click;
             // 
             // thresholdUpDown
             // 
@@ -342,11 +345,120 @@
             label2.Text = "Size:";
             label2.TextAlign = ContentAlignment.TopRight;
             // 
+            // erosionStructure
+            // 
+            erosionStructure.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            erosionStructure.DropDownStyle = ComboBoxStyle.DropDownList;
+            erosionStructure.FormattingEnabled = true;
+            erosionStructure.Location = new Point(889, 519);
+            erosionStructure.Name = "erosionStructure";
+            erosionStructure.Size = new Size(59, 28);
+            erosionStructure.TabIndex = 32;
+            // 
+            // erosionUpDown
+            // 
+            erosionUpDown.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            erosionUpDown.Increment = new decimal(new int[] { 2, 0, 0, 0 });
+            erosionUpDown.Location = new Point(969, 519);
+            erosionUpDown.Maximum = new decimal(new int[] { 99, 0, 0, 0 });
+            erosionUpDown.Minimum = new decimal(new int[] { 3, 0, 0, 0 });
+            erosionUpDown.Name = "erosionUpDown";
+            erosionUpDown.Size = new Size(57, 27);
+            erosionUpDown.TabIndex = 33;
+            erosionUpDown.Value = new decimal(new int[] { 3, 0, 0, 0 });
+            erosionUpDown.ValueChanged += erosionUpDown_ValueChanged;
+            // 
+            // erosionBinary
+            // 
+            erosionBinary.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            erosionBinary.AutoSize = true;
+            erosionBinary.Location = new Point(1043, 521);
+            erosionBinary.Name = "erosionBinary";
+            erosionBinary.Size = new Size(72, 24);
+            erosionBinary.TabIndex = 34;
+            erosionBinary.Text = "Binary";
+            erosionBinary.UseVisualStyleBackColor = true;
+            // 
+            // openingStructure
+            // 
+            openingStructure.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            openingStructure.DropDownStyle = ComboBoxStyle.DropDownList;
+            openingStructure.FormattingEnabled = true;
+            openingStructure.Location = new Point(889, 564);
+            openingStructure.Name = "openingStructure";
+            openingStructure.Size = new Size(59, 28);
+            openingStructure.TabIndex = 35;
+            // 
+            // openingUpDown
+            // 
+            openingUpDown.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            openingUpDown.Increment = new decimal(new int[] { 2, 0, 0, 0 });
+            openingUpDown.Location = new Point(969, 564);
+            openingUpDown.Maximum = new decimal(new int[] { 99, 0, 0, 0 });
+            openingUpDown.Minimum = new decimal(new int[] { 3, 0, 0, 0 });
+            openingUpDown.Name = "openingUpDown";
+            openingUpDown.Size = new Size(57, 27);
+            openingUpDown.TabIndex = 36;
+            openingUpDown.Value = new decimal(new int[] { 3, 0, 0, 0 });
+            // 
+            // openingBinary
+            // 
+            openingBinary.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            openingBinary.AutoSize = true;
+            openingBinary.Location = new Point(1043, 565);
+            openingBinary.Name = "openingBinary";
+            openingBinary.Size = new Size(72, 24);
+            openingBinary.TabIndex = 37;
+            openingBinary.Text = "Binary";
+            openingBinary.UseVisualStyleBackColor = true;
+            // 
+            // closingStructure
+            // 
+            closingStructure.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            closingStructure.DropDownStyle = ComboBoxStyle.DropDownList;
+            closingStructure.FormattingEnabled = true;
+            closingStructure.Location = new Point(889, 609);
+            closingStructure.Name = "closingStructure";
+            closingStructure.Size = new Size(59, 28);
+            closingStructure.TabIndex = 38;
+            // 
+            // closingUpDown
+            // 
+            closingUpDown.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            closingUpDown.Increment = new decimal(new int[] { 2, 0, 0, 0 });
+            closingUpDown.Location = new Point(969, 609);
+            closingUpDown.Maximum = new decimal(new int[] { 99, 0, 0, 0 });
+            closingUpDown.Minimum = new decimal(new int[] { 3, 0, 0, 0 });
+            closingUpDown.Name = "closingUpDown";
+            closingUpDown.Size = new Size(57, 27);
+            closingUpDown.TabIndex = 39;
+            closingUpDown.Value = new decimal(new int[] { 3, 0, 0, 0 });
+            // 
+            // closingBinary
+            // 
+            closingBinary.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            closingBinary.AutoSize = true;
+            closingBinary.Location = new Point(1043, 609);
+            closingBinary.Name = "closingBinary";
+            closingBinary.Size = new Size(72, 24);
+            closingBinary.TabIndex = 40;
+            closingBinary.Text = "Binary";
+            closingBinary.UseVisualStyleBackColor = true;
+            // 
             // FormPreprocessing
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1116, 862);
+            Controls.Add(closingBinary);
+            Controls.Add(closingUpDown);
+            Controls.Add(closingStructure);
+            Controls.Add(openingBinary);
+            Controls.Add(openingUpDown);
+            Controls.Add(openingStructure);
+            Controls.Add(erosionBinary);
+            Controls.Add(erosionUpDown);
+            Controls.Add(erosionStructure);
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(label3);
@@ -358,10 +470,9 @@
             Controls.Add(gaussianUpDown);
             Controls.Add(gaussianSize);
             Controls.Add(thresholdUpDown);
-            Controls.Add(button7);
-            Controls.Add(button6);
-            Controls.Add(button5);
-            Controls.Add(button4);
+            Controls.Add(closingButton);
+            Controls.Add(openingButton);
+            Controls.Add(erosionButton);
             Controls.Add(dilationButton);
             Controls.Add(gaussianButton);
             Controls.Add(threshButton);
@@ -380,6 +491,9 @@
             ((System.ComponentModel.ISupportInitialize)gaussianUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)dilationUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)medianUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)erosionUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)openingUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)closingUpDown).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -396,10 +510,9 @@
         private Button threshButton;
         private Button gaussianButton;
         private Button dilationButton;
-        private Button button4;
-        private Button button5;
-        private Button button6;
-        private Button button7;
+        private Button erosionButton;
+        private Button openingButton;
+        private Button closingButton;
         private NumericUpDown thresholdUpDown;
         private NumericUpDown gaussianSize;
         private NumericUpDown gaussianUpDown;
@@ -411,5 +524,14 @@
         private Label label3;
         private Label label1;
         private Label label2;
+        private ComboBox erosionStructure;
+        private NumericUpDown erosionUpDown;
+        private CheckBox erosionBinary;
+        private ComboBox openingStructure;
+        private NumericUpDown openingUpDown;
+        private CheckBox openingBinary;
+        private ComboBox closingStructure;
+        private NumericUpDown closingUpDown;
+        private CheckBox closingBinary;
     }
 }

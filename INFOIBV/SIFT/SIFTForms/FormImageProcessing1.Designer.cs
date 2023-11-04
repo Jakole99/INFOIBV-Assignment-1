@@ -36,15 +36,24 @@
             applyButton = new Button();
             saveImageDialog = new SaveFileDialog();
             saveButton = new Button();
-            outputImageBox = new PictureBox();
-            progressBar = new ProgressBar();
-            filterLabel = new Label();
+            outputImageBoxP1 = new PictureBox();
             cbMode = new ComboBox();
             label2 = new Label();
             cbDetectionImage = new ComboBox();
             label4 = new Label();
             button1 = new Button();
+            progressBar = new ProgressBar();
+            filterLabel = new Label();
+            inputReferenceImageBox = new PictureBox();
+            inputLabel = new Label();
+            referenceLabel = new Label();
+            outputImageBoxP2 = new PictureBox();
+            outputImageBox = new PictureBox();
+            outputLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)inputImageBox).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)outputImageBoxP1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)inputReferenceImageBox).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)outputImageBoxP2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)outputImageBox).BeginInit();
             SuspendLayout();
             // 
@@ -70,7 +79,7 @@
             imageFileName.Margin = new Padding(4, 5, 4, 5);
             imageFileName.Name = "imageFileName";
             imageFileName.ReadOnly = true;
-            imageFileName.Size = new Size(538, 27);
+            imageFileName.Size = new Size(361, 27);
             imageFileName.TabIndex = 1;
             // 
             // inputImageBox
@@ -78,7 +87,7 @@
             inputImageBox.Location = new Point(16, 108);
             inputImageBox.Margin = new Padding(4, 5, 4, 5);
             inputImageBox.Name = "inputImageBox";
-            inputImageBox.Size = new Size(683, 788);
+            inputImageBox.Size = new Size(506, 788);
             inputImageBox.SizeMode = PictureBoxSizeMode.CenterImage;
             inputImageBox.TabIndex = 2;
             inputImageBox.TabStop = false;
@@ -86,7 +95,7 @@
             // applyButton
             // 
             applyButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            applyButton.Location = new Point(1248, 58);
+            applyButton.Location = new Point(1389, 62);
             applyButton.Margin = new Padding(4, 5, 4, 5);
             applyButton.Name = "applyButton";
             applyButton.Size = new Size(137, 35);
@@ -112,44 +121,23 @@
             saveButton.UseVisualStyleBackColor = true;
             saveButton.Click += SaveButton_Click;
             // 
-            // outputImageBox
+            // outputImageBoxP1
             // 
-            outputImageBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            outputImageBox.Location = new Point(847, 108);
-            outputImageBox.Margin = new Padding(4, 5, 4, 5);
-            outputImageBox.Name = "outputImageBox";
-            outputImageBox.Size = new Size(683, 788);
-            outputImageBox.SizeMode = PictureBoxSizeMode.CenterImage;
-            outputImageBox.TabIndex = 5;
-            outputImageBox.TabStop = false;
-            // 
-            // progressBar
-            // 
-            progressBar.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            progressBar.Location = new Point(16, 905);
-            progressBar.Margin = new Padding(4, 5, 4, 5);
-            progressBar.Name = "progressBar";
-            progressBar.Size = new Size(1514, 31);
-            progressBar.TabIndex = 6;
-            progressBar.Visible = false;
-            // 
-            // filterLabel
-            // 
-            filterLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            filterLabel.BackColor = Color.Transparent;
-            filterLabel.Location = new Point(574, 870);
-            filterLabel.Name = "filterLabel";
-            filterLabel.Size = new Size(398, 25);
-            filterLabel.TabIndex = 14;
-            filterLabel.Text = "Pipeline";
-            filterLabel.TextAlign = ContentAlignment.MiddleCenter;
+            outputImageBoxP1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            outputImageBoxP1.Location = new Point(1044, 108);
+            outputImageBoxP1.Margin = new Padding(4, 5, 4, 5);
+            outputImageBoxP1.Name = "outputImageBoxP1";
+            outputImageBoxP1.Size = new Size(486, 386);
+            outputImageBoxP1.SizeMode = PictureBoxSizeMode.CenterImage;
+            outputImageBoxP1.TabIndex = 5;
+            outputImageBoxP1.TabStop = false;
             // 
             // cbMode
             // 
             cbMode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             cbMode.DropDownStyle = ComboBoxStyle.DropDownList;
             cbMode.FormattingEnabled = true;
-            cbMode.Location = new Point(1104, 62);
+            cbMode.Location = new Point(1245, 66);
             cbMode.Margin = new Padding(3, 4, 3, 4);
             cbMode.Name = "cbMode";
             cbMode.Size = new Size(137, 28);
@@ -158,7 +146,7 @@
             // label2
             // 
             label2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label2.Location = new Point(1044, 65);
+            label2.Location = new Point(1185, 69);
             label2.Name = "label2";
             label2.Size = new Size(54, 29);
             label2.TabIndex = 16;
@@ -188,7 +176,7 @@
             // button1
             // 
             button1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            button1.Location = new Point(1248, 22);
+            button1.Location = new Point(385, 62);
             button1.Margin = new Padding(4, 5, 4, 5);
             button1.Name = "button1";
             button1.Size = new Size(137, 35);
@@ -197,11 +185,93 @@
             button1.UseVisualStyleBackColor = true;
             button1.Click += Preprocess_Click;
             // 
+            // progressBar
+            // 
+            progressBar.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            progressBar.Location = new Point(16, 905);
+            progressBar.Margin = new Padding(4, 5, 4, 5);
+            progressBar.Name = "progressBar";
+            progressBar.Size = new Size(1514, 31);
+            progressBar.TabIndex = 6;
+            progressBar.Visible = false;
+            // 
+            // filterLabel
+            // 
+            filterLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            filterLabel.BackColor = Color.Transparent;
+            filterLabel.Location = new Point(574, 905);
+            filterLabel.Name = "filterLabel";
+            filterLabel.Size = new Size(398, 25);
+            filterLabel.TabIndex = 14;
+            filterLabel.Text = "Pipeline";
+            filterLabel.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // inputReferenceImageBox
+            // 
+            inputReferenceImageBox.Location = new Point(530, 107);
+            inputReferenceImageBox.Margin = new Padding(4, 5, 4, 5);
+            inputReferenceImageBox.Name = "inputReferenceImageBox";
+            inputReferenceImageBox.Size = new Size(506, 788);
+            inputReferenceImageBox.SizeMode = PictureBoxSizeMode.CenterImage;
+            inputReferenceImageBox.TabIndex = 26;
+            inputReferenceImageBox.TabStop = false;
+            // 
+            // inputLabel
+            // 
+            inputLabel.Location = new Point(16, 108);
+            inputLabel.Name = "inputLabel";
+            inputLabel.Size = new Size(54, 29);
+            inputLabel.TabIndex = 27;
+            inputLabel.Text = "Input:";
+            // 
+            // referenceLabel
+            // 
+            referenceLabel.Location = new Point(529, 107);
+            referenceLabel.Name = "referenceLabel";
+            referenceLabel.Size = new Size(85, 29);
+            referenceLabel.TabIndex = 28;
+            referenceLabel.Text = "Reference:";
+            // 
+            // outputImageBoxP2
+            // 
+            outputImageBoxP2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            outputImageBoxP2.Location = new Point(1044, 510);
+            outputImageBoxP2.Margin = new Padding(4, 5, 4, 5);
+            outputImageBoxP2.Name = "outputImageBoxP2";
+            outputImageBoxP2.Size = new Size(486, 386);
+            outputImageBoxP2.SizeMode = PictureBoxSizeMode.CenterImage;
+            outputImageBoxP2.TabIndex = 30;
+            outputImageBoxP2.TabStop = false;
+            // 
+            // outputImageBox
+            // 
+            outputImageBox.Location = new Point(1044, 108);
+            outputImageBox.Margin = new Padding(4, 5, 4, 5);
+            outputImageBox.Name = "outputImageBox";
+            outputImageBox.Size = new Size(506, 788);
+            outputImageBox.SizeMode = PictureBoxSizeMode.CenterImage;
+            outputImageBox.TabIndex = 31;
+            outputImageBox.TabStop = false;
+            // 
+            // outputLabel
+            // 
+            outputLabel.Location = new Point(1043, 107);
+            outputLabel.Name = "outputLabel";
+            outputLabel.Size = new Size(85, 29);
+            outputLabel.TabIndex = 32;
+            outputLabel.Text = "Output:";
+            // 
             // FormImageProcessing1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1543, 942);
+            Controls.Add(outputLabel);
+            Controls.Add(outputImageBox);
+            Controls.Add(outputImageBoxP2);
+            Controls.Add(referenceLabel);
+            Controls.Add(inputLabel);
+            Controls.Add(inputReferenceImageBox);
             Controls.Add(button1);
             Controls.Add(label4);
             Controls.Add(cbDetectionImage);
@@ -209,7 +279,7 @@
             Controls.Add(cbMode);
             Controls.Add(filterLabel);
             Controls.Add(progressBar);
-            Controls.Add(outputImageBox);
+            Controls.Add(outputImageBoxP1);
             Controls.Add(saveButton);
             Controls.Add(applyButton);
             Controls.Add(inputImageBox);
@@ -222,6 +292,9 @@
             Text = "INFOIBV";
             WindowState = FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)inputImageBox).EndInit();
+            ((System.ComponentModel.ISupportInitialize)outputImageBoxP1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)inputReferenceImageBox).EndInit();
+            ((System.ComponentModel.ISupportInitialize)outputImageBoxP2).EndInit();
             ((System.ComponentModel.ISupportInitialize)outputImageBox).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -229,8 +302,6 @@
 
         private ComboBox cbMode;
         private Label label2;
-
-        private Label filterLabel;
 
         #endregion
 
@@ -241,10 +312,19 @@
         private Button applyButton;
         private SaveFileDialog saveImageDialog;
         private Button saveButton;
-        private PictureBox outputImageBox;
-        private ProgressBar progressBar;
         private ComboBox cbDetectionImage;
         private Label label4;
         private Button button1;
+        private ProgressBar progressBar;
+        private Label filterLabel;
+        private Label inputLabel;
+        private Label referenceLabel;
+        private Label outputLabel;
+
+        private PictureBox inputReferenceImageBox;
+        private PictureBox outputImageBoxP1;
+        private PictureBox outputImageBoxP2;
+        private PictureBox outputImageBox;
+
     }
 }

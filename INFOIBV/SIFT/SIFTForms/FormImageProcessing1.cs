@@ -35,6 +35,57 @@ namespace INFOIBV
             inputImageBox.Image = value;
         }
 
+        public void SetReferenceImage(System.Drawing.Image value)
+        {
+            if (value.Size.Height <= 0 || value.Size.Width <= 0 ||
+                value.Size.Height > 512 || value.Size.Width > 512)
+            {
+                MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
+                return;
+            }
+
+            inputReferenceImageBox.Image?.Dispose();
+            inputReferenceImageBox.Image = value;
+        }
+
+        public void SetOutputImage(System.Drawing.Image value)
+        {
+            if (value.Size.Height <= 0 || value.Size.Width <= 0 ||
+                value.Size.Height > 512 || value.Size.Width > 512)
+            {
+                MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
+                return;
+            }
+
+            outputImageBox.Image?.Dispose();
+            outputImageBox.Image = value;
+        }
+
+        public void SetOutputImageP1(System.Drawing.Image value)
+        {
+            if (value.Size.Height <= 0 || value.Size.Width <= 0 ||
+                value.Size.Height > 512 || value.Size.Width > 512)
+            {
+                MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
+                return;
+            }
+
+            outputImageBoxP1.Image?.Dispose();
+            outputImageBoxP1.Image = value;
+        }
+        public void SetOutputImageP2(System.Drawing.Image value)
+        {
+            if (value.Size.Height <= 0 || value.Size.Width <= 0 ||
+                value.Size.Height > 512 || value.Size.Width > 512)
+            {
+                MessageBox.Show("Error in image dimensions (have to be > 0 and <= 512)");
+                return;
+            }
+
+            outputImageBoxP2.Image?.Dispose();
+            outputImageBoxP2.Image = value;
+        }
+
         /// <summary>
         /// Process when the user clicks on the "Load" button
         /// </summary>
@@ -60,7 +111,7 @@ namespace INFOIBV
             if (!Enum.TryParse<SIFTModes>(cbMode.SelectedValue?.ToString(), out var mode))
                 return;
 
-            outputImageBox.Image?.Dispose();
+            outputImageBoxP1.Image?.Dispose();
 
             applyButton.Enabled = false;
 
@@ -68,7 +119,7 @@ namespace INFOIBV
 
             var histogram = new Histogram(singleChannel);
 
-            outputImageBox.Image = GetShowOptions(singleChannel, histogram, mode);
+            outputImageBoxP1.Image = GetShowOptions(singleChannel, histogram, mode);
 
             filterLabel.Text =
                 $"{histogram.UniqueCount} Unique values | {histogram.NonBackgroundCount} Number of non background values";
@@ -142,11 +193,11 @@ namespace INFOIBV
         /// </summary>
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            if (outputImageBox.Image == null)
+            if (outputImageBoxP1.Image == null)
                 return;
 
             if (saveImageDialog.ShowDialog() == DialogResult.OK)
-                outputImageBox.Image.Save(saveImageDialog.FileName);
+                outputImageBoxP1.Image.Save(saveImageDialog.FileName);
         }
 
         private void cbDetectionImage_SelectedIndexChanged(object sender, EventArgs e)
@@ -205,7 +256,7 @@ namespace INFOIBV
                 return;
 
             SetInputImage(preProcessForm.processedImageBox.Image);
- 
+
         }
     }
 }
