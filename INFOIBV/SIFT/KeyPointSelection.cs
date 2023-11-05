@@ -134,7 +134,7 @@ public static class KeyPointSelection
     public static ScaleSpace BuildSiftScaleSpace(Image input, bool visualize)
     {
         var gaussianOctaves = new Image[P][];
-        var dogOctaves = new ImageS[P][];
+        var dogOctaves = new SImage[P][];
 
         var initialAbsScale = sigma_0 * Math.Pow(2, (float)-1 / Q);
         var initialRelScale = Math.Sqrt(initialAbsScale * initialAbsScale - sigma_s * sigma_s);
@@ -165,7 +165,7 @@ public static class KeyPointSelection
     {
         public Image[][] GaussianOctaves { get; init; }
 
-        public ImageS[][] DifferenceOfGaussiansOctaves { get; init; }
+        public SImage[][] DifferenceOfGaussiansOctaves { get; init; }
 
         public Image[][]? DifferenceOfGaussiansOctavesByte { get; init; }
     }
@@ -185,9 +185,9 @@ public static class KeyPointSelection
         return gaussians;
     }
 
-    private static ImageS[] MakeDogOctave(Image[] gaussians, int scaleSteps)
+    private static SImage[] MakeDogOctave(Image[] gaussians, int scaleSteps)
     {
-        var dogs = new ImageS[scaleSteps + 2];
+        var dogs = new SImage[scaleSteps + 2];
 
         for (var q = -1; q < scaleSteps + 1; q++)
         {
@@ -250,7 +250,7 @@ public static class KeyPointSelection
         return descriptors;
     }
 
-    private static List<KeyPoint> GetKeyPoints(ImageS[][] dogSpace)
+    private static List<KeyPoint> GetKeyPoints(SImage[][] dogSpace)
     {
         var keyPoints = new List<KeyPoint>();
 
@@ -272,9 +272,9 @@ public static class KeyPointSelection
         return keyPoints;
     }
 
-    private static List<KeyPoint> FindExtrema(ImageS[][] dogSpace, int p, int q)
+    private static List<KeyPoint> FindExtrema(SImage[][] dogSpace, int p, int q)
     {
-        var layer = dogSpace[p][q].Ints;
+        var layer = dogSpace[p][q].Data;
         var m = layer.GetLength(0);
         var n = layer.GetLength(1);
 
@@ -302,7 +302,7 @@ public static class KeyPointSelection
 
     #region Algorithm 7.4
 
-    private static KeyPoint? RefineKeyPosition(ImageS[][] dogSpace, KeyPoint k)
+    private static KeyPoint? RefineKeyPosition(SImage[][] dogSpace, KeyPoint k)
     {
         var maxAlpha = Math.Pow(reMax + 1, 2) / reMax;
         KeyPoint? kPrime = null;
@@ -357,21 +357,21 @@ public static class KeyPointSelection
 
     #region Algorithm 7.5
 
-    private static bool IsInside(ImageS[][] dogSpace, KeyPoint k)
+    private static bool IsInside(SImage[][] dogSpace, KeyPoint k)
     {
         var (p, q, u, v) = k;
 
         if (q is < 1 or > Q + 1)
             return false;
 
-        var layer = dogSpace[p][q].Ints;
+        var layer = dogSpace[p][q].Data;
         var m = layer.GetLength(0);
         var n = layer.GetLength(1);
 
         return 0 < u && u < m - 1 && 0 < v && v < n - 1;
     }
 
-    private static int[,,] GetNeighborHood(ImageS[][] dogSpace, KeyPoint keyPoint)
+    private static int[,,] GetNeighborHood(SImage[][] dogSpace, KeyPoint keyPoint)
     {
         var (p, q, u, v) = keyPoint;
         var neighborhood = new int[3, 3, 3];
@@ -386,7 +386,7 @@ public static class KeyPointSelection
                     var dv = v + j;
                     var dq = q + k;
 
-                    var layer = dogSpace[p][dq].Ints;
+                    var layer = dogSpace[p][dq].Data;
 
                     neighborhood[i + 1, j + 1, k + 1] = layer[du, dv];
                 }
@@ -817,99 +817,8 @@ public static class KeyPointSelection
 
     #endregion
 
-    #region Projective Mapping
-
-    private static Matrix<double> GetUnitProjectionMatrix((int x, int y) p1, (int x, int y) p2, (int x, int y) p3,
-        (int x, int y) p4)
-    {
-        var (x1, y1) = p1;
-        var (x2, y2) = p2;
-        var (x3, y3) = p3;
-        var (x4, y4) = p4;
-
-        // ReSharper disable InlineTemporaryVariable
-        var a31Upper = (x1 - x2 + x3 - x4) * (y4 - y3) - (y1 - y2 + y3 - y4) * (x4 - x3);
-        var a31Lower = (x2 - x3) * (y4 - y3) - (x4 - x3) * (y2 - y3);
-        var a31 = (double)a31Upper / a31Lower;
-
-        var a32Upper = (y1 - y2 + y3 - y4) * (x2 - x3) - (x1 - x2 + x3 - x4) * (y2 - y3);
-        var a32Lower = (x2 - x3) * (y4 - y3) - (x4 - x3) * (y2 - y3);
-        var a32 = (double)a32Upper / a32Lower;
-
-        var a11 = x2 - x1 + a31 * x2;
-        var a12 = x4 - x1 + a32 * x4;
-        var a13 = x1;
-        var a21 = y2 - y1 + a31 * y2;
-        var a22 = y4 - y1 + a32 * y4;
-        var a23 = y1;
-        const int a33 = 1;
-
-        return Matrix<double>.Build.DenseOfArray(new[,]
-        {
-            { a11, a12, a13 },
-            { a21, a22, a23 },
-            { a31, a32, a33 }
-        });
-        // ReSharper restore InlineTemporaryVariable
-    }
-
-    private static Matrix<double> GetTransformMatrix(IReadOnlyList<DescriptorMatch> matches)
-    {
-        var ps = new (int x, int y)[4];
-        var qs = new (int x, int y)[4];
-        for (var i = 0; i < 4; i++)
-        {
-            ps[i] = (matches[i].S1.X, matches[i].S1.Y);
-            qs[i] = (matches[i].S2.X, matches[i].S2.Y);
-        }
-
-        var a1 = GetUnitProjectionMatrix(ps[0], ps[1], ps[2], ps[3]);
-        var a2 = GetUnitProjectionMatrix(qs[0], qs[1], qs[2], qs[3]);
-        return a2 * a1.Inverse();
-    }
-
-    #endregion
 
     #region Testing
-
-    private static List<KeyPoint> GetSiftKeyPoints(Image input)
-    {
-        var scaleSpace = BuildSiftScaleSpace(input, false);
-
-        var keyPoints = GetKeyPoints(scaleSpace.DifferenceOfGaussiansOctaves);
-
-        return keyPoints;
-    }
-
-    public static Bitmap DrawKeypoint(byte[,] input)
-    {
-        var width = input.GetLength(0);
-        var height = input.GetLength(1);
-
-        var keyPoints = GetSiftKeyPoints(new(input));
-
-        var output = input.ToBitmap();
-        var newColor = Color.FromArgb(255, 0, 160);
-
-        foreach (var keyPoint in keyPoints)
-        {
-            var (p, _, xS, yS) = keyPoint;
-
-            //return to normal scale
-            var x = (int)(xS * Math.Pow(2, p));
-            var y = (int)(yS * Math.Pow(2, p));
-
-            if (x < 0 || x >= width)
-                continue;
-
-            if (y < 0 || y >= height)
-                continue;
-
-            output.SetPixel(x, y, newColor);
-        }
-
-        return output;
-    }
 
     public static Bitmap DrawFeatures(byte[,] input)
     {
@@ -931,7 +840,7 @@ public static class KeyPointSelection
             if (y < 0 || y >= height)
                 continue;
 
-            DrawThetaDirection(output, x, y, theta, scale);
+            DrawKeyDescriptor(output, x, y, theta, scale);
             output.SetPixel(x, y, newColor);
         }
 
@@ -981,6 +890,13 @@ public static class KeyPointSelection
         return (outputReference, output);
     }
 
+
+    /// <summary>
+    /// Draw the bounding box of the Uno card around the detected card
+    /// </summary>
+    /// <remarks>
+    /// Does not give you the correct border due to some unforeseen problem
+    /// </remarks>
     public static Bitmap DrawBoundingBox(byte[,] processedReferenceImage, byte[,] processedInput, byte[,] input)
     {
         var keyDescriptorsReference = GetSiftFeatures(new(processedReferenceImage));
@@ -994,7 +910,7 @@ public static class KeyPointSelection
             return input.ToBitmap();
 
 
-        var transformMatrix = GetTransformMatrix(topMatches);
+        var projectionMap = GetProjectionMap(topMatches);
 
         var width = processedReferenceImage.GetLength(0);
         var height = processedReferenceImage.GetLength(1);
@@ -1014,8 +930,8 @@ public static class KeyPointSelection
         {
             var (cx0, cy0) = corners[i - 1];
             var (cx1, cy1) = corners[i];
-            var (x0, y0) = GetTransformedCoordinate(transformMatrix, cx0, cy0);
-            var (x1, y1) = GetTransformedCoordinate(transformMatrix, cx1, cy1);
+            var (x0, y0) = projectionMap.Project(cx0, cy0);
+            var (x1, y1) = projectionMap.Project(cx1, cy1);
             graphics.DrawLine(red, x0, y0, x1, y1);
         }
 
@@ -1026,7 +942,11 @@ public static class KeyPointSelection
 
     #region HelperFunctions
 
-    private static Image[][] MakeDogImages(IReadOnlyList<ImageS[]> dogOctaves)
+
+    /// <summary>
+    /// Converts <see cref="SImage"/> DoG images to <see cref="Image"/>
+    /// </summary>
+    private static Image[][] MakeDogImages(IReadOnlyList<SImage[]> dogOctaves)
     {
         var dogOctavesImage = new Image[P][];
 
@@ -1038,19 +958,25 @@ public static class KeyPointSelection
         return dogOctavesImage;
     }
 
-    private static Image[] MakeDogOctaveImage(ImageS[] dogs, int scaleSteps)
+    /// <summary>
+    /// Creates an array of images from <see cref="SImage"/>
+    /// </summary>
+    private static Image[] MakeDogOctaveImage(IReadOnlyList<SImage> dogs, int scaleSteps)
     {
         var dogsImages = new Image[scaleSteps + 2];
 
         for (var q = 1; q < scaleSteps + 1; q++)
         {
-            dogsImages[q] = new ImageS().Visualize(dogs[q]);
+            dogsImages[q] = SImage.Visualize(dogs[q]);
         }
 
         return dogsImages;
     }
 
-    private static void DrawThetaDirection(Bitmap bitmap, int x, int y, double theta, double scale)
+    /// <summary>
+    /// Draws a key descriptor on an existing <see cref="Bitmap"/>
+    /// </summary>
+    private static void DrawKeyDescriptor(Bitmap bitmap, int x, int y, double theta, double scale)
     {
         // Draw line to screen.
         using var graphics = Graphics.FromImage(bitmap);
@@ -1066,14 +992,20 @@ public static class KeyPointSelection
         graphics.DrawLine(penLine, x, y, xE, yE);
     }
 
-    private static (int, int) GetTransformedCoordinate(Matrix<double> transformMatrix, int x, int y)
+    /// <summary>
+    /// Translate the top four <see cref="DescriptorMatch"/> to a <see cref="ProjectionMap"/>
+    /// </summary>
+    private static ProjectionMap GetProjectionMap(IReadOnlyList<DescriptorMatch> matches)
     {
-        var vector = Vector<double>.Build.DenseOfArray(new double[] { x, y, 1 });
+        var ps = new (int x, int y)[4];
+        var qs = new (int x, int y)[4];
+        for (var i = 0; i < 4; i++)
+        {
+            ps[i] = (matches[i].S1.X, matches[i].S1.Y);
+            qs[i] = (matches[i].S2.X, matches[i].S2.Y);
+        }
 
-        var transformedVector = transformMatrix * vector;
-        var homogenizedVector = 1 / transformedVector[2] * transformedVector;
-
-        return ((int)Math.Round(homogenizedVector[0]), (int)Math.Round(homogenizedVector[1]));
+        return new(ps[0], ps[1], ps[2], ps[3], qs[0], qs[1], qs[2], qs[3]);
     }
 
     /// <summary>
@@ -1087,6 +1019,9 @@ public static class KeyPointSelection
             .Take(amount).ToList();
     }
 
+    /// <summary>
+    /// Cycle through red, green and blue for an amount of times
+    /// </summary>
     private static Color[] GetColors(int amount)
     {
         var colors = new Color[amount];
