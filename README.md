@@ -22,7 +22,9 @@ The pinnacle of our project was the creation of an object detection program. Thi
 # User Interface
 Our program boasts an intuitive user interface that allows for easy manipulation and application of different preprocessing techniques. Users can load images, select processing methods, and visualize the effects in real-time.
 
+![Object Detection Program](Object%20Detection%20Program.png)
 
 # Object Detection Workflow
 The object detection workflow consists of loading a target and a reference image, applying preprocessing techniques, and then employing SIFT to detect the object.
 
+![Preprocessing](Preprocessing.png)
